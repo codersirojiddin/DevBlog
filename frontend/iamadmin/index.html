@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevBlog — Admin</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="../index.html" class="nav-brand">Dev<span>Blog</span></a>
+            <ul>
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../articles/index.html">Articles</a></li>
+                <li><a href="../news/index.html">News</a></li>
+                <li><a href="../code/index.html">Code</a></li>
+                <li><a href="../about/index.html">About</a></li>
+                <li><a href="../contact/index.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- LOGIN GATE -->
+    <div class="page-wrapper" id="login-screen">
+        <div class="login-box">
+            <div class="login-box__header">
+                <span class="login-lock">&#9632;</span>
+                <h1>Admin Access</h1>
+                <p>Enter your password to continue</p>
+            </div>
+            <div class="form-row">
+                <label for="password-input">Password</label>
+                <input type="password" id="password-input" autocomplete="current-password" placeholder="••••••••">
+            </div>
+            <p id="login-error" class="status status--error" hidden>Incorrect password.</p>
+            <button class="btn" id="login-btn">Enter</button>
+        </div>
+    </div>
+
+    <!-- ADMIN PANEL -->
+    <div class="page-wrapper" id="admin-screen" hidden>
+        <div class="admin-topbar">
+            <div class="page-header" style="margin-bottom:0; border-bottom:none;">
+                <h1>Admin Panel</h1>
+            </div>
+            <button class="btn btn--secondary" id="logout-btn">Logout</button>
+        </div>
+
+        <div class="admin-layout">
+            <!-- FORM -->
+            <section class="panel">
+                <h2 class="panel-title">New Post</h2>
+                <form id="post-form" novalidate>
+                    <div class="form-row">
+                        <label for="post-title">Title</label>
+                        <input id="post-title" name="title" type="text" placeholder="Post title..." required>
+                    </div>
+                    <div class="form-row">
+                        <label for="post-type">Type</label>
+                        <select id="post-type" name="type" required>
+                            <option value="article">Article</option>
+                            <option value="news">News</option>
+                            <option value="code">Code</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label for="post-content">Content</label>
+                        <textarea id="post-content" name="content" placeholder="Write your post..." required></textarea>
+                    </div>
+                    <div class="checkbox-row">
+                        <input id="post-highlighted" name="highlighted" type="checkbox">
+                        <label for="post-highlighted">Feature on home page</label>
+                    </div>
+                    <div class="form-actions">
+                        <button id="submit-btn" class="btn" type="submit">Publish Post</button>
+                        <button id="cancel-edit" class="btn btn--secondary" type="button" hidden>Cancel</button>
+                    </div>
+                    <p id="form-status" class="status"></p>
+                </form>
+            </section>
+
+            <!-- POST LIST -->
+            <section class="panel">
+                <h2 class="panel-title">All Posts <span id="admin-count" class="post-count"></span></h2>
+                <div id="admin-post-list" class="admin-post-list">
+                    <div class="loading-state"><div class="spinner"></div> Loading...</div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="../posts/supabase.js"></script>
+    <script src="../posts/posts.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>

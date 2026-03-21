@@ -1,0 +1,258 @@
+/* ── Login ── */
+.login-box {
+    max-width: 400px;
+    margin: 60px auto;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--accent);
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.login-box__header {
+    text-align: center;
+}
+
+.login-lock {
+    display: block;
+    font-size: 1.5rem;
+    color: var(--accent);
+    margin-bottom: 12px;
+}
+
+.login-box__header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 900;
+    margin-bottom: 6px;
+}
+
+.login-box__header p {
+    font-size: 0.88rem;
+    color: var(--ink3);
+    font-family: 'IBM Plex Mono', monospace;
+}
+
+/* ── Admin topbar ── */
+.admin-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+/* ── Admin layout ── */
+.admin-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+@media (max-width: 800px) {
+    .admin-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+.panel {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    padding: 28px;
+}
+
+.panel-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ── Form elements ── */
+.form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.form-row label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink2);
+}
+
+.form-row input,
+.form-row select,
+.form-row textarea {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.95rem;
+    color: var(--ink);
+    background: var(--white);
+    border: 1px solid var(--border);
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+}
+
+.form-row input:focus,
+.form-row select:focus,
+.form-row textarea:focus {
+    border-color: var(--accent);
+}
+
+.form-row textarea {
+    min-height: 160px;
+    resize: vertical;
+    line-height: 1.6;
+}
+
+.checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.checkbox-row input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+.checkbox-row label {
+    font-size: 0.9rem;
+    color: var(--ink2);
+    cursor: pointer;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* ── Buttons ── */
+.btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    border: 1px solid var(--ink);
+    background: var(--ink);
+    color: var(--white);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.btn:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn--secondary {
+    background: transparent;
+    color: var(--ink);
+    border-color: var(--border);
+}
+
+.btn--secondary:hover {
+    background: var(--bg2);
+    border-color: var(--ink2);
+    color: var(--ink);
+}
+
+.btn--danger {
+    background: transparent;
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+.btn--danger:hover {
+    background: var(--accent);
+    color: var(--white);
+}
+
+/* ── Status messages ── */
+.status {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    margin-top: 10px;
+    min-height: 20px;
+    color: #2e7d32;
+}
+
+.status--error {
+    color: var(--accent);
+}
+
+.status--ok {
+    color: #2e7d32;
+}
+
+/* ── Admin post list ── */
+.admin-post-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.admin-post-card {
+    border: 1px solid var(--border);
+    padding: 16px;
+    background: var(--bg);
+    transition: border-color 0.15s;
+}
+
+.admin-post-card:hover {
+    border-color: var(--ink2);
+}
+
+.admin-post-card__heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.admin-post-card__heading h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.admin-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+.admin-actions .btn {
+    padding: 6px 14px;
+    font-size: 0.72rem;
+}
