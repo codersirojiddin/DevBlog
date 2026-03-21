@@ -48,15 +48,33 @@
 /* ── Admin layout ── */
 .admin-layout {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(320px, 50%) minmax(320px, 50%);
     gap: 24px;
     align-items: start;
+    width: 100%;
 }
 
 @media (max-width: 800px) {
     .admin-layout {
-        grid-template-columns: 1fr;
+        display: block;
     }
+
+    .admin-layout .panel {
+        width: 100%;
+        margin-bottom: 18px;
+    }
+}
+
+.admin-post-list {
+    max-height: 66vh;
+    min-height: 200px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.admin-post-card .post-preview {
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
 }
 
 .panel {
