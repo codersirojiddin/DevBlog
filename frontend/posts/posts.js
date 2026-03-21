@@ -110,7 +110,7 @@
         return "Code";
     }
 
-    function getPreview(text, lines = 3) {
+    function getPreview(text, lines = 1) {
         return text.split("\n").slice(0, lines).join("\n");
     }
 
@@ -126,12 +126,15 @@
         }
 
         posts.forEach((post) => {
-            const preview = getPreview(post.content, 3);
-            const hasMore = post.content.split("\n").length > 3 || post.content.length > preview.length;
+            const preview = getPreview(post.content, 1);
+            const hasMore = post.content.split("\n").length > 1 || post.content.length > preview.length;
 
             const card = document.createElement("article");
             card.className = "post-card";
             card.dataset.id = post.id;
+            if (hasMore) {
+                card.style.cursor = "pointer";
+            }
 
             card.innerHTML = `
                 <div class="post-card__heading">
@@ -147,20 +150,16 @@
                 </div>
                 <div class="post-footer">
                     <span class="post-meta">${formatDate(post.updated_at || post.created_at)}</span>
-                    ${hasMore ? `<button class="read-more-btn" aria-expanded="false">Read more</button>` : ""}
                 </div>
             `;
 
-            const btn = card.querySelector(".read-more-btn");
-            if (btn) {
-                btn.addEventListener("click", () => {
+            if (hasMore) {
+                card.addEventListener("click", () => {
                     const full = card.querySelector(".post-full");
                     const preview = card.querySelector(".post-preview");
-                    const expanded = btn.getAttribute("aria-expanded") === "true";
-                    full.hidden = expanded;
-                    preview.hidden = !expanded;
-                    btn.textContent = expanded ? "Read more" : "Read less";
-                    btn.setAttribute("aria-expanded", String(!expanded));
+                    const expanded = full.hidden;
+                    full.hidden = !expanded;
+                    preview.hidden = expanded;
                 });
             }
 

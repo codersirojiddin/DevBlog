@@ -197,6 +197,7 @@ nav ul li a.active {
     line-height: 1.6;
     white-space: pre-wrap;
     margin-bottom: 16px;
+    overflow-wrap: break-word;
 }
 
 .post-full {

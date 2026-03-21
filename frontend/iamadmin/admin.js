@@ -160,7 +160,7 @@ async function renderAdminPosts() {
                     </div>
                     <span class="post-meta">${window.DevBlogPosts.formatDate(post.updated_at || post.created_at)}</span>
                 </div>
-                <p class="post-preview">${escapeHtml(post.content.split("\n").slice(0, 2).join("\n"))}...</p>
+                <p class="post-preview">${escapeHtml(post.content.split("\n").slice(0, 1).join("\n"))}...</p>
                 <div class="admin-actions">
                     <button class="btn" data-action="edit" data-id="${post.id}">Edit</button>
                     <button class="btn btn--secondary" data-action="toggle" data-id="${post.id}">
