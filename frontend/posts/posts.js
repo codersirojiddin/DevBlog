@@ -110,8 +110,35 @@
         return "Code";
     }
 
-    function getPreview(text, lines = 1) {
+    function getPreview(text, lines = 3) {
         return text.split("\n").slice(0, lines).join("\n");
+    }
+
+    function openPostModal(post) {
+        if (!post) return;
+        const existing = document.querySelector(".post-modal");
+        if (existing) existing.remove();
+
+        const modal = document.createElement("div");
+        modal.className = "post-modal";
+        modal.innerHTML = `
+            <div class="post-modal__content" role="dialog" aria-modal="true" aria-label="Full post">
+                <button class="post-modal__close" aria-label="Close full post">×</button>
+                <h2>${escapeHtml(post.title)}</h2>
+                <div class="post-meta">${window.DevBlogPosts.toLabel(post.type)} • ${window.DevBlogPosts.formatDate(post.updated_at || post.created_at)}</div>
+                <p class="post-content">${escapeHtml(post.content)}</p>
+            </div>
+        `;
+
+        modal.addEventListener("click", (e) => {
+            if (e.target === modal) modal.remove();
+        });
+
+        modal.querySelector(".post-modal__close").addEventListener("click", () => {
+            modal.remove();
+        });
+
+        document.body.appendChild(modal);
     }
 
     function renderPosts(container, posts, options = {}) {
@@ -132,9 +159,7 @@
             const card = document.createElement("article");
             card.className = "post-card";
             card.dataset.id = post.id;
-            if (hasMore) {
-                card.style.cursor = "pointer";
-            }
+            card.style.cursor = "pointer";
 
             card.innerHTML = `
                 <div class="post-card__heading">
@@ -145,23 +170,14 @@
                     </div>
                 </div>
                 <p class="post-preview">${escapeHtml(preview)}${hasMore ? "..." : ""}</p>
-                <div class="post-full" hidden>
-                    <p class="post-content">${escapeHtml(post.content)}</p>
-                </div>
                 <div class="post-footer">
                     <span class="post-meta">${formatDate(post.updated_at || post.created_at)}</span>
                 </div>
             `;
 
-            if (hasMore) {
-                card.addEventListener("click", () => {
-                    const full = card.querySelector(".post-full");
-                    const preview = card.querySelector(".post-preview");
-                    const expanded = full.hidden;
-                    full.hidden = !expanded;
-                    preview.hidden = expanded;
-                });
-            }
+            card.addEventListener("click", () => {
+                openPostModal(post);
+            });
 
             container.appendChild(card);
         });
