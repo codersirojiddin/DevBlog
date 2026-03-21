@@ -48,22 +48,46 @@
 /* ── Admin layout ── */
 .admin-layout {
     display: grid;
-    grid-template-columns: minmax(320px, 50%) minmax(320px, 50%);
+    grid-template-columns: minmax(360px, 45%) minmax(360px, 55%);
     gap: 24px;
     align-items: start;
     width: 100%;
+    min-height: 60vh;
 }
 
-@media (max-width: 800px) {
+.admin-layout > section {
+    min-width: 0;
+}
+
+@media (max-width: 1000px) {
     .admin-layout {
-        display: block;
+        grid-template-columns: 1fr;
     }
 
-    .admin-layout .panel {
+    .admin-layout > section {
         width: 100%;
         margin-bottom: 18px;
     }
 }
+
+.admin-post-list {
+    max-height: 70vh;
+    min-height: 220px;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+.admin-post-card {
+    word-break: break-word;
+}
+
+.admin-post-card .post-preview {
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    max-height: 5.8em;
+    overflow: hidden;
+}
+
 
 .admin-post-list {
     max-height: 66vh;

@@ -99,11 +99,34 @@ nav ul li a.active {
 
 /* ── Page wrapper ── */
 .page-wrapper {
-    width: 95%;
+    width: min(1100px, 100%);
     max-width: 1100px;
+    margin: 0 auto;
     flex: 1;
-    padding: 40px 0 60px;
+    padding: 40px 20px 60px;
 }
+
+body {
+    min-width: 320px;
+}
+
+.posts-grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.post-card {
+    word-break: break-word;
+}
+
+.post-preview {
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    max-height: 4.6em;
+    overflow: hidden;
+}
+
 
 /* ── Page header ── */
 .page-header {
