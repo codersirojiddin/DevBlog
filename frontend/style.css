@@ -1,11 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap');
 
 :root {
-    --bg: #f0f4f8;
-    --bg2: #e8eef4;
-    --ink: #1f2937;
-    --ink2: #334155;
-    --ink3: #475569;
+    --bg: #f8fafc;
+    --bg2: #f1f5f9;
+    --ink: #0a0a0a;
+    --ink2: #0a0a0a;
+    --ink3: #334155;
     --accent: #2563eb;
     --accent2: #0ea5e9;
     --white: #ffffff;
@@ -40,6 +40,7 @@ header {
     background-color: var(--bg2);
     border-bottom: 3px solid var(--accent);
     padding: 0 5%;
+    color: #000;
 }
 
 nav {
@@ -77,7 +78,7 @@ nav ul {
 }
 
 nav ul li a {
-    color: var(--ink2);
+    color: #000;
     text-decoration: none;
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.78rem;
@@ -216,7 +217,7 @@ body {
 
 .post-preview {
     font-size: 0.95rem;
-    color: var(--ink2);
+    color: #000;
     line-height: 1.6;
     white-space: pre-wrap;
     margin-bottom: 16px;
