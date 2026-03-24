@@ -37,7 +37,6 @@ body {
 /* ── Header ── */
 header {
     width: 100%;
-    background: var(--ink);
     border-bottom: 3px solid var(--accent);
     padding: 0 5%;
 }
