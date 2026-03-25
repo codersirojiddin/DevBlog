@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DevBlog — News</title>
+    <title>DevBlog — Personal Thoughts</title>
     <link rel="stylesheet" href="../style.css">
 </head>
 <body>
@@ -13,9 +13,9 @@
             <ul>
                 <li><a href="../index.html">Home</a></li>
                 <li><a href="../articles/index.html">Articles</a></li>
-                <li><a href="index.html" class="active">News</a></li>
+                <li><a href="../news/index.html">News</a></li>
                 <li><a href="../code/index.html">Code</a></li>
-                <li><a href="../mythoughts/index.html">Personal Thoughts</a></li>
+                <li><a href="index.html" class="active">Personal Thoughts</a></li>
                 <li><a href="../about/index.html">About</a></li>
                 <li><a href="../contact/index.html">Contact</a></li>
             </ul>
@@ -24,11 +24,11 @@
 
     <div class="page-wrapper">
         <div class="page-header">
-            <h1>News</h1>
+            <h1>Personal Thoughts</h1>
             <span class="post-count" id="post-count"></span>
         </div>
         <div class="posts-grid" id="posts-container">
-            <div class="loading-state"><div class="spinner"></div> Loading news...</div>
+            <div class="loading-state"><div class="spinner"></div> Loading personal thoughts...</div>
         </div>
     </div>
 
@@ -39,11 +39,11 @@
             const container = document.getElementById("posts-container");
             const countEl = document.getElementById("post-count");
             try {
-                const posts = await window.DevBlogPosts.getPosts({ type: "news" });
-                countEl.textContent = posts.length ? `${posts.length} item${posts.length !== 1 ? "s" : ""}` : "";
-                window.DevBlogPosts.renderPosts(container, posts, { emptyText: "No news yet.", showType: false });
+                const posts = await window.DevBlogPosts.getPosts({ type: "thought" });
+                countEl.textContent = posts.length ? `${posts.length} thought${posts.length !== 1 ? "s" : ""}` : "";
+                window.DevBlogPosts.renderPosts(container, posts, { emptyText: "No personal thoughts yet.", showType: false });
             } catch (e) {
-                container.innerHTML = `<p class="empty-state">Could not load news. Check your connection.</p>`;
+                container.innerHTML = `<p class="empty-state">Could not load personal thoughts. Check your connection.</p>`;
             }
         });
     </script>
