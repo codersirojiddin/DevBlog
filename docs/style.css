@@ -383,6 +383,46 @@ body {
     color: var(--ink);
 }
 
+/* ── Social Links ── */
+.social-links {
+    margin-top: 40px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+}
+
+.social-links h2 {
+    margin-bottom: 20px;
+}
+
+.social-icons {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+}
+
+.social-icons a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    color: var(--ink);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    background: var(--white);
+    font-size: 1.5rem;
+}
+
+.social-icons a:hover {
+    background: var(--accent);
+    color: var(--white);
+    border-color: var(--accent);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(37, 99, 235, 0.2);
+}
+
 /* ── Responsive ── */
 @media (max-width: 700px) {
     nav {
