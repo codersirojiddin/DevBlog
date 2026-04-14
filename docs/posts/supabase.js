@@ -28,12 +28,16 @@ async function supabaseFetch(path, options = {}) {
         ...options.headers
     };
     const res = await fetch(url, { ...options, headers });
+    const text = await res.text();
     if (!res.ok) {
-        const err = await res.text();
-        throw new Error(err || `Request failed: ${res.status}`);
+        throw new Error(text || `Request failed: ${res.status}`);
     }
-    if (res.status === 204) return null;
-    return res.json();
+    if (res.status === 204 || !text.trim()) return null;
+    try {
+        return JSON.parse(text);
+    } catch (err) {
+        return text;
+    }
 }
 
 // ── Auth fetch ────────────────────────────────────────────────────────────────
