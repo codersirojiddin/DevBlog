@@ -58,7 +58,9 @@
     <script src="../posts/user-menu.js"></script>
     <script>
         const user = window.SupabaseClient.getCurrentUser();
-        if (!user) window.location.href = "../login/index.html";
+        if (!user) {
+            window.location.href = "../login/index.html";
+        }
 
         document.addEventListener("DOMContentLoaded", () => {
             initializeUserMenu();
@@ -70,22 +72,25 @@
             const content = document.getElementById("post-content").value.trim();
             const status = document.getElementById("publish-status");
 
-            if (!title) { status.textContent = "Title is required."; status.className = "status status--error"; return; }
-            if (!content) { status.textContent = "Content is required."; status.className = "status status--error"; return; }
+            if (!title) {
+                status.textContent = "Title is required.";
+                status.className = "status status--error";
+                return;
+            }
+            if (!content) {
+                status.textContent = "Content is required.";
+                status.className = "status status--error";
+                return;
+            }
 
             document.getElementById("publish-btn").disabled = true;
             status.textContent = "Publishing...";
             status.className = "status";
 
             try {
-                if (window.SupabaseClient.ensureProfile) {
-                    await window.SupabaseClient.ensureProfile(user, { username: user.email.split("@")[0] });
-                } else {
-                    await window.SupabaseClient.supabaseFetch("profiles", {
-                        method: "POST",
-                        body: JSON.stringify({ id: user.id, username: user.email.split("@")[0], bio: "", avatar_url: "" })
-                    });
-                }
+                const defaultUsername = user?.email?.split("@")[0] || "guest";
+                await window.SupabaseClient.ensureProfile(user, { username: defaultUsername });
+
                 const now = new Date().toISOString();
                 await window.SupabaseClient.supabaseFetch("community_posts", {
                     method: "POST",
@@ -96,7 +101,7 @@
                 status.className = "status status--ok";
                 setTimeout(() => window.location.href = "../community/index.html", 800);
             } catch (err) {
-                status.textContent = err.message;
+                status.textContent = (err && err.message) ? err.message : "Unable to publish post.";
                 status.className = "status status--error";
                 document.getElementById("publish-btn").disabled = false;
             }

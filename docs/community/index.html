@@ -80,6 +80,7 @@
                     card.className = "post-card";
                     card.style.cursor = "pointer";
                     const preview = post.content.split("\n")[0];
+                    const isOwner = String(user?.id) === String(post.user_id);
                     card.innerHTML = `
                         <div class="post-card__heading">
                             <h3 class="post-card__title">${escapeHtml(post.title)}</h3>
@@ -90,8 +91,39 @@
                             <span class="post-meta">${window.DevBlogPosts.formatDate(post.created_at)}</span>
                             <span class="post-author">by <a href="../profile/index.html?id=${post.user_id}">${escapeHtml(profile?.username || "Unknown")}</a></span>
                         </div>
+                        ${isOwner ? `
+                            <div class="post-card__actions">
+                                <button class="btn btn--secondary btn--small" data-action="edit" data-id="${post.id}">Edit</button>
+                                <button class="btn btn--danger btn--small" data-action="delete" data-id="${post.id}">Delete</button>
+                            </div>
+                        ` : ""}
                     `;
-                    card.addEventListener("click", (e) => {
+                    card.addEventListener("click", async (e) => {
+                        const actionBtn = e.target.closest("button[data-action]");
+                        if (actionBtn) {
+                            e.stopPropagation();
+                            const action = actionBtn.dataset.action;
+                            const postId = actionBtn.dataset.id;
+
+                            if (action === "edit") {
+                                window.location.href = `../publish/index.html?id=${postId}`;
+                                return;
+                            }
+
+                            if (action === "delete") {
+                                if (!confirm("Delete this post? This cannot be undone.")) return;
+                                try {
+                                    await window.SupabaseClient.deleteCommunityPost(postId);
+                                    card.remove();
+                                    if (!container.querySelector(".post-card")) {
+                                        container.innerHTML = `<p class="empty-state">No community posts yet. <a href="../login/index.html">Sign in</a> to be the first!</p>`;
+                                    }
+                                } catch (err) {
+                                    alert(`Delete failed: ${err.message}`);
+                                }
+                                return;
+                            }
+                        }
                         if (e.target.tagName === "A") return;
                         window.DevBlogPosts.openPostModal(post);
                     });

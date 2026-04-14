@@ -379,6 +379,18 @@ nav ul li a.active {
     background: #dc2626;
 }
 
+.btn--small {
+    padding: 8px 14px;
+    font-size: 0.85rem;
+}
+
+.post-card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 18px;
+}
+
 .posts-grid {
     display: grid;
     gap: 22px;

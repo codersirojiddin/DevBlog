@@ -92,6 +92,37 @@ async function ensureProfile(user, options = {}) {
     return body;
 }
 
+async function getCommunityPost(id) {
+    if (!id) throw new Error("Post id is required.");
+    const data = await supabaseFetch(`community_posts?id=eq.${encodeURIComponent(id)}`, { method: "GET" });
+    return Array.isArray(data) ? data[0] : null;
+}
+
+async function updateCommunityPost(id, input) {
+    if (!id) throw new Error("Post id is required.");
+    const payload = {
+        title: input.title,
+        type: input.type,
+        content: input.content,
+        updated_at: new Date().toISOString()
+    };
+    const result = await supabaseFetch(`community_posts?id=eq.${encodeURIComponent(id)}`, {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+        prefer: "return=representation"
+    });
+    return Array.isArray(result) ? result[0] : result;
+}
+
+async function deleteCommunityPost(id) {
+    if (!id) throw new Error("Post id is required.");
+    await supabaseFetch(`community_posts?id=eq.${encodeURIComponent(id)}`, {
+        method: "DELETE",
+        prefer: "return=minimal"
+    });
+    return true;
+}
+
 window.SupabaseClient = window.SupabaseClient || {};
 Object.assign(window.SupabaseClient, {
     supabaseFetch,
@@ -100,5 +131,8 @@ Object.assign(window.SupabaseClient, {
     signOut,
     getCurrentUser,
     getSession,
-    ensureProfile
+    ensureProfile,
+    getCommunityPost,
+    updateCommunityPost,
+    deleteCommunityPost
 });
