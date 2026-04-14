@@ -9,7 +9,7 @@
 <body>
     <header>
         <nav>
-            <a href="../index.html" class="nav-brand">Ither</a>
+            <a href="../index.html" class="nav-brand">Dev<span>Blog</span></a>
             <ul>
                 <li><a href="../index.html">Home</a></li>
                 <li><a href="../articles/index.html">Articles</a></li>
@@ -78,6 +78,7 @@
             status.className = "status";
 
             try {
+                await window.SupabaseClient.ensureProfile(user, { username: user.email.split("@")[0] });
                 const now = new Date().toISOString();
                 await window.SupabaseClient.supabaseFetch("community_posts", {
                     method: "POST",

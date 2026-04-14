@@ -72,11 +72,28 @@ function getCurrentUser() {
     return getSession()?.user || null;
 }
 
+async function ensureProfile(user, options = {}) {
+    if (!user || !user.id) {
+        throw new Error("Unable to verify profile without a signed-in user.");
+    }
+
+    const existing = await supabaseFetch(`profiles?id=eq.${user.id}`, { method: "GET" });
+    if (Array.isArray(existing) && existing.length > 0) {
+        return existing[0];
+    }
+
+    const username = options.username || user.email?.split("@")[0] || "user";
+    const body = { id: user.id, username, bio: "", avatar_url: "" };
+    await supabaseFetch("profiles", { method: "POST", body: JSON.stringify(body) });
+    return body;
+}
+
 window.SupabaseClient = {
     supabaseFetch,
     signUp,
     signIn,
     signOut,
     getCurrentUser,
-    getSession
+    getSession,
+    ensureProfile
 };

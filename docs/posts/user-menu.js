@@ -6,8 +6,17 @@ function initializeUserMenu() {
     if (!navRight) return;
 
     const currentPath = window.location.pathname;
-    const parts = currentPath.split("/").filter(Boolean);
-    const basePrefix = parts.length > 1 ? "../".repeat(parts.length - 1) : "";
+    const pathParts = currentPath.replace(/^\//, "").replace(/\/$/, "").split("/").filter(Boolean);
+    let basePrefix = "";
+
+    if (pathParts.length > 0) {
+        const hasFile = pathParts[pathParts.length - 1].includes(".");
+        if (currentPath.endsWith("/")) {
+            basePrefix = "../".repeat(pathParts.length);
+        } else {
+            basePrefix = "../".repeat(hasFile ? pathParts.length - 1 : pathParts.length);
+        }
+    }
 
     if (user) {
         navRight.innerHTML = `

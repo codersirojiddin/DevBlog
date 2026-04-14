@@ -9,7 +9,7 @@
 <body>
     <header>
         <nav>
-            <a href="../index.html" class="nav-brand">Ither</a>
+            <a href="../index.html" class="nav-brand">Dev<span>Blog</span></a>
             <ul>
                 <li><a href="../index.html">Home</a></li>
                 <li><a href="../articles/index.html">Articles</a></li>
@@ -102,7 +102,8 @@
             status.textContent = "Signing in...";
             status.className = "status";
             try {
-                await window.SupabaseClient.signIn(email, password);
+                const session = await window.SupabaseClient.signIn(email, password);
+                await window.SupabaseClient.ensureProfile(session.user, { username: email.split("@")[0] });
                 status.textContent = "✓ Signed in! Redirecting...";
                 status.className = "status status--ok";
                 setTimeout(() => window.location.href = "../community/index.html", 800);
@@ -124,16 +125,8 @@
             status.textContent = "Creating account...";
             status.className = "status";
             try {
-                await window.SupabaseClient.signUp(email, password, username);
-                // Create profile
-                const user = window.SupabaseClient.getCurrentUser();
-                if (user) {
-                    await window.SupabaseClient.supabaseFetch("profiles", {
-                        method: "POST",
-                        body: JSON.stringify({ id: user.id, username, bio: "", avatar_url: "" }),
-                        prefer: "return=minimal"
-                    });
-                }
+                const session = await window.SupabaseClient.signUp(email, password, username);
+                await window.SupabaseClient.ensureProfile(session.user, { username });
                 status.textContent = "✓ Account created! Check your email to confirm, then sign in.";
                 status.className = "status status--ok";
             } catch (err) {
