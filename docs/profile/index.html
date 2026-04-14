@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevBlog — Profile</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .profile-header {
+            display: flex; align-items: center; gap: 24px;
+            padding: 32px 0; border-bottom: 1px solid var(--border, #222);
+            margin-bottom: 32px;
+        }
+        .avatar-large {
+            width: 80px; height: 80px; border-radius: 50%;
+            background: var(--accent, #333); display: flex;
+            align-items: center; justify-content: center;
+            font-size: 32px; font-weight: 700; color: #000;
+            overflow: hidden; flex-shrink: 0;
+        }
+        .avatar-large img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-info h2 { margin-bottom: 4px; }
+        .profile-bio { color: var(--muted, #888); font-size: 14px; margin-top: 4px; }
+        .profile-joined { color: var(--muted, #888); font-size: 12px; margin-top: 6px; }
+        .edit-profile-form { display: none; flex-direction: column; gap: 12px; margin-bottom: 32px; padding: 24px; background: var(--card-bg, #111); border-radius: 12px; border: 1px solid var(--border, #222); }
+        .edit-profile-form.visible { display: flex; }
+        .form-row { display: flex; flex-direction: column; gap: 6px; }
+        .form-row label { font-size: 13px; color: var(--muted, #888); }
+        .form-row input, .form-row textarea {
+            padding: 10px 14px; border-radius: 8px;
+            border: 1px solid var(--border, #333);
+            background: var(--input-bg, #1a1a1a); color: var(--text, #fff); font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="../index.html" class="nav-brand">Dev<span>Blog</span></a>
+            <ul>
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../articles/index.html">Articles</a></li>
+                <li><a href="../news/index.html">News</a></li>
+                <li><a href="../code/index.html">Code</a></li>
+                <li><a href="../mythoughts/index.html">My Thoughts</a></li>
+                <li><a href="../community/index.html">Community</a></li>
+                <li><a href="../about/index.html">About</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="page-wrapper">
+        <div id="profile-header" class="profile-header">
+            <div class="loading-state"><div class="spinner"></div> Loading...</div>
+        </div>
+
+        <!-- Edit form (only shown to profile owner) -->
+        <div class="edit-profile-form" id="edit-form">
+            <h3>Edit Profile</h3>
+            <div class="form-row">
+                <label>Username</label>
+                <input type="text" id="edit-username" placeholder="yourname">
+            </div>
+            <div class="form-row">
+                <label>Bio</label>
+                <textarea id="edit-bio" placeholder="Tell us about yourself..." rows="3"></textarea>
+            </div>
+            <div class="form-row">
+                <label>Avatar URL</label>
+                <input type="text" id="edit-avatar" placeholder="https://...">
+            </div>
+            <div style="display:flex; gap:8px;">
+                <button class="btn" id="save-profile-btn">Save</button>
+                <button class="btn btn--secondary" id="cancel-edit-btn">Cancel</button>
+            </div>
+            <p class="status" id="edit-status"></p>
+        </div>
+
+        <h2 style="margin-bottom: 16px;">Posts</h2>
+        <div id="user-posts" class="posts-grid">
+            <div class="loading-state"><div class="spinner"></div> Loading...</div>
+        </div>
+    </div>
+
+    <script src="../posts/supabase.js"></script>
+    <script src="../posts/posts.js"></script>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const profileId = params.get("id");
+        const currentUser = window.SupabaseClient.getCurrentUser();
+
+        if (!profileId) window.location.href = "../community/index.html";
+
+        const isOwner = currentUser?.id === profileId;
+
+        async function loadProfile() {
+            const headerEl = document.getElementById("profile-header");
+            try {
+                const data = await window.SupabaseClient.supabaseFetch(`profiles?id=eq.${profileId}`);
+                const profile = data?.[0];
+                if (!profile) { headerEl.innerHTML = `<p>User not found.</p>`; return; }
+
+                const avatarContent = profile.avatar_url
+                    ? `<img src="${profile.avatar_url}" alt="${profile.username}">`
+                    : profile.username[0].toUpperCase();
+
+                headerEl.innerHTML = `
+                    <div class="avatar-large">${avatarContent}</div>
+                    <div class="profile-info">
+                        <h2>${escapeHtml(profile.username)}</h2>
+                        ${profile.bio ? `<p class="profile-bio">${escapeHtml(profile.bio)}</p>` : ""}
+                        <p class="profile-joined">Joined ${window.DevBlogPosts.formatDate(profile.created_at)}</p>
+                        ${isOwner ? `<button class="btn btn--secondary" id="edit-btn" style="margin-top:10px;">Edit Profile</button>` : ""}
+                    </div>
+                `;
+
+                if (isOwner) {
+                    document.getElementById("edit-btn").addEventListener("click", () => {
+                        document.getElementById("edit-username").value = profile.username;
+                        document.getElementById("edit-bio").value = profile.bio || "";
+                        document.getElementById("edit-avatar").value = profile.avatar_url || "";
+                        document.getElementById("edit-form").classList.add("visible");
+                    });
+                }
+
+                document.title = `DevBlog — ${profile.username}`;
+            } catch (err) {
+                headerEl.innerHTML = `<p>Failed to load profile: ${err.message}</p>`;
+            }
+        }
+
+        async function loadUserPosts() {
+            const container = document.getElementById("user-posts");
+            try {
+                const posts = await window.SupabaseClient.supabaseFetch(
+                    `community_posts?user_id=eq.${profileId}&order=created_at.desc`
+                );
+                window.DevBlogPosts.renderPosts(container, posts, { emptyText: "No posts yet." });
+
+                // Make cards clickable with modal
+                container.querySelectorAll(".post-card").forEach((card, i) => {
+                    card.addEventListener("click", () => window.DevBlogPosts.openPostModal(posts[i]));
+                });
+            } catch (err) {
+                container.innerHTML = `<p class="empty-state">Failed to load posts: ${err.message}</p>`;
+            }
+        }
+
+        // Save profile edits
+        document.getElementById("save-profile-btn").addEventListener("click", async () => {
+            const username = document.getElementById("edit-username").value.trim();
+            const bio = document.getElementById("edit-bio").value.trim();
+            const avatar_url = document.getElementById("edit-avatar").value.trim();
+            const status = document.getElementById("edit-status");
+
+            if (!username) { status.textContent = "Username is required."; status.className = "status status--error"; return; }
+            status.textContent = "Saving..."; status.className = "status";
+            try {
+                await window.SupabaseClient.supabaseFetch(`profiles?id=eq.${profileId}`, {
+                    method: "PATCH",
+                    body: JSON.stringify({ username, bio, avatar_url }),
+                    prefer: "return=minimal"
+                });
+                status.textContent = "✓ Saved!"; status.className = "status status--ok";
+                document.getElementById("edit-form").classList.remove("visible");
+                loadProfile();
+            } catch (err) {
+                status.textContent = err.message; status.className = "status status--error";
+            }
+        });
+
+        document.getElementById("cancel-edit-btn").addEventListener("click", () => {
+            document.getElementById("edit-form").classList.remove("visible");
+        });
+
+        function escapeHtml(str) {
+            return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+        }
+
+        loadProfile();
+        loadUserPosts();
+    </script>
+</body>
+</html>

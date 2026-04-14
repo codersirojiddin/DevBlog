@@ -1,11 +1,28 @@
 const SUPABASE_URL = "https://uyjmyjetcleghfcwslau.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5am15amV0Y2xlZ2hmY3dzbGF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MTU2NzQsImV4cCI6MjA4OTQ5MTY3NH0.-v4Bjy-Ty8pQxaBJFlb4cXDioNFGXXgRsGljH3P19og";
 
+// ── Token management ──────────────────────────────────────────────────────────
+function getSession() {
+    try { return JSON.parse(localStorage.getItem("sb_session") || "null"); }
+    catch { return null; }
+}
+
+function saveSession(session) {
+    if (session) localStorage.setItem("sb_session", JSON.stringify(session));
+    else localStorage.removeItem("sb_session");
+}
+
+function getAccessToken() {
+    return getSession()?.access_token || null;
+}
+
+// ── Core fetch ────────────────────────────────────────────────────────────────
 async function supabaseFetch(path, options = {}) {
     const url = `${SUPABASE_URL}/rest/v1/${path}`;
+    const token = getAccessToken() || SUPABASE_ANON_KEY;
     const headers = {
         "apikey": SUPABASE_ANON_KEY,
-        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+        "Authorization": `Bearer ${token}`,
         "Content-Type": "application/json",
         "Prefer": options.prefer || "return=representation",
         ...options.headers
@@ -19,4 +36,47 @@ async function supabaseFetch(path, options = {}) {
     return res.json();
 }
 
-window.SupabaseClient = { supabaseFetch };
+// ── Auth fetch ────────────────────────────────────────────────────────────────
+async function authFetch(path, body) {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/${path}`, {
+        method: "POST",
+        headers: {
+            "apikey": SUPABASE_ANON_KEY,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error_description || data.msg || "Auth error");
+    return data;
+}
+
+// ── Auth methods ──────────────────────────────────────────────────────────────
+async function signUp(email, password, username) {
+    const data = await authFetch("signup", { email, password, data: { username } });
+    saveSession(data);
+    return data;
+}
+
+async function signIn(email, password) {
+    const data = await authFetch("token?grant_type=password", { email, password });
+    saveSession(data);
+    return data;
+}
+
+async function signOut() {
+    saveSession(null);
+}
+
+function getCurrentUser() {
+    return getSession()?.user || null;
+}
+
+window.SupabaseClient = {
+    supabaseFetch,
+    signUp,
+    signIn,
+    signOut,
+    getCurrentUser,
+    getSession
+};

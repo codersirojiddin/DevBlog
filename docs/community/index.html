@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevBlog — Community</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .community-header {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 32px;
+        }
+        .user-bar {
+            display: flex; align-items: center; gap: 12px;
+        }
+        .avatar-small {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: var(--accent, #333); display: flex;
+            align-items: center; justify-content: center;
+            font-size: 14px; font-weight: 600; color: #000;
+            text-decoration: none; overflow: hidden;
+        }
+        .avatar-small img { width: 100%; height: 100%; object-fit: cover; }
+        .post-author {
+            font-size: 12px; color: var(--muted, #888); margin-top: 4px;
+        }
+        .post-author a { color: var(--accent, #aaa); text-decoration: none; }
+        .post-author a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="../index.html" class="nav-brand">Dev<span>Blog</span></a>
+            <ul>
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../articles/index.html">Articles</a></li>
+                <li><a href="../news/index.html">News</a></li>
+                <li><a href="../code/index.html">Code</a></li>
+                <li><a href="../mythoughts/index.html">My Thoughts</a></li>
+                <li><a href="../community/index.html">Community</a></li>
+                <li><a href="../about/index.html">About</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="page-wrapper">
+        <div class="community-header">
+            <div class="page-header" style="margin-bottom:0; border-bottom:none;">
+                <h1>Community</h1>
+                <p class="page-subtitle">Posts from our members</p>
+            </div>
+            <div class="user-bar" id="user-bar">
+                <!-- filled by JS -->
+            </div>
+        </div>
+
+        <div id="posts-container" class="posts-grid">
+            <div class="loading-state"><div class="spinner"></div> Loading...</div>
+        </div>
+    </div>
+
+    <script src="../posts/supabase.js"></script>
+    <script src="../posts/posts.js"></script>
+    <script>
+        const user = window.SupabaseClient.getCurrentUser();
+        const userBar = document.getElementById("user-bar");
+
+        if (user) {
+            userBar.innerHTML = `
+                <a href="../profile/index.html?id=${user.id}" class="avatar-small" id="nav-avatar">?</a>
+                <a href="../publish/index.html" class="btn">+ New Post</a>
+            `;
+            // Load avatar
+            window.SupabaseClient.supabaseFetch(`profiles?id=eq.${user.id}`)
+                .then(data => {
+                    const profile = data?.[0];
+                    if (!profile) return;
+                    const av = document.getElementById("nav-avatar");
+                    if (profile.avatar_url) {
+                        av.innerHTML = `<img src="${profile.avatar_url}" alt="${profile.username}">`;
+                    } else {
+                        av.textContent = profile.username[0].toUpperCase();
+                    }
+                }).catch(() => {});
+        } else {
+            userBar.innerHTML = `<a href="../login/index.html" class="btn">Sign In to Post</a>`;
+        }
+
+        // Load community posts
+        async function loadPosts() {
+            const container = document.getElementById("posts-container");
+            try {
+                const posts = await window.SupabaseClient.supabaseFetch(
+                    "community_posts?order=created_at.desc&select=*,profiles(username,avatar_url)"
+                );
+
+                if (!posts || posts.length === 0) {
+                    container.innerHTML = `<p class="empty-state">No community posts yet. <a href="../login/index.html">Sign in</a> to be the first!</p>`;
+                    return;
+                }
+
+                container.innerHTML = "";
+                posts.forEach(post => {
+                    const profile = post.profiles;
+                    const card = document.createElement("article");
+                    card.className = "post-card";
+                    card.style.cursor = "pointer";
+                    const preview = post.content.split("\n")[0];
+                    card.innerHTML = `
+                        <div class="post-card__heading">
+                            <h3 class="post-card__title">${escapeHtml(post.title)}</h3>
+                            <span class="post-badge">${window.DevBlogPosts.toLabel(post.type)}</span>
+                        </div>
+                        <p class="post-preview">${escapeHtml(preview)}...</p>
+                        <div class="post-footer">
+                            <span class="post-meta">${window.DevBlogPosts.formatDate(post.created_at)}</span>
+                            <span class="post-author">by <a href="../profile/index.html?id=${post.user_id}">${escapeHtml(profile?.username || "Unknown")}</a></span>
+                        </div>
+                    `;
+                    card.addEventListener("click", (e) => {
+                        if (e.target.tagName === "A") return;
+                        window.DevBlogPosts.openPostModal(post);
+                    });
+                    container.appendChild(card);
+                });
+            } catch (err) {
+                container.innerHTML = `<p class="empty-state">Failed to load posts: ${err.message}</p>`;
+            }
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+        }
+
+        loadPosts();
+    </script>
+</body>
+</html>

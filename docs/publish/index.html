@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevBlog — New Post</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="../index.html" class="nav-brand">Dev<span>Blog</span></a>
+            <ul>
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../articles/index.html">Articles</a></li>
+                <li><a href="../news/index.html">News</a></li>
+                <li><a href="../code/index.html">Code</a></li>
+                <li><a href="../mythoughts/index.html">My Thoughts</a></li>
+                <li><a href="../community/index.html">Community</a></li>
+                <li><a href="../about/index.html">About</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="page-wrapper">
+        <div class="page-header">
+            <h1>New Post</h1>
+            <p class="page-subtitle">Share something with the community</p>
+        </div>
+
+        <div class="panel" style="max-width: 680px; margin: 0 auto;">
+            <div class="form-row">
+                <label for="post-title">Title</label>
+                <input type="text" id="post-title" placeholder="Post title...">
+            </div>
+            <div class="form-row">
+                <label for="post-type">Type</label>
+                <select id="post-type">
+                    <option value="article">Article</option>
+                    <option value="news">News</option>
+                    <option value="code">Code</option>
+                    <option value="thought">Personal Thought</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label for="post-content">Content</label>
+                <textarea id="post-content" placeholder="Write your post..." style="min-height: 200px;"></textarea>
+            </div>
+            <div class="form-actions">
+                <button class="btn" id="publish-btn">Publish Post</button>
+                <a href="../community/index.html" class="btn btn--secondary">Cancel</a>
+            </div>
+            <p class="status" id="publish-status"></p>
+        </div>
+    </div>
+
+    <script src="../posts/supabase.js"></script>
+    <script>
+        const user = window.SupabaseClient.getCurrentUser();
+        if (!user) window.location.href = "../login/index.html";
+
+        document.getElementById("publish-btn").addEventListener("click", async () => {
+            const title = document.getElementById("post-title").value.trim();
+            const type = document.getElementById("post-type").value;
+            const content = document.getElementById("post-content").value.trim();
+            const status = document.getElementById("publish-status");
+
+            if (!title) { status.textContent = "Title is required."; status.className = "status status--error"; return; }
+            if (!content) { status.textContent = "Content is required."; status.className = "status status--error"; return; }
+
+            document.getElementById("publish-btn").disabled = true;
+            status.textContent = "Publishing...";
+            status.className = "status";
+
+            try {
+                const now = new Date().toISOString();
+                await window.SupabaseClient.supabaseFetch("community_posts", {
+                    method: "POST",
+                    body: JSON.stringify({ user_id: user.id, title, type, content, created_at: now, updated_at: now }),
+                    prefer: "return=minimal"
+                });
+                status.textContent = "✓ Published! Redirecting...";
+                status.className = "status status--ok";
+                setTimeout(() => window.location.href = "../community/index.html", 800);
+            } catch (err) {
+                status.textContent = err.message;
+                status.className = "status status--error";
+                document.getElementById("publish-btn").disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
