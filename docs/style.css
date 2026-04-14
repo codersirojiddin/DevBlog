@@ -104,21 +104,23 @@ nav ul li a.active {
     align-items: center;
     gap: 12px;
     margin-left: auto;
+    min-width: 220px;
+    justify-content: flex-end;
 }
 
 .user-menu-btn {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 6px 12px;
+    background: white;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 12px;
+    padding: 8px 14px;
     cursor: pointer;
     font-family: 'IBM Plex Sans', sans-serif;
     font-size: 0.9rem;
     color: var(--ink);
-    transition: all 0.2s;
+    transition: all 0.2s ease;
 }
 
 .user-menu-btn:hover {
@@ -158,11 +160,11 @@ nav ul li a.active {
     right: 0;
     top: calc(100% + 8px);
     background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 12px;
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.15);
     z-index: 1000;
-    min-width: 180px;
+    min-width: 210px;
     overflow: hidden;
 }
 
@@ -244,6 +246,13 @@ nav ul li a.active {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+.btn-full {
+    width: 100%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
 /* ── Page wrapper ── */
 .page-wrapper {
     width: min(1100px, 100%);
@@ -281,8 +290,10 @@ body {
     padding-bottom: 20px;
     border-bottom: 1px solid var(--border);
     display: flex;
-    align-items: baseline;
+    align-items: flex-end;
+    justify-content: space-between;
     gap: 16px;
+    flex-wrap: wrap;
 }
 
 .page-header h1 {
@@ -307,9 +318,10 @@ body {
 
 /* ── Forms ── */
 .panel {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    background: var(--white);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 12px;
+    box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
     padding: 32px;
 }
 
