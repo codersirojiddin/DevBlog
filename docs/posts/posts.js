@@ -1,5 +1,5 @@
 (() => {
-    const VALID_TYPES = new Set(["article", "news", "code", "thought"]);
+    const VALID_TYPES = new Set(["article", "news", "code"]);
 
     function normalizeText(value) {
         return String(value || "").trim();
@@ -107,7 +107,6 @@
     function toLabel(type) {
         if (type === "article") return "Article";
         if (type === "news") return "News";
-        if (type === "thought") return "Personal Thought";
         return "Code";
     }
 

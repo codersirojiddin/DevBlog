@@ -19,6 +19,9 @@
                 <li><a href="../about/index.html">About</a></li>
                 <li><a href="index.html" class="active">Contact</a></li>
             </ul>
+            <div class="nav-right" id="nav-right">
+                <a href="../login/index.html" class="btn">Login</a>
+            </div>
         </nav>
     </header>
 
@@ -32,5 +35,12 @@
             <p>You can update this page with your email, social links, or any other contact information you'd like to share.</p>
         </div>
     </div>
+    <script src="../posts/supabase.js"></script>
+    <script src="../posts/user-menu.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            initializeUserMenu();
+        });
+    </script>
 </body>
 </html>

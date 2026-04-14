@@ -48,7 +48,9 @@
                 <li><a href="../code/index.html">Code</a></li>
                 <li><a href="../community/index.html">Community</a></li>
                 <li><a href="../about/index.html">About</a></li>
+                <li><a href="../contact/index.html">Contact</a></li>
             </ul>
+            <div class="nav-right" id="nav-right"></div>
         </nav>
     </header>
 
@@ -97,11 +99,16 @@
     </div>
 
     <script src="../posts/supabase.js"></script>
+    <script src="../posts/user-menu.js"></script>
     <script>
         // Redirect if already logged in
         if (window.SupabaseClient.getCurrentUser()) {
             window.location.href = "../community/index.html";
         }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            initializeUserMenu();
+        });
 
         // Tabs
         document.getElementById("tab-login").addEventListener("click", () => {

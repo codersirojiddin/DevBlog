@@ -19,6 +19,9 @@
                 <li><a href="../about/index.html">About</a></li>
                 <li><a href="../contact/index.html">Contact</a></li>
             </ul>
+            <div class="nav-right" id="nav-right">
+                <a href="../login/index.html" class="btn">Login</a>
+            </div>
         </nav>
     </header>
 
@@ -34,8 +37,11 @@
 
     <script src="../posts/supabase.js"></script>
     <script src="../posts/posts.js"></script>
+    <script src="../posts/user-menu.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", async () => {
+            initializeUserMenu();
+            
             const container = document.getElementById("posts-container");
             const countEl = document.getElementById("post-count");
             try {

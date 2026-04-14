@@ -39,7 +39,11 @@
                 <li><a href="../code/index.html">Code</a></li>
                 <li><a href="../community/index.html">Community</a></li>
                 <li><a href="../about/index.html">About</a></li>
+                <li><a href="../contact/index.html">Contact</a></li>
             </ul>
+            <div class="nav-right" id="nav-right">
+                <a href="../login/index.html" class="btn">Login</a>
+            </div>
         </nav>
     </header>
 
@@ -61,27 +65,19 @@
 
     <script src="../posts/supabase.js"></script>
     <script src="../posts/posts.js"></script>
+    <script src="../posts/user-menu.js"></script>
     <script>
         const user = window.SupabaseClient.getCurrentUser();
         const userBar = document.getElementById("user-bar");
 
+        document.addEventListener("DOMContentLoaded", () => {
+            initializeUserMenu();
+        });
+
         if (user) {
             userBar.innerHTML = `
-                <a href="../profile/index.html?id=${user.id}" class="avatar-small" id="nav-avatar">?</a>
                 <a href="../publish/index.html" class="btn">+ New Post</a>
             `;
-            // Load avatar
-            window.SupabaseClient.supabaseFetch(`profiles?id=eq.${user.id}`)
-                .then(data => {
-                    const profile = data?.[0];
-                    if (!profile) return;
-                    const av = document.getElementById("nav-avatar");
-                    if (profile.avatar_url) {
-                        av.innerHTML = `<img src="${profile.avatar_url}" alt="${profile.username}">`;
-                    } else {
-                        av.textContent = profile.username[0].toUpperCase();
-                    }
-                }).catch(() => {});
         } else {
             userBar.innerHTML = `<a href="../login/index.html" class="btn">Sign In to Post</a>`;
         }
