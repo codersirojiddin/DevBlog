@@ -5,38 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DevBlog — Profile</title>
     <link rel="stylesheet" href="../style.css">
-    <style>
-        .profile-header {
-            display: flex; align-items: center; gap: 24px;
-            padding: 32px 0; border-bottom: 1px solid var(--border, #222);
-            margin-bottom: 32px;
-        }
-        .avatar-large {
-            width: 80px; height: 80px; border-radius: 50%;
-            background: var(--accent, #333); display: flex;
-            align-items: center; justify-content: center;
-            font-size: 32px; font-weight: 700; color: #000;
-            overflow: hidden; flex-shrink: 0;
-        }
-        .avatar-large img { width: 100%; height: 100%; object-fit: cover; }
-        .profile-info h2 { margin-bottom: 4px; }
-        .profile-bio { color: var(--muted, #888); font-size: 14px; margin-top: 4px; }
-        .profile-joined { color: var(--muted, #888); font-size: 12px; margin-top: 6px; }
-        .edit-profile-form { display: none; flex-direction: column; gap: 12px; margin-bottom: 32px; padding: 24px; background: var(--card-bg, #111); border-radius: 12px; border: 1px solid var(--border, #222); }
-        .edit-profile-form.visible { display: flex; }
-        .form-row { display: flex; flex-direction: column; gap: 6px; }
-        .form-row label { font-size: 13px; color: var(--muted, #888); }
-        .form-row input, .form-row textarea {
-            padding: 10px 14px; border-radius: 8px;
-            border: 1px solid var(--border, #333);
-            background: var(--input-bg, #1a1a1a); color: var(--text, #fff); font-size: 14px;
-        }
-    </style>
 </head>
 <body>
     <header>
         <nav>
-            <a href="../index.html" class="nav-brand">Dev<span>Blog</span></a>
+            <a href="../index.html" class="nav-brand">Ither</a>
             <ul>
                 <li><a href="../index.html">Home</a></li>
                 <li><a href="../articles/index.html">Articles</a></li>
@@ -70,14 +43,14 @@
                 <label>Avatar URL</label>
                 <input type="text" id="edit-avatar" placeholder="https://...">
             </div>
-            <div style="display:flex; gap:8px;">
+            <div class="profile-actions">
                 <button class="btn" id="save-profile-btn">Save</button>
                 <button class="btn btn--secondary" id="cancel-edit-btn">Cancel</button>
             </div>
             <p class="status" id="edit-status"></p>
         </div>
 
-        <h2 style="margin-bottom: 16px;">Posts</h2>
+        <h2 class="section-title">Posts</h2>
         <div id="user-posts" class="posts-grid">
             <div class="loading-state"><div class="spinner"></div> Loading...</div>
         </div>
@@ -116,7 +89,7 @@
                         <h2>${escapeHtml(profile.username)}</h2>
                         ${profile.bio ? `<p class="profile-bio">${escapeHtml(profile.bio)}</p>` : ""}
                         <p class="profile-joined">Joined ${window.DevBlogPosts.formatDate(profile.created_at)}</p>
-                        ${isOwner ? `<button class="btn btn--secondary" id="edit-btn" style="margin-top:10px;">Edit Profile</button>` : ""}
+                        ${isOwner ? `<button class="btn btn--secondary" id="edit-btn">Edit Profile</button>` : ""}
                     </div>
                 `;
 

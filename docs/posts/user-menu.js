@@ -4,12 +4,11 @@ function initializeUserMenu() {
     const navRight = document.getElementById("nav-right");
     
     if (!navRight) return;
-    
-    // Calculate base path for navigation
+
     const currentPath = window.location.pathname;
-    const isInSubfolder = currentPath.includes('/docs/') && currentPath.split('/docs/')[1].includes('/');
-    const basePrefix = isInSubfolder ? '../' : './';
-    
+    const parts = currentPath.split("/").filter(Boolean);
+    const basePrefix = parts.length > 1 ? "../".repeat(parts.length - 1) : "";
+
     if (user) {
         navRight.innerHTML = `
             <div class="user-dropdown" id="user-dropdown">
@@ -26,7 +25,6 @@ function initializeUserMenu() {
             </div>
         `;
         
-        // Load user avatar
         window.SupabaseClient.supabaseFetch(`profiles?id=eq.${user.id}`)
             .then(data => {
                 const profile = data?.[0];
@@ -40,8 +38,7 @@ function initializeUserMenu() {
                 }
             })
             .catch(() => {});
-        
-        // Dropdown toggle
+
         const userMenuBtn = document.getElementById("user-menu-btn");
         const userDropdownMenu = document.getElementById("user-dropdown-menu");
         
@@ -50,14 +47,12 @@ function initializeUserMenu() {
                 userDropdownMenu.classList.toggle("visible");
             });
             
-            // Close dropdown when clicking outside
             document.addEventListener("click", (e) => {
                 if (!e.target.closest("#user-dropdown")) {
                     userDropdownMenu.classList.remove("visible");
                 }
             });
             
-            // Logout
             const logoutBtn = document.getElementById("logout-btn");
             if (logoutBtn) {
                 logoutBtn.addEventListener("click", () => {
@@ -66,6 +61,8 @@ function initializeUserMenu() {
                 });
             }
         }
+    } else if (navRight && !navRight.innerHTML.trim()) {
+        navRight.innerHTML = `<a href="${basePrefix}login/index.html" class="btn">Login</a>`;
     }
 }
 
