@@ -78,7 +78,14 @@
             status.className = "status";
 
             try {
-                await window.SupabaseClient.ensureProfile(user, { username: user.email.split("@")[0] });
+                if (window.SupabaseClient.ensureProfile) {
+                    await window.SupabaseClient.ensureProfile(user, { username: user.email.split("@")[0] });
+                } else {
+                    await window.SupabaseClient.supabaseFetch("profiles", {
+                        method: "POST",
+                        body: JSON.stringify({ id: user.id, username: user.email.split("@")[0], bio: "", avatar_url: "" })
+                    });
+                }
                 const now = new Date().toISOString();
                 await window.SupabaseClient.supabaseFetch("community_posts", {
                     method: "POST",

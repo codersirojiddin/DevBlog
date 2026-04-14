@@ -88,7 +88,8 @@ async function ensureProfile(user, options = {}) {
     return body;
 }
 
-window.SupabaseClient = {
+window.SupabaseClient = window.SupabaseClient || {};
+Object.assign(window.SupabaseClient, {
     supabaseFetch,
     signUp,
     signIn,
@@ -96,4 +97,4 @@ window.SupabaseClient = {
     getCurrentUser,
     getSession,
     ensureProfile
-};
+});
