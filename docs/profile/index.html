@@ -114,11 +114,68 @@
                 const posts = await window.SupabaseClient.supabaseFetch(
                     `community_posts?user_id=eq.${profileId}&order=created_at.desc`
                 );
-                window.DevBlogPosts.renderPosts(container, posts, { emptyText: "No posts yet." });
 
-                // Make cards clickable with modal
-                container.querySelectorAll(".post-card").forEach((card, i) => {
-                    card.addEventListener("click", () => window.DevBlogPosts.openPostModal(posts[i]));
+                if (!posts || posts.length === 0) {
+                    container.innerHTML = `<p class="empty-state">No posts yet.</p>`;
+                    return;
+                }
+
+                container.innerHTML = "";
+                posts.forEach((post, idx) => {
+                    const card = document.createElement("article");
+                    card.className = "post-card";
+                    card.dataset.id = post.id;
+                    
+                    const preview = post.content.split("\n")[0];
+                    const hasMore = post.content.split("\n").length > 1;
+
+                    card.innerHTML = `
+                        <div class="post-card__heading">
+                            <h3 class="post-card__title">${escapeHtml(post.title)}</h3>
+                            <span class="post-badge">${window.DevBlogPosts.toLabel(post.type)}</span>
+                        </div>
+                        <p class="post-preview">${escapeHtml(preview)}${hasMore ? "..." : ""}</p>
+                        <div class="post-footer">
+                            <span class="post-meta">${window.DevBlogPosts.formatDate(post.created_at)}</span>
+                        </div>
+                        ${isOwner ? `
+                            <div class="post-card__actions">
+                                <button class="btn btn--secondary btn--small" data-action="edit" data-id="${post.id}">Edit</button>
+                                <button class="btn btn--danger btn--small" data-action="delete" data-id="${post.id}">Delete</button>
+                            </div>
+                        ` : ""}
+                    `;
+
+                    card.addEventListener("click", async (e) => {
+                        const actionBtn = e.target.closest("button[data-action]");
+                        if (actionBtn) {
+                            e.stopPropagation();
+                            const action = actionBtn.dataset.action;
+                            const postId = actionBtn.dataset.id;
+
+                            if (action === "edit") {
+                                window.location.href = `../publish/index.html?id=${postId}`;
+                                return;
+                            }
+
+                            if (action === "delete") {
+                                if (!confirm("Delete this post? This cannot be undone.")) return;
+                                try {
+                                    await window.SupabaseClient.deleteCommunityPost(postId);
+                                    card.remove();
+                                    if (!container.querySelector(".post-card")) {
+                                        container.innerHTML = `<p class="empty-state">No posts yet.</p>`;
+                                    }
+                                } catch (err) {
+                                    alert(`Delete failed: ${err.message}`);
+                                }
+                                return;
+                            }
+                        }
+                        window.DevBlogPosts.openPostModal(post);
+                    });
+
+                    container.appendChild(card);
                 });
             } catch (err) {
                 container.innerHTML = `<p class="empty-state">Failed to load posts: ${err.message}</p>`;
