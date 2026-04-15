@@ -457,6 +457,13 @@ nav ul li a.active {
     line-height: 1.7;
     margin: 18px 0;
     min-height: 72px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .post-footer {
