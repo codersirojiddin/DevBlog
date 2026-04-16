@@ -27,26 +27,140 @@
         </nav>
     </header>
 
-    <div class="page-wrapper">
-        <div class="page-header">
+    <style>
+        .contact-wrapper {
+            max-width: 680px;
+            margin: 3rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .contact-header {
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 1.5rem;
+        }
+
+        .contact-header h1 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: #111;
+            margin: 0 0 0.5rem;
+        }
+
+        .contact-header p {
+            font-size: 15px;
+            color: #555;
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        .contact-card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .contact-links {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .contact-link-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0.75rem 1rem;
+            background: #f9fafb;
+            border-radius: 8px;
+            text-decoration: none;
+        }
+
+        .link-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .link-icon.email {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .link-icon.web {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .link-label {
+            font-size: 12px;
+            color: #888;
+            margin: 0 0 2px;
+        }
+
+        .link-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2563eb;
+            margin: 0;
+            text-decoration: underline;
+        }
+
+        .contact-footer {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 1.25rem;
+        }
+
+        .contact-footer p {
+            font-size: 14px;
+            color: #555;
+            margin: 0 0 0.4rem;
+            line-height: 1.6;
+        }
+
+        .contact-footer strong {
+            color: #111;
+            font-weight: 600;
+        }
+    </style>
+
+    <div class="contact-wrapper">
+        <div class="contact-header">
             <h1>Contact Us</h1>
+            <p>We're always open to ideas, collaborations, and opportunities. If you have a question, a project, or just
+                want to connect — don't hesitate to reach out. We value meaningful conversations and respond as quickly
+                as possible.</p>
         </div>
-        <div class="static-content">
-            <p>
 
-                We’re always open to ideas, collaborations, and opportunities.
+        <div class="contact-card">
+            <div class="contact-links">
+                <a href="mailto:codersirojiddin@gmail.com" class="contact-link-item">
+                    <div class="link-icon email">✉</div>
+                    <div>
+                        <p class="link-label">Email</p>
+                        <p class="link-value">codersirojiddin@gmail.com</p>
+                    </div>
+                </a>
+                <a href="https://ither.online" class="contact-link-item">
+                    <div class="link-icon web">🌐</div>
+                    <div>
+                        <p class="link-label">Website</p>
+                        <p class="link-value">ither.online</p>
+                    </div>
+                </a>
+            </div>
 
-                If you have a question, a project, or just want to connect — don’t hesitate to reach out. We value
-                meaningful conversations and respond to messages as quickly as possible.
-
-                <strong>Let’s build something powerful together.</p></strong>
-
-                <p>📩 Email: <a href="mailto:codersirojiddin@gmail.com">Email</a></p>
-                <p>🌐 Website: <a href="https://ither.online">Blog Website</a></p>
-
-                <p>Or simply drop us a message — we’re listening.</p>
-
-                <strong><p>We don’t ignore ideas. We build on them.</p></strong>
+            <div class="contact-footer">
+                <p>Or simply drop us a message — we're listening.</p>
+                <p><strong>We don't ignore ideas. We build on them.</strong></p>
+            </div>
         </div>
     </div>
     <script src="../posts/supabase.js"></script>

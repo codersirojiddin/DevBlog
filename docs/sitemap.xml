@@ -26,9 +26,9 @@
   </url>
 
   <url>
-    <loc>https://ither.online/contact/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <loc>https://ither.online/community/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
   </url>
 
   <url>
@@ -36,8 +36,11 @@
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
+
+  <url>
+    <loc>https://ither.online/contact/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
 
 </urlset>
