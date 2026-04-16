@@ -1,24 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DevBlog</title>
     <link rel="stylesheet" href="style.css">
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dev Blog | ither.online</title>
-    <meta name="description" content="A dev blog covering articles, code, news and community for developers." />
-    <meta property="og:title" content="Dev Blog | ither.online" />
-    <meta property="og:description" content="A dev blog covering articles, code, news and community for developers." />
-    <meta property="og:url" content="https://ither.online/" />
-    <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="Dev Blog | ither.online" />
-    <meta name="twitter:description" content="A dev blog covering articles, code, news and community for developers." />
 </head>
-
 <body>
     <header>
         <nav>
@@ -43,9 +30,7 @@
             <span class="post-count" id="post-count"></span>
         </div>
         <div class="posts-grid" id="posts-container">
-            <div class="loading-state">
-                <div class="spinner"></div> Loading posts...
-            </div>
+            <div class="loading-state"><div class="spinner"></div> Loading posts...</div>
         </div>
     </div>
 
@@ -55,7 +40,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", async () => {
             initializeUserMenu();
-
+            
             const container = document.getElementById("posts-container");
             const countEl = document.getElementById("post-count");
             try {
@@ -67,7 +52,6 @@
             }
         });
     </script>
-
+    
 </body>
-
 </html>

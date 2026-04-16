@@ -12,18 +12,8 @@ function saveSession(session) {
     else localStorage.removeItem("sb_session");
 }
 
-function isSessionExpired(session) {
-    if (!session?.expires_at) return true;
-    return Date.now() / 1000 > session.expires_at;
-}
-
 function getAccessToken() {
-    const session = getSession();
-    if (!session || isSessionExpired(session)) {
-        saveSession(null);
-        return null;
-    }
-    return session.access_token;
+    return getSession()?.access_token || null;
 }
 
 // ── Core fetch ────────────────────────────────────────────────────────────────
@@ -83,12 +73,7 @@ async function signOut() {
 }
 
 function getCurrentUser() {
-    const session = getSession();
-    if (!session || isSessionExpired(session)) {
-        saveSession(null);
-        return null;
-    }
-    return session.user || null;
+    return getSession()?.user || null;
 }
 
 async function ensureProfile(user, options = {}) {
