@@ -26,7 +26,7 @@ function initializeUserMenu() {
                     <span id="user-name">${user.username || user.email.split('@')[0]}</span>
                 </button>
                 <div class="user-dropdown-menu" id="user-dropdown-menu">
-                    <a href="${basePrefix}profile/index.html">My Profile</a>
+                    <a href="${basePrefix}profile/index.html?id=${user.id}">My Profile</a>
                     <a href="${basePrefix}community/index.html">Community</a>
                     <a href="${basePrefix}publish/index.html">New Post</a>
                     <button id="logout-btn">Logout</button>
