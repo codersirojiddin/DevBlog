@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DevBlog — News</title>
     <link rel="stylesheet" href="../style.css">
 </head>
+
 <body>
     <header>
         <nav>
@@ -31,7 +33,9 @@
             <span class="post-count" id="post-count"></span>
         </div>
         <div class="posts-grid" id="posts-container">
-            <div class="loading-state"><div class="spinner"></div> Loading news...</div>
+            <div class="loading-state">
+                <div class="spinner"></div> Loading news...
+            </div>
         </div>
     </div>
 
@@ -41,7 +45,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", async () => {
             initializeUserMenu();
-            
+
             const container = document.getElementById("posts-container");
             const countEl = document.getElementById("post-count");
             try {
@@ -53,5 +57,19 @@
             }
         });
     </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>News | ither.online</title>
+    <meta name="description" content="Stay up to date with the latest developer news, updates, and tech stories." />
+    <meta property="og:title" content="News | ither.online" />
+    <meta property="og:description"
+        content="Stay up to date with the latest developer news, updates, and tech stories." />
+    <meta property="og:url" content="https://ither.online/news/" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="News | ither.online" />
+    <meta name="twitter:description"
+        content="Stay up to date with the latest developer news, updates, and tech stories." />
 </body>
+
 </html>

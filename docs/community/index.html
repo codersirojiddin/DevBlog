@@ -1,11 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DevBlog — Community</title>
     <link rel="stylesheet" href="../style.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Community | ither.online</title>
+    <meta name="description"
+        content="Join the ither.online developer community — share ideas, ask questions, and connect." />
+    <meta property="og:title" content="Community | ither.online" />
+    <meta property="og:description"
+        content="Join the ither.online developer community — share ideas, ask questions, and connect." />
+    <meta property="og:url" content="https://ither.online/community/" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Community | ither.online" />
+    <meta name="twitter:description"
+        content="Join the ither.online developer community — share ideas, ask questions, and connect." />
 </head>
+
 <body>
     <header>
         <nav>
@@ -37,7 +53,9 @@
         </div>
 
         <div id="posts-container" class="posts-grid">
-            <div class="loading-state"><div class="spinner"></div> Loading...</div>
+            <div class="loading-state">
+                <div class="spinner"></div> Loading...
+            </div>
         </div>
     </div>
 
@@ -104,10 +122,12 @@
         }
 
         function escapeHtml(str) {
-            return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+            return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
         }
 
         loadPosts();
     </script>
+    
 </body>
+
 </html>
