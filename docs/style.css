@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
     --bg: #f8fafc;
@@ -30,7 +30,7 @@ body {
         radial-gradient(ellipse at 20% 0%, rgba(14,165,233,0.06) 0%, transparent 50%),
         radial-gradient(ellipse at 80% 100%, rgba(37,99,235,0.05) 0%, transparent 55%);
     color: var(--ink);
-    font-family: 'IBM Plex Sans', sans-serif;
+    font-family: 'JetBrains Mono', monospace;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -95,9 +95,9 @@ nav ul li a.active {
 }
 
 .nav-brand {
-    font-family: 'Playfair Display', serif;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 1.6rem;
-    font-weight: 900;
+    font-weight: 700;
     color: var(--ink);
     text-decoration: none;
     letter-spacing: -0.5px;
@@ -756,6 +756,27 @@ nav ul li a.active {
 @media (max-width: 740px) {
     nav {
         padding: 0 18px;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    nav ul {
+        width: 100%;
+        justify-content: center;
+        gap: 10px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .nav-right {
+        justify-content: flex-start;
+        width: 100%;
+        margin-top: 8px;
+    }
+
+    .user-menu-btn {
+        width: 100%;
+        justify-content: space-between;
     }
 
     .page-wrapper {
@@ -764,6 +785,7 @@ nav ul li a.active {
     }
 
     .page-header,
+    .community-header,
     .profile-header {
         text-align: left;
     }
@@ -774,15 +796,40 @@ nav ul li a.active {
         flex-direction: column;
         align-items: stretch;
     }
+
+    .post-card,
+    .admin-post-card {
+        padding: 18px;
+    }
+
+    .panel {
+        padding: 24px;
+    }
+
+    .post-modal__content {
+        width: 100%;
+        max-height: 94vh;
+        padding: 24px;
+        border-radius: 18px;
+    }
 }
 
 @media (max-width: 520px) {
+    nav {
+        padding: 0 14px;
+    }
+
     nav ul {
-        gap: 8px;
+        gap: 6px;
+        justify-content: flex-start;
     }
 
     .nav-brand {
-        font-size: 1.4rem;
+        font-size: 1.3rem;
+    }
+
+    .user-menu-btn {
+        padding: 10px 12px;
     }
 
     .form-row input,
@@ -790,4 +837,36 @@ nav ul li a.active {
     .form-row select {
         padding: 14px 12px;
     }
+
+    .btn,
+    .btn-full {
+        width: 100%;
+    }
+
+    .page-wrapper {
+        padding-bottom: 32px;
+    }
+
+    .avatar-large {
+        width: 76px;
+        height: 76px;
+        font-size: 1.6rem;
+    }
+
+    .post-card {
+        padding: 16px;
+    }
+
+    .post-modal__content {
+        padding: 18px;
+    }
+
+    .post-preview {
+        min-height: auto;
+    }
+
+    .profile-header {
+        gap: 18px;
+    }
 }
+

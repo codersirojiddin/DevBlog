@@ -39,10 +39,16 @@ function initializeUserMenu() {
                 const profile = data?.[0];
                 if (profile) {
                     const av = document.getElementById("user-avatar");
+                    const nameEl = document.getElementById("user-name");
+                    
                     if (profile.avatar_url) {
                         av.innerHTML = `<img src="${profile.avatar_url}" alt="${profile.username}">`;
                     } else {
                         av.textContent = (profile.username || user.email)[0].toUpperCase();
+                    }
+                    
+                    if (nameEl && profile.username) {
+                        nameEl.textContent = profile.username;
                     }
                 }
             })
