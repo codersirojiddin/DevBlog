@@ -34,42 +34,117 @@
             <h1>About</h1>
         </div>
         <div class="static-content">
-            <p>We are building the next generation of digital experiences.
+            <div class="about-text">
+                <p class="headline">We are building the next generation of digital experiences.</p>
 
-                At the core of everything we do is a simple belief: technology should feel effortless, powerful, and
-                accessible to everyone. We don’t just create websites or tools — we build systems that solve real
-                problems, scale fast, and deliver real impact.
+                <p>
+                    At the core of everything we do is a simple belief: technology should feel effortless, powerful, and
+                    accessible to everyone. We don’t just create websites or tools — we build systems that solve real
+                    problems, scale fast, and deliver real impact.
+                </p>
 
-                Born from curiosity and driven by innovation, our mission is to push boundaries in design, performance,
-                and user experience. Every pixel, every line of code, every interaction is carefully crafted with
-                purpose.
+                <p>
+                    Born from curiosity and driven by innovation, our mission is to push boundaries in design,
+                    performance,
+                    and user experience. Every pixel, every line of code, every interaction is carefully crafted with
+                    purpose.
+                </p>
 
-                We move fast. We think differently. We build with intent.
+                <p>
+                    We move fast. We think differently. We build with intent.
+                </p>
 
-                Whether you're a user, creator, or business — we’re here to help you grow, evolve, and stay ahead in a
-                world that never slows down.
-
-                This is not just a project.
-                This is a direction.
-                This is the future we’re building.</p>
+                <p>
+                    This is not just a project. This is a direction. This is the future we’re building.
+                </p>
+            </div>
 
             <div class="social-links">
                 <h2>Connect with me</h2>
+
                 <div class="social-icons">
-                    <a href="https://youtube.com/@justcoderbro?si=6z3mC7sTXQTfbWWL" target="_blank"
-                        rel="noopener noreferrer" title="YouTube">
+                    <a href="https://youtube.com/@justcoderbro?si=6z3mC7sTXQTfbWWL" target="_blank" title="YouTube">
                         <i class="fab fa-youtube"></i>
                     </a>
-                    <a href="https://github.com/codersirojiddin" target="_blank" rel="noopener noreferrer"
-                        title="GitHub">
+
+                    <a href="https://github.com/codersirojiddin" target="_blank" title="GitHub">
                         <i class="fab fa-github"></i>
                     </a>
-                    <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" title="Instagram">
+
+                    <a href="https://instagram.com" target="_blank" title="Instagram">
                         <i class="fab fa-instagram"></i>
                     </a>
                 </div>
             </div>
         </div>
+
+        <style>
+            /* MAIN CONTAINER */
+            .static-content {
+                max-width: 850px;
+                margin: 40px auto;
+                padding: 40px;
+                background: #fff;
+                border-radius: 16px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+                font-family: Arial, sans-serif;
+            }
+
+            /* TEXT */
+            .about-text .headline {
+                font-size: 20px;
+                font-weight: 700;
+                margin-bottom: 20px;
+                color: #111;
+            }
+
+            .about-text p {
+                font-size: 15px;
+                line-height: 1.7;
+                color: #333;
+                margin-bottom: 14px;
+            }
+
+            /* SOCIAL SECTION */
+            .social-links {
+                margin-top: 30px;
+            }
+
+            .social-links h2 {
+                font-size: 16px;
+                margin-bottom: 12px;
+                color: #555;
+            }
+
+            /* ICONS */
+            .social-icons {
+                display: flex;
+                gap: 12px;
+            }
+
+            .social-icons a {
+                width: 45px;
+                height: 45px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                border-radius: 12px;
+                background: rgba(0, 0, 0, 0.05);
+                color: #111;
+                font-size: 18px;
+
+                transition: 0.25s ease;
+                text-decoration: none;
+            }
+
+            .social-icons a:hover {
+                transform: translateY(-4px) scale(1.08);
+                background: #2563eb;
+                color: white;
+                box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+            }
+        </style>
     </div>
     <script src="../posts/supabase.js"></script>
     <script src="../posts/user-menu.js"></script>
