@@ -199,6 +199,7 @@
         getPosts,
         getPost,
         renderPosts,
+        openPostModal,
         toLabel,
         formatDate
     };
