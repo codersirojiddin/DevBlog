@@ -6,27 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DevBlog — Contact</title>
     <link rel="stylesheet" href="../style.css">
-    
-</head>
-
-<body>
-    <header>
-        <nav>
-            <a href="../index.html" class="nav-brand">Dev<span>Blog</span></a>
-            <ul>
-                <li><a href="../index.html">Home</a></li>
-                <li><a href="../articles/index.html">Articles</a></li>
-                <li><a href="../news/index.html">News</a></li>
-                <li><a href="../code/index.html">Code</a></li>
-                <li><a href="../community/index.html">Community</a></li>
-                <li><a href="../about/index.html">About</a></li>
-                <li><a href="index.html" class="active">Contact</a></li>
-            </ul>
-            <div class="nav-right" id="nav-right">
-                <a href="../login/index.html" class="btn">Login</a>
-            </div>
-        </nav>
-    </header>
 
     <style>
         .contact-wrapper {
@@ -114,33 +93,79 @@
             text-decoration: underline;
         }
 
-        .contact-footer {
+        /* 🔥 FEEDBACK SECTION */
+        .feedback-box {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
             border-top: 1px solid #e5e7eb;
-            padding-top: 1.25rem;
         }
 
-        .contact-footer p {
-            font-size: 14px;
-            color: #555;
-            margin: 0 0 0.4rem;
-            line-height: 1.6;
-        }
-
-        .contact-footer strong {
+        .feedback-box h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
             color: #111;
+        }
+
+        .feedback-box textarea {
+            width: 100%;
+            height: 120px;
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            resize: none;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .feedback-box button {
+            margin-top: 10px;
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background: #2563eb;
+            color: white;
+            border-radius: 8px;
             font-weight: 600;
+            cursor: pointer;
+        }
+
+        .feedback-box button:hover {
+            background: #1d4ed8;
+        }
+
+        #status {
+            margin-top: 8px;
+            font-size: 13px;
         }
     </style>
+</head>
+
+<body>
+    <header>
+        <nav>
+            <a href="../index.html" class="nav-brand">Dev<span>Blog</span></a>
+            <ul>
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../articles/index.html">Articles</a></li>
+                <li><a href="../news/index.html">News</a></li>
+                <li><a href="../code/index.html">Code</a></li>
+                <li><a href="../community/index.html">Community</a></li>
+                <li><a href="../about/index.html">About</a></li>
+                <li><a href="index.html" class="active">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
 
     <div class="contact-wrapper">
+
         <div class="contact-header">
             <h1>Contact Us</h1>
             <p>We're always open to ideas, collaborations, and opportunities. If you have a question, a project, or just
-                want to connect — don't hesitate to reach out. We value meaningful conversations and respond as quickly
-                as possible.</p>
+                want to connect — don't hesitate to reach out.</p>
         </div>
 
         <div class="contact-card">
+
             <div class="contact-links">
                 <a href="mailto:codersirojiddin@gmail.com" class="contact-link-item">
                     <div class="link-icon email">✉</div>
@@ -149,6 +174,7 @@
                         <p class="link-value">codersirojiddin@gmail.com</p>
                     </div>
                 </a>
+
                 <a href="https://ither.online" class="contact-link-item">
                     <div class="link-icon web">🌐</div>
                     <div>
@@ -158,12 +184,50 @@
                 </a>
             </div>
 
-            <div class="contact-footer">
-                <p>Or simply drop us a message — we're listening.</p>
-                <p><strong>We don't ignore ideas. We build on them.</strong></p>
+            <!-- 🔥 FEEDBACK FORM (SHOPIFY STYLE) -->
+            <div class="feedback-box">
+                <h3>Send Feedback</h3>
+
+                <form id="feedback-form">
+                    <textarea id="message" placeholder="Write your feedback..." required></textarea>
+                    <button type="submit">Send</button>
+                </form>
+
+                <p id="status"></p>
             </div>
+
         </div>
     </div>
+
+    <!-- EMAILJS -->
+    <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+
+    <script>
+        emailjs.init("rFX8m5omCDm0HYfqJ");
+
+        document.getElementById("feedback-form").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            let msg = document.getElementById("message").value;
+            let status = document.getElementById("status");
+
+            status.style.color = "black";
+            status.innerText = "Sending...";
+
+            emailjs.send("service_igjqmwj", "template_rxccfgb", {
+                message: msg
+            }).then(() => {
+                status.style.color = "green";
+                status.innerText = "Sent successfully 🚀";
+                document.getElementById("message").value = "";
+            }).catch((error) => {
+                status.style.color = "red";
+                status.innerText = "Failed ❌";
+                console.log(error);
+            });
+        });
+    </script>
+
     <script src="../posts/supabase.js"></script>
     <script src="../posts/user-menu.js"></script>
     <script>
@@ -171,6 +235,7 @@
             initializeUserMenu();
         });
     </script>
+
 </body>
 
 </html>
