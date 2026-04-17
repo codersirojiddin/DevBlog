@@ -1,7 +1,7 @@
 // interactions.js — Likes & Comments for ither.online
 // Place this file in /docs/posts/interactions.js
 // Import your supabase client (adjust path if needed)
-import { supabase } from 'supabase.js';
+import { supabase } from './supabase.js';
 
 // ─── LIKES ───────────────────────────────────────────────────────────────────
 
