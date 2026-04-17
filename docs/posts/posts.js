@@ -127,6 +127,27 @@
                 <h2>${escapeHtml(post.title)}</h2>
                 <div class="post-meta">${window.DevBlogPosts.toLabel(post.type)} • ${window.DevBlogPosts.formatDate(post.updated_at || post.created_at)}</div>
                 <p class="post-content">${escapeHtml(post.content)}</p>
+
+                <div class="post-interactions">
+                    <button id="like-btn" class="like-btn" title="Like this post">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                        </svg>
+                        <span id="like-count">0</span> Likes
+                    </button>
+                </div>
+
+                <section class="comments-section">
+                    <h3 class="comments-heading">Comments</h3>
+                    <div id="comments-list" class="comments-list"></div>
+                    <div class="comment-form">
+                        <textarea id="comment-input" class="comment-input"
+                            placeholder="Write a comment... (Enter to post, Shift+Enter for new line)"
+                            rows="3"></textarea>
+                        <button id="comment-submit" class="comment-submit-btn">Post Comment</button>
+                    </div>
+                </section>
             </div>
         `;
 
@@ -139,6 +160,11 @@
         });
 
         document.body.appendChild(modal);
+
+        // Init likes & comments
+        import('/posts/interactions.js').then(({ initInteractions }) => {
+            initInteractions(post.id);
+        });
     }
 
     function renderPosts(container, posts, options = {}) {
