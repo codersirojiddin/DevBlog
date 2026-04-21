@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevBlog — Project</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .project-detail {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px 60px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #555;
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 24px;
+            transition: color 0.15s;
+        }
+
+        .back-btn:hover { color: #2563eb; }
+
+        .project-hero {
+            width: 100%;
+            height: 320px;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #f1f5f9;
+            margin-bottom: 28px;
+        }
+
+        .project-hero img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .project-hero-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .project-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .project-title-block h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin: 0 0 6px;
+        }
+
+        .project-tagline {
+            color: #555;
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        .project-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .project-link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.15s;
+        }
+
+        .project-link-btn.live {
+            background: #2563eb;
+            color: white;
+        }
+
+        .project-link-btn.live:hover { background: #1d4ed8; }
+
+        .project-link-btn.github {
+            background: #f1f5f9;
+            color: #333;
+            border: 1px solid #e2e8f0;
+        }
+
+        .project-link-btn.github:hover { background: #e2e8f0; }
+
+        .project-info-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .project-status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .project-status-badge.completed { background: #d1fae5; color: #065f46; }
+        .project-status-badge.in-progress { background: #fef3c7; color: #92400e; }
+        .project-status-badge.idea { background: #ede9fe; color: #4c1d95; }
+
+        .project-author-link {
+            color: #2563eb;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .project-author-link:hover { text-decoration: underline; }
+
+        .project-date {
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 28px;
+        }
+
+        .tech-badge {
+            background: #f1f5f9;
+            color: #334155;
+            font-size: 0.8rem;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .project-description {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: #333;
+            margin-bottom: 32px;
+            white-space: pre-wrap;
+        }
+
+        .signal-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 32px;
+        }
+
+        .signal-section h3 {
+            font-size: 0.9rem;
+            color: #888;
+            font-weight: 600;
+            margin: 0 0 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .signal-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .signal-btn-large {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 14px 24px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: all 0.15s;
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .signal-btn-large span {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .signal-btn-large .count {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .signal-btn-large:hover { border-color: #94a3b8; background: #f8fafc; }
+        .signal-btn-large.active { border-color: #2563eb; background: #eff6ff; }
+        .signal-btn-large.active span { color: #2563eb; }
+
+        .owner-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+
+        .btn-danger {
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: background 0.15s;
+        }
+
+        .btn-danger:hover { background: #fecaca; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="../index.html" class="nav-brand">Dev<span>Blog</span></a>
+            <ul>
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../articles/index.html">Articles</a></li>
+                <li><a href="../news/index.html">News</a></li>
+                <li><a href="../code/index.html">Code</a></li>
+                <li><a href="../community/index.html">Community</a></li>
+                <li><a href="../showcase/index.html">Showcase</a></li>
+                <li><a href="../about/index.html">About</a></li>
+                <li><a href="../contact/index.html">Contact</a></li>
+            </ul>
+            <div class="nav-right" id="nav-right"></div>
+        </nav>
+    </header>
+
+    <div class="project-detail" id="project-detail">
+        <div class="loading-state" style="text-align:center;padding:60px">
+            <div class="spinner"></div> Loading project...
+        </div>
+    </div>
+
+    <script src="../posts/supabase.js"></script>
+    <script src="../posts/user-menu.js"></script>
+    <script src="../posts/project.js"></script>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const projectId = params.get("id");
+        const currentUser = window.SupabaseClient.getCurrentUser();
+
+        if (!projectId) window.location.href = "../showcase/index.html";
+
+        document.addEventListener("DOMContentLoaded", () => {
+            initializeUserMenu();
+        });
+
+        function escapeHtml(str) {
+            return String(str || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+        }
+
+        function formatDate(str) {
+            return new Date(str).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+        }
+
+        async function loadProject() {
+            const container = document.getElementById("project-detail");
+            try {
+                // Fetch project + profile
+                const data = await window.SupabaseClient.supabaseFetch(
+                    `projects?id=eq.${projectId}&select=*,profiles(username,avatar_url)`
+                );
+                const project = data?.[0];
+                if (!project) {
+                    container.innerHTML = `<p>Project not found. <a href="../showcase/index.html">Go back</a></p>`;
+                    return;
+                }
+
+                // Log view
+                window.DevBlogProjects.logView(projectId);
+
+                // Fetch signals
+                const signals = await window.SupabaseClient.supabaseFetch(
+                    `project_signals?select=signal,user_id&project_id=eq.${projectId}`
+                ).catch(() => []);
+
+                const counts = { useful: 0, inspiring: 0, well_built: 0 };
+                const userSignals = new Set();
+                (signals || []).forEach(row => {
+                    if (counts[row.signal] !== undefined) counts[row.signal]++;
+                    if (currentUser && row.user_id === currentUser.id) userSignals.add(row.signal);
+                });
+
+                const profile = project.profiles;
+                const isOwner = currentUser?.id === project.user_id;
+
+                const thumbnail = project.thumbnail_url
+                    ? `<img src="${escapeHtml(project.thumbnail_url)}" alt="${escapeHtml(project.title)}">`
+                    : `<div class="project-hero-placeholder">🚀</div>`;
+
+                const techBadges = (project.tech_stack || [])
+                    .map(t => `<span class="tech-badge">${escapeHtml(t)}</span>`).join("");
+
+                document.title = `DevBlog — ${project.title}`;
+
+                container.innerHTML = `
+                    <a href="../showcase/index.html" class="back-btn">← Back to Showcase</a>
+
+                    <div class="project-hero">${thumbnail}</div>
+
+                    <div class="project-meta">
+                        <div class="project-title-block">
+                            <h1>${escapeHtml(project.title)}</h1>
+                            <p class="project-tagline">${escapeHtml(project.tagline)}</p>
+                        </div>
+                        <div class="project-links">
+                            ${project.live_url ? `<a href="${escapeHtml(project.live_url)}" target="_blank" class="project-link-btn live">🌐 Live Demo</a>` : ""}
+                            ${project.github_url ? `<a href="${escapeHtml(project.github_url)}" target="_blank" class="project-link-btn github">💻 GitHub</a>` : ""}
+                        </div>
+                    </div>
+
+                    <div class="project-info-row">
+                        <span class="project-status-badge ${project.status || 'completed'}">${project.status || 'completed'}</span>
+                        <a href="../profile/index.html?id=${project.user_id}" class="project-author-link">by ${escapeHtml(profile?.username || "Unknown")}</a>
+                        <span class="project-date">${formatDate(project.created_at)}</span>
+                    </div>
+
+                    ${techBadges ? `<div class="tech-stack">${techBadges}</div>` : ""}
+
+                    ${project.description ? `<p class="project-description">${escapeHtml(project.description)}</p>` : ""}
+
+                    ${isOwner ? `
+                        <div class="owner-actions">
+                            <button class="btn btn--secondary" onclick="window.location.href='../submit-project/index.html?id=${project.id}'">✏️ Edit</button>
+                            <button class="btn-danger" id="delete-btn">🗑️ Delete Project</button>
+                        </div>
+                    ` : ""}
+
+                    <div class="signal-section">
+                        <h3>Rate this project</h3>
+                        <div class="signal-buttons">
+                            <button class="signal-btn-large ${userSignals.has('useful') ? 'active' : ''}" data-signal="useful">
+                                💡
+                                <span>Useful</span>
+                                <span class="count" id="count-useful">${counts.useful}</span>
+                            </button>
+                            <button class="signal-btn-large ${userSignals.has('inspiring') ? 'active' : ''}" data-signal="inspiring">
+                                🔥
+                                <span>Inspiring</span>
+                                <span class="count" id="count-inspiring">${counts.inspiring}</span>
+                            </button>
+                            <button class="signal-btn-large ${userSignals.has('well_built') ? 'active' : ''}" data-signal="well_built">
+                                ⚙️
+                                <span>Well Built</span>
+                                <span class="count" id="count-well_built">${counts.well_built}</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                // Signal buttons
+                container.querySelectorAll(".signal-btn-large").forEach(btn => {
+                    btn.addEventListener("click", async () => {
+                        if (!currentUser) { alert("Please log in to rate projects."); return; }
+                        const signal = btn.dataset.signal;
+                        await window.DevBlogProjects.toggleSignal(projectId, signal);
+                        const countEl = document.getElementById(`count-${signal}`);
+                        const isActive = btn.classList.toggle("active");
+                        countEl.textContent = parseInt(countEl.textContent) + (isActive ? 1 : -1);
+                    });
+                });
+
+                // Delete button
+                if (isOwner) {
+                    document.getElementById("delete-btn")?.addEventListener("click", async () => {
+                        if (!confirm("Delete this project? This cannot be undone.")) return;
+                        try {
+                            await window.SupabaseClient.supabaseFetch(`projects?id=eq.${projectId}`, {
+                                method: "DELETE",
+                                prefer: "return=minimal"
+                            });
+                            window.location.href = "../showcase/index.html";
+                        } catch (err) {
+                            alert("Failed to delete: " + err.message);
+                        }
+                    });
+                }
+
+            } catch (err) {
+                container.innerHTML = `<p>Failed to load project: ${err.message}</p>`;
+            }
+        }
+
+        loadProject();
+    </script>
+</body>
+</html>
