@@ -188,22 +188,20 @@
             card.style.cursor = "pointer";
 
             card.innerHTML = `
-                <div class="post-card__heading">
-                    <h3 class="post-card__title">${escapeHtml(post.title)}</h3>
-                    <div class="post-badges">
-                        ${showType ? `<span class="post-badge">${toLabel(post.type)}</span>` : ""}
-                        ${post.highlighted ? `<span class="post-badge post-badge--highlight">Featured</span>` : ""}
+                <a href="../article-detail/index.html?id=${post.id}" class="post-card__link">
+                    <div class="post-card__heading">
+                        <h3 class="post-card__title">${escapeHtml(post.title)}</h3>
+                        <div class="post-badges">
+                            ${showType ? `<span class="post-badge">${toLabel(post.type)}</span>` : ""}
+                            ${post.highlighted ? `<span class="post-badge post-badge--highlight">Featured</span>` : ""}
+                        </div>
                     </div>
-                </div>
-                <p class="post-preview">${escapeHtml(preview)}${hasMore ? "..." : ""}</p>
-                <div class="post-footer">
-                    <span class="post-meta">${formatDate(post.updated_at || post.created_at)}</span>
-                </div>
+                    <p class="post-preview">${escapeHtml(preview)}${hasMore ? "..." : ""}</p>
+                    <div class="post-footer">
+                        <span class="post-meta">${formatDate(post.updated_at || post.created_at)}</span>
+                    </div>
+                </a>
             `;
-
-            card.addEventListener("click", () => {
-                openPostModal(post);
-            });
 
             container.appendChild(card);
         });
