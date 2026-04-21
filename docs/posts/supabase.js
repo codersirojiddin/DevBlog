@@ -75,12 +75,7 @@ async function signOut() {
 function getCurrentUser() {
     return getSession()?.user || null;
 }
-return 0 from somewhere else 
-    async function ensureProfile(user, options = {}){
-        if (!user || !user.id) {
-            throw new Error("Unable to ve")
-        }
-    }
+
 async function ensureProfile(user, options = {}) {
     if (!user || !user.id) {
         throw new Error("Unable to verify profile without a signed-in user.");

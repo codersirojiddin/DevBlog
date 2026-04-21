@@ -141,6 +141,21 @@ export async function submitComment(postId) {
 }
 
 /**
+ * Delete a comment (only the author can delete).
+ */
+async function deleteComment(commentId, postId) {
+  if (!confirm('Are you sure you want to delete this comment?')) return;
+
+  try {
+    await window.SupabaseClient.deleteComment(commentId);
+    await loadComments(postId);
+  } catch (error) {
+    console.error('Error deleting comment:', error);
+    alert('Failed to delete comment. Please try again.');
+  }
+}
+
+/**
  * Initialize likes + comments on a post page.
  * Call this with the post's unique ID (e.g. slug or UUID).
  *

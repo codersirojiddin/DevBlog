@@ -88,19 +88,6 @@
     overflow: hidden;
 }
 
-
-.admin-post-list {
-    max-height: 66vh;
-    min-height: 200px;
-    overflow-y: auto;
-    padding-right: 4px;
-}
-
-.admin-post-card .post-preview {
-    white-space: pre-wrap;
-    overflow-wrap: break-word;
-}
-
 .panel {
     background: var(--card-bg);
     border: 1px solid var(--border);
