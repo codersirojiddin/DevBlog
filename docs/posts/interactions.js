@@ -1,7 +1,18 @@
-// interactions.js — Likes & Comments for ither.online
+// interactions.js — Likes & Comments for DevBlog
 // Place this file in /docs/posts/interactions.js
-// Import your supabase client (adjust path if needed)
-import { supabase } from './supabase.js';
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
 
 // ─── LIKES ───────────────────────────────────────────────────────────────────
 
@@ -14,26 +25,20 @@ export async function loadLikes(postId) {
   const likeCount = document.getElementById('like-count');
   if (!likeBtn || !likeCount) return;
 
-  // Get total likes for this post
-  const { count } = await supabase
-    .from('likes')
-    .select('*', { count: 'exact', head: true })
-    .eq('post_id', postId);
+  try {
+    // Get total likes for this post
+    const count = await window.SupabaseClient.getLikesCount(postId);
+    likeCount.textContent = count;
 
-  likeCount.textContent = count ?? 0;
-
-  // Check if current user already liked
-  const { data: { user } } = await supabase.auth.getUser();
-  if (user) {
-    const { data: existing } = await supabase
-      .from('likes')
-      .select('id')
-      .eq('post_id', postId)
-      .eq('user_id', user.id)
-      .single();
-
-    likeBtn.classList.toggle('liked', !!existing);
-    likeBtn.title = existing ? 'Unlike this post' : 'Like this post';
+    // Check if current user already liked
+    const user = window.SupabaseClient.getCurrentUser();
+    if (user) {
+      const hasLiked = await window.SupabaseClient.hasUserLiked(postId, user.id);
+      likeBtn.classList.toggle('liked', hasLiked);
+      likeBtn.title = hasLiked ? 'Unlike this post' : 'Like this post';
+    }
+  } catch (error) {
+    console.error('Error loading likes:', error);
   }
 }
 
@@ -41,29 +46,29 @@ export async function loadLikes(postId) {
  * Toggle like/unlike for the current user on a post.
  */
 export async function toggleLike(postId) {
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = window.SupabaseClient.getCurrentUser();
 
   if (!user) {
     alert('Please log in to like posts.');
     return;
   }
 
-  const { data: existing } = await supabase
-    .from('likes')
-    .select('id')
-    .eq('post_id', postId)
-    .eq('user_id', user.id)
-    .single();
+  try {
+    const hasLiked = await window.SupabaseClient.hasUserLiked(postId, user.id);
 
-  if (existing) {
-    // Unlike
-    await supabase.from('likes').delete().eq('id', existing.id);
-  } else {
-    // Like (UNIQUE constraint prevents duplicates at DB level too)
-    await supabase.from('likes').insert({ post_id: postId, user_id: user.id });
+    if (hasLiked) {
+      // Unlike
+      await window.SupabaseClient.removeLike(postId, user.id);
+    } else {
+      // Like
+      await window.SupabaseClient.addLike(postId, user.id);
+    }
+
+    await loadLikes(postId);
+  } catch (error) {
+    console.error('Error toggling like:', error);
+    alert('Failed to update like. Please try again.');
   }
-
-  await loadLikes(postId);
 }
 
 // ─── COMMENTS ────────────────────────────────────────────────────────────────
@@ -75,36 +80,32 @@ export async function loadComments(postId) {
   const container = document.getElementById('comments-list');
   if (!container) return;
 
-  const { data: comments, error } = await supabase
-    .from('comments')
-    .select('*')
-    .eq('post_id', postId)
-    .order('created_at', { ascending: true });
+  try {
+    const comments = await window.SupabaseClient.getComments(postId);
 
-  if (error) {
-    container.innerHTML = '<p class="comments-error">Could not load comments.</p>';
-    return;
-  }
+    if (!comments || comments.length === 0) {
+      container.innerHTML = '<p class="comments-empty">No comments yet. Be the first!</p>';
+      return;
+    }
 
-  if (!comments || comments.length === 0) {
-    container.innerHTML = '<p class="comments-empty">No comments yet. Be the first!</p>';
-    return;
-  }
+    const user = window.SupabaseClient.getCurrentUser();
 
-  const { data: { user } } = await supabase.auth.getUser();
-
-  container.innerHTML = comments.map(c => `
-    <div class="comment" data-id="${c.id}">
-      <div class="comment-header">
-        <span class="comment-author">${escapeHtml(c.username)}</span>
-        <span class="comment-date">${formatDate(c.created_at)}</span>
-        ${user && user.id === c.user_id
-          ? `<button class="comment-delete-btn" onclick="deleteComment('${c.id}', '${postId}')">Delete</button>`
-          : ''}
+    container.innerHTML = comments.map(c => `
+      <div class="comment" data-id="${c.id}">
+        <div class="comment-header">
+          <span class="comment-author">${escapeHtml(c.username)}</span>
+          <span class="comment-date">${formatDate(c.created_at)}</span>
+          ${user && user.id === c.user_id
+            ? `<button class="comment-delete-btn" onclick="deleteComment('${c.id}', '${postId}')">Delete</button>`
+            : ''}
+        </div>
+        <p class="comment-body">${escapeHtml(c.body)}</p>
       </div>
-      <p class="comment-body">${escapeHtml(c.body)}</p>
-    </div>
-  `).join('');
+    `).join('');
+  } catch (error) {
+    console.error('Error loading comments:', error);
+    container.innerHTML = '<p class="comments-error">Could not load comments.</p>';
+  }
 }
 
 /**
@@ -116,47 +117,28 @@ export async function submitComment(postId) {
 
   if (!body) return;
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = window.SupabaseClient.getCurrentUser();
   if (!user) {
     alert('Please log in to comment.');
     return;
   }
 
-  // Get display name from user metadata, fallback to email prefix
-  const username = user.user_metadata?.username
-    || user.user_metadata?.full_name
-    || user.email?.split('@')[0]
-    || 'Anonymous';
+  try {
+    // Get display name from user metadata, fallback to email prefix
+    const username = user.user_metadata?.username
+      || user.user_metadata?.full_name
+      || user.email?.split('@')[0]
+      || 'Anonymous';
 
-  const { error } = await supabase.from('comments').insert({
-    post_id: postId,
-    user_id: user.id,
-    username,
-    body,
-  });
+    await window.SupabaseClient.addComment(postId, user.id, username, body);
 
-  if (error) {
+    input.value = '';
+    await loadComments(postId);
+  } catch (error) {
+    console.error('Error submitting comment:', error);
     alert('Failed to post comment. Please try again.');
-    return;
   }
-
-  input.value = '';
-  await loadComments(postId);
 }
-
-/**
- * Delete a comment (only the owner can do this).
- */
-export async function deleteComment(commentId, postId) {
-  const { error } = await supabase
-    .from('comments')
-    .delete()
-    .eq('id', commentId);
-
-  if (!error) await loadComments(postId);
-}
-
-// ─── INIT ─────────────────────────────────────────────────────────────────────
 
 /**
  * Initialize likes + comments on a post page.
@@ -196,20 +178,4 @@ export function initInteractions(postId) {
       }
     });
   }
-}
-
-// ─── HELPERS ──────────────────────────────────────────────────────────────────
-
-function escapeHtml(str) {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-function formatDate(iso) {
-  return new Date(iso).toLocaleDateString('en-US', {
-    year: 'numeric', month: 'short', day: 'numeric'
-  });
 }

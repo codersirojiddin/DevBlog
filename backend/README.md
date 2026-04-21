@@ -34,6 +34,31 @@ create table posts (
 );
 ```
 
+## SQL — likes table
+
+```sql
+create table likes (
+  id uuid primary key default gen_random_uuid(),
+  post_id uuid not null references posts(id) on delete cascade,
+  user_id uuid not null,
+  created_at timestamptz default now(),
+  unique(post_id, user_id)
+);
+```
+
+## SQL — comments table
+
+```sql
+create table comments (
+  id uuid primary key default gen_random_uuid(),
+  post_id uuid not null references posts(id) on delete cascade,
+  user_id uuid not null,
+  username text not null,
+  body text not null,
+  created_at timestamptz default now()
+);
+```
+
 ## Deploying
 
 1. Push this repo to GitHub

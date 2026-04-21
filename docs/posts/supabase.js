@@ -75,7 +75,12 @@ async function signOut() {
 function getCurrentUser() {
     return getSession()?.user || null;
 }
-
+return 0 from somewhere else 
+    async function ensureProfile(user, options = {}){
+        if (!user || !user.id) {
+            throw new Error("Unable to ve")
+        }
+    }
 async function ensureProfile(user, options = {}) {
     if (!user || !user.id) {
         throw new Error("Unable to verify profile without a signed-in user.");
@@ -123,6 +128,60 @@ async function deleteCommunityPost(id) {
     return true;
 }
 
+// ── Likes ─────────────────────────────────────────────────────────────────────
+async function getLikesCount(postId) {
+    if (!postId) throw new Error("Post id is required.");
+    const data = await supabaseFetch(`likes?select=id&post_id=eq.${encodeURIComponent(postId)}`, { method: "GET" });
+    return Array.isArray(data) ? data.length : 0;
+}
+
+async function hasUserLiked(postId, userId) {
+    if (!postId || !userId) return false;
+    const data = await supabaseFetch(`likes?select=id&post_id=eq.${encodeURIComponent(postId)}&user_id=eq.${encodeURIComponent(userId)}`, { method: "GET" });
+    return Array.isArray(data) && data.length > 0;
+}
+
+async function addLike(postId, userId) {
+    if (!postId || !userId) throw new Error("Post id and user id are required.");
+    await supabaseFetch("likes", {
+        method: "POST",
+        body: JSON.stringify({ post_id: postId, user_id: userId }),
+        prefer: "return=minimal"
+    });
+}
+
+async function removeLike(postId, userId) {
+    if (!postId || !userId) throw new Error("Post id and user id are required.");
+    await supabaseFetch(`likes?post_id=eq.${encodeURIComponent(postId)}&user_id=eq.${encodeURIComponent(userId)}`, {
+        method: "DELETE",
+        prefer: "return=minimal"
+    });
+}
+
+// ── Comments ──────────────────────────────────────────────────────────────────
+async function getComments(postId) {
+    if (!postId) throw new Error("Post id is required.");
+    return await supabaseFetch(`comments?select=*&post_id=eq.${encodeURIComponent(postId)}&order=created_at.asc`, { method: "GET" });
+}
+
+async function addComment(postId, userId, username, body) {
+    if (!postId || !userId || !body) throw new Error("Post id, user id, and body are required.");
+    const result = await supabaseFetch("comments", {
+        method: "POST",
+        body: JSON.stringify({ post_id: postId, user_id: userId, username, body }),
+        prefer: "return=representation"
+    });
+    return result;
+}
+
+async function deleteComment(commentId) {
+    if (!commentId) throw new Error("Comment id is required.");
+    await supabaseFetch(`comments?id=eq.${encodeURIComponent(commentId)}`, {
+        method: "DELETE",
+        prefer: "return=minimal"
+    });
+}
+
 window.SupabaseClient = window.SupabaseClient || {};
 Object.assign(window.SupabaseClient, {
     supabaseFetch,
@@ -134,5 +193,12 @@ Object.assign(window.SupabaseClient, {
     ensureProfile,
     getCommunityPost,
     updateCommunityPost,
-    deleteCommunityPost
+    deleteCommunityPost,
+    getLikesCount,
+    hasUserLiked,
+    addLike,
+    removeLike,
+    getComments,
+    addComment,
+    deleteComment
 });
