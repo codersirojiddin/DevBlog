@@ -17,65 +17,7 @@
     --shadow: 0 2px 12px rgba(31,41,55,0.08);
     --radius: 12px;
 }
-/* Maqola kartasi ichidagi link dizaynini tozalash */
-.post-card__link {
-    text-decoration: none !important; /* Tagidagi chiziqni yo'qotish */
-    color: inherit;               /* Rangni ota elementdan olish (qora/to'q kulrang) */
-    display: block;               /* Butun karta maydonini egallashi uchun */
-}
 
-.post-card__title {
-    color: var(--ink);            /* Sarlavha rangi qora bo'lishi uchun */
-    margin-bottom: 8px;
-}
-
-.post-card:hover .post-card__title {
-    color: var(--accent);         /* Sichqoncha ustiga kelganda sarlavha ko'k bo'ladi */
-}
-
-.post-preview {
-    color: var(--ink3);           /* Matn rangi link rangi bo'lib qolmasligi uchun */
-    text-decoration: none;
-}
-/* 1. Kardni nisbiy pozitsiyaga o'tkazamiz */
-.post-card {
-    position: relative; 
-    transition: all 0.3s ease;
-}
-
-/* 2. Sarlavha ichidagi linkni butun kard bo'ylab yoyib yuboramiz */
-.post-card__main-link {
-    text-decoration: none !important;
-    color: var(--ink);
-    outline: none;
-}
-
-.post-card__main-link::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 1; /* Butun kardni qoplaydi */
-}
-
-/* 3. Ichidagi matnlarni chiziqlardan tozalaymiz */
-.post-preview, .post-meta {
-    text-decoration: none !important;
-    color: var(--muted); /* Sana va preview biroz ochroq rangda chiroyli chiqadi */
-}
-
-/* 4. Hover effekti - butun karta ustiga kelganda */
-.post-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 25px rgba(31, 41, 55, 0.12);
-    border-color: var(--accent);
-}
-
-.post-card:hover .post-card__title {
-    color: var(--accent);
-}
 * {
     margin: 0;
     padding: 0;
@@ -455,20 +397,25 @@ nav ul li a.active {
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
+/* ── TAHRIRLANGAN POST-CARD QISMI ── */
 .post-card,
 .admin-post-card {
+    position: relative; /* Link butun kartani egallashi uchun shart */
     background: var(--card-bg);
     border: 1px solid rgba(148, 163, 184, 0.18);
     border-radius: 20px;
     box-shadow: var(--shadow);
     padding: 24px;
-    transition: transform 0.2s ease, border-color 0.2s ease;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
 }
 
 .post-card:hover,
 .admin-post-card:hover {
     transform: translateY(-3px);
-    border-color: rgba(37, 99, 235, 0.24);
+    border-color: var(--accent);
+    box-shadow: 0 8px 24px rgba(31, 41, 55, 0.12);
 }
 
 .post-card__heading,
@@ -478,46 +425,66 @@ nav ul li a.active {
     justify-content: space-between;
     gap: 14px;
     flex-wrap: wrap;
+    margin-bottom: 8px;
 }
 
+/* Sarlavha linki dizayni */
 .post-card__title,
 .admin-post-card__heading h3 {
-    font-size: 1.1rem;
-    margin-bottom: 0;
-    line-height: 1.25;
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--ink);
+    margin: 0;
+}
+
+/* Linkni butun karta bo'ylab yoyish */
+.post-card__main-link {
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
+.post-card__main-link::after {
+    content: "";
+    position: absolute;
+    inset: 0; /* top, left, right, bottom: 0 */
+    z-index: 1;
+}
+
+.post-card:hover .post-card__title {
+    color: var(--accent);
 }
 
 .post-badges {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 8px;
+    gap: 8px;
+    position: relative;
+    z-index: 2; /* Link ustida qolishi uchun */
 }
 
 .post-badge {
     display: inline-flex;
     align-items: center;
-    padding: 6px 11px;
+    padding: 4px 10px;
     border-radius: 999px;
-    font-size: 0.78rem;
+    font-size: 0.72rem;
     font-weight: 700;
     color: var(--accent);
     background: rgba(37, 99, 235, 0.08);
 }
 
 .post-badge--highlight {
-    color: #0f172a;
-    background: rgba(251, 191, 36, 0.18);
+    color: #92400e;
+    background: #fef3c7;
 }
 
 .post-preview {
     color: var(--ink3);
-    line-height: 1.7;
-    margin: 18px 0;
-    min-height: 72px;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    white-space: normal;
+    line-height: 1.6;
+    margin: 12px 0;
+    min-height: 60px;
+    text-decoration: none !important; /* Chiziqni o'chirish */
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
@@ -526,13 +493,19 @@ nav ul li a.active {
 
 .post-footer {
     display: flex;
-    flex-wrap: wrap;
     justify-content: space-between;
-    gap: 12px;
     align-items: center;
-    font-size: 0.92rem;
+    margin-top: auto;
+    font-size: 0.88rem;
     color: var(--muted);
+    text-decoration: none !important; /* Chiziqni o'chirish */
 }
+
+.post-meta {
+    text-decoration: none !important;
+}
+
+/* ── QOLGAN CSS O'ZGARISHSIZ QOLDI ── */
 
 .post-modal {
     position: fixed;
@@ -1189,4 +1162,3 @@ nav ul li a.active {
         width: 100%;
     }
 }
-

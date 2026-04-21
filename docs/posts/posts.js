@@ -110,8 +110,9 @@
         return "Code";
     }
 
-    function getPreview(text, lines = 3) {
-        return text.split("\n").slice(0, lines).join("\n");
+    function getPreview(text, lines = 1) {
+        if (!text) return "";
+        return text.split("\n")[0];
     }
 
     function openPostModal(post) {
@@ -125,7 +126,7 @@
             <div class="post-modal__content" role="dialog" aria-modal="true" aria-label="Full post">
                 <button class="post-modal__close" aria-label="Close full post">×</button>
                 <h2>${escapeHtml(post.title)}</h2>
-                <div class="post-meta">${window.DevBlogPosts.toLabel(post.type)} • ${window.DevBlogPosts.formatDate(post.updated_at || post.created_at)}</div>
+                <div class="post-meta">${toLabel(post.type)} • ${formatDate(post.updated_at || post.created_at)}</div>
                 <p class="post-content">${escapeHtml(post.content)}</p>
 
                 <div class="post-interactions">
@@ -143,7 +144,7 @@
                     <div id="comments-list" class="comments-list"></div>
                     <div class="comment-form">
                         <textarea id="comment-input" class="comment-input"
-                            placeholder="Write a comment... (Enter to post, Shift+Enter for new line)"
+                            placeholder="Write a comment..."
                             rows="3"></textarea>
                         <button id="comment-submit" class="comment-submit-btn">Post Comment</button>
                     </div>
@@ -161,7 +162,6 @@
 
         document.body.appendChild(modal);
 
-        // Init likes & comments
         import('/posts/interactions.js').then(({ initInteractions }) => {
             initInteractions(post.id);
         });
@@ -185,26 +185,25 @@
             const card = document.createElement("article");
             card.className = "post-card";
             card.dataset.id = post.id;
-            card.style.cursor = "pointer";
 
-            // posts.js ichidagi renderPosts qismini shunday o'zgartiring:
+            // HTML strukturani tahrirlaymiz: faqat bitta asosiy link bo'ladi
             card.innerHTML = `
-    <div class="post-card__heading">
-        <h3 class="post-card__title">
-            <a href="../article-detail/index.html?id=${post.id}" class="post-card__main-link">
-                ${escapeHtml(post.title)}
-            </a>
-        </h3>
-        <div class="post-badges">
-            ${showType ? `<span class="post-badge">${toLabel(post.type)}</span>` : ""}
-            ${post.highlighted ? `<span class="post-badge post-badge--highlight">Featured</span>` : ""}
-        </div>
-    </div>
-    <p class="post-preview">${escapeHtml(preview)}${hasMore ? "..." : ""}</p>
-    <div class="post-footer">
-        <span class="post-meta">${formatDate(post.updated_at || post.created_at)}</span>
-    </div>
-`;
+                <div class="post-card__heading">
+                    <h3 class="post-card__title">
+                        <a href="../article-detail/index.html?id=${post.id}" class="post-card__main-link">
+                            ${escapeHtml(post.title)}
+                        </a>
+                    </h3>
+                    <div class="post-badges">
+                        ${showType ? `<span class="post-badge">${toLabel(post.type)}</span>` : ""}
+                        ${post.highlighted ? `<span class="post-badge post-badge--highlight">Featured</span>` : ""}
+                    </div>
+                </div>
+                <p class="post-preview">${escapeHtml(preview)}${hasMore ? "..." : ""}</p>
+                <div class="post-footer">
+                    <span class="post-meta">${formatDate(post.updated_at || post.created_at)}</span>
+                </div>
+            `;
 
             container.appendChild(card);
         });
@@ -215,7 +214,8 @@
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;");
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
     }
 
     window.DevBlogPosts = {
