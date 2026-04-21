@@ -5,6 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DevBlog — Profile</title>
     <link rel="stylesheet" href="../style.css">
+    <style>
+        .profile-stats {
+            display: flex;
+            gap: 24px;
+            margin: 10px 0;
+        }
+
+        .profile-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .profile-stat strong {
+            font-size: 1.2rem;
+            color: #111;
+        }
+
+        .btn--follow {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .btn--follow:hover {
+            background-color: #1d4ed8;
+        }
+
+        .btn--follow.following {
+            background-color: #e5e7eb;
+            color: #374151;
+        }
+
+        .btn--follow.following:hover {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -72,12 +118,27 @@
 
         const isOwner = currentUser?.id === profileId;
 
+        function escapeHtml(str) {
+            return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+        }
+
         async function loadProfile() {
             const headerEl = document.getElementById("profile-header");
             try {
-                const data = await window.SupabaseClient.supabaseFetch(`profiles?id=eq.${profileId}`);
+                const [data, followersCount, followingCount] = await Promise.all([
+                    window.SupabaseClient.supabaseFetch(`profiles?id=eq.${profileId}`),
+                    window.SupabaseClient.getFollowersCount(profileId),
+                    window.SupabaseClient.getFollowingCount(profileId)
+                ]);
+
                 const profile = data?.[0];
                 if (!profile) { headerEl.innerHTML = `<p>User not found.</p>`; return; }
+
+                // Check if current user is following this profile
+                let alreadyFollowing = false;
+                if (currentUser && !isOwner) {
+                    alreadyFollowing = await window.SupabaseClient.isFollowing(currentUser.id, profileId);
+                }
 
                 const avatarContent = profile.avatar_url
                     ? `<img src="${profile.avatar_url}" alt="${profile.username}">`
@@ -89,16 +150,64 @@
                         <h2>${escapeHtml(profile.username)}</h2>
                         ${profile.bio ? `<p class="profile-bio">${escapeHtml(profile.bio)}</p>` : ""}
                         <p class="profile-joined">Joined ${window.DevBlogPosts.formatDate(profile.created_at)}</p>
-                        ${isOwner ? `<button class="btn btn--secondary" id="edit-btn">Edit Profile</button>` : ""}
+                        <div class="profile-stats">
+                            <div class="profile-stat">
+                                <strong id="followers-count">${followersCount}</strong>
+                                <span>Followers</span>
+                            </div>
+                            <div class="profile-stat">
+                                <strong>${followingCount}</strong>
+                                <span>Following</span>
+                            </div>
+                        </div>
+                        ${isOwner
+                            ? `<button class="btn btn--secondary" id="edit-btn">Edit Profile</button>`
+                            : currentUser
+                                ? `<button class="btn--follow ${alreadyFollowing ? 'following' : ''}" id="follow-btn">
+                                       ${alreadyFollowing ? '✓ Following' : '+ Follow'}
+                                   </button>`
+                                : `<a href="../login/index.html" class="btn">Log in to Follow</a>`
+                        }
                     </div>
                 `;
 
+                // Edit button logic
                 if (isOwner) {
                     document.getElementById("edit-btn").addEventListener("click", () => {
                         document.getElementById("edit-username").value = profile.username;
                         document.getElementById("edit-bio").value = profile.bio || "";
                         document.getElementById("edit-avatar").value = profile.avatar_url || "";
                         document.getElementById("edit-form").classList.add("visible");
+                    });
+                }
+
+                // Follow button logic
+                if (!isOwner && currentUser) {
+                    const followBtn = document.getElementById("follow-btn");
+                    let following = alreadyFollowing;
+
+                    followBtn.addEventListener("click", async () => {
+                        followBtn.disabled = true;
+                        try {
+                            if (following) {
+                                await window.SupabaseClient.unfollowUser(currentUser.id, profileId);
+                                following = false;
+                                followBtn.textContent = "+ Follow";
+                                followBtn.classList.remove("following");
+                                document.getElementById("followers-count").textContent =
+                                    parseInt(document.getElementById("followers-count").textContent) - 1;
+                            } else {
+                                await window.SupabaseClient.followUser(currentUser.id, profileId);
+                                following = true;
+                                followBtn.textContent = "✓ Following";
+                                followBtn.classList.add("following");
+                                document.getElementById("followers-count").textContent =
+                                    parseInt(document.getElementById("followers-count").textContent) + 1;
+                            }
+                        } catch (err) {
+                            alert("Failed to update follow: " + err.message);
+                        }
+                        followBtn.disabled = false;
                     });
                 }
 
@@ -121,11 +230,11 @@
                 }
 
                 container.innerHTML = "";
-                posts.forEach((post, idx) => {
+                posts.forEach(post => {
                     const card = document.createElement("article");
                     card.className = "post-card";
                     card.dataset.id = post.id;
-                    
+
                     const preview = post.content.split("\n")[0];
                     const hasMore = post.content.split("\n").length > 1;
 
@@ -208,10 +317,6 @@
         document.getElementById("cancel-edit-btn").addEventListener("click", () => {
             document.getElementById("edit-form").classList.remove("visible");
         });
-
-        function escapeHtml(str) {
-            return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-        }
 
         loadProfile();
         loadUserPosts();

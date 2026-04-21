@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DevBlog — Community</title>
     <link rel="stylesheet" href="../style.css">
-    
 </head>
 
 <body>
@@ -46,6 +45,21 @@
         </div>
     </div>
 
+    <style>
+        .post-stats {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .post-stat {
+            font-size: 0.85rem;
+            color: #666;
+        }
+    </style>
+
     <script src="../posts/supabase.js"></script>
     <script src="../posts/posts.js"></script>
     <script src="../posts/user-menu.js"></script>
@@ -65,7 +79,14 @@
             userBar.innerHTML = `<a href="../login/index.html" class="btn">Sign In to Post</a>`;
         }
 
-        // Load community posts
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;");
+        }
+
         async function loadPosts() {
             const container = document.getElementById("posts-container");
             try {
@@ -79,13 +100,22 @@
                 }
 
                 container.innerHTML = "";
-                posts.forEach(post => {
+
+                // Fetch all posts with like/comment counts in parallel
+                const postCards = await Promise.all(posts.map(async post => {
                     const profile = post.profiles;
+                    const preview = post.content.split("\n")[0];
+
+                    // Fetch counts in parallel
+                    const [likesCount, comments] = await Promise.all([
+                        window.SupabaseClient.getLikesCount(post.id).catch(() => 0),
+                        window.SupabaseClient.getComments(post.id).catch(() => [])
+                    ]);
+                    const commentsCount = Array.isArray(comments) ? comments.length : 0;
+
                     const card = document.createElement("article");
                     card.className = "post-card";
                     card.style.cursor = "pointer";
-                    const preview = post.content.split("\n")[0];
-                    const isOwner = String(user?.id) === String(post.user_id);
                     card.innerHTML = `
                         <div class="post-card__heading">
                             <h3 class="post-card__title">${escapeHtml(post.title)}</h3>
@@ -96,25 +126,28 @@
                             <span class="post-meta">${window.DevBlogPosts.formatDate(post.created_at)}</span>
                             <span class="post-author">by <a href="../profile/index.html?id=${post.user_id}">${escapeHtml(profile?.username || "Unknown")}</a></span>
                         </div>
+                        <div class="post-stats">
+                            <span class="post-stat">❤️ ${likesCount}</span>
+                            <span class="post-stat">💬 ${commentsCount}</span>
+                        </div>
                     `;
                     card.addEventListener("click", (e) => {
                         if (e.target.tagName === "A") return;
                         window.DevBlogPosts.openPostModal(post);
                     });
-                    container.appendChild(card);
-                });
+                    return card;
+                }));
+
+                postCards.forEach(card => container.appendChild(card));
+
             } catch (err) {
                 container.innerHTML = `<p class="empty-state">Failed to load posts: ${err.message}</p>`;
             }
         }
 
-        function escapeHtml(str) {
-            return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-        }
-
         loadPosts();
     </script>
-    
+
 </body>
 
 </html>

@@ -92,6 +92,7 @@ async function ensureProfile(user, options = {}) {
     return body;
 }
 
+// ── Community Posts ───────────────────────────────────────────────────────────
 async function getCommunityPost(id) {
     if (!id) throw new Error("Post id is required.");
     const data = await supabaseFetch(`community_posts?id=eq.${encodeURIComponent(id)}`, { method: "GET" });
@@ -177,6 +178,43 @@ async function deleteComment(commentId) {
     });
 }
 
+// ── Follows ───────────────────────────────────────────────────────────────────
+async function followUser(followerId, followingId) {
+    if (!followerId || !followingId) throw new Error("Both user ids are required.");
+    await supabaseFetch("follows", {
+        method: "POST",
+        body: JSON.stringify({ follower_id: followerId, following_id: followingId }),
+        prefer: "return=minimal"
+    });
+}
+
+async function unfollowUser(followerId, followingId) {
+    if (!followerId || !followingId) throw new Error("Both user ids are required.");
+    await supabaseFetch(`follows?follower_id=eq.${encodeURIComponent(followerId)}&following_id=eq.${encodeURIComponent(followingId)}`, {
+        method: "DELETE",
+        prefer: "return=minimal"
+    });
+}
+
+async function isFollowing(followerId, followingId) {
+    if (!followerId || !followingId) return false;
+    const data = await supabaseFetch(`follows?select=id&follower_id=eq.${encodeURIComponent(followerId)}&following_id=eq.${encodeURIComponent(followingId)}`, { method: "GET" });
+    return Array.isArray(data) && data.length > 0;
+}
+
+async function getFollowersCount(userId) {
+    if (!userId) return 0;
+    const data = await supabaseFetch(`follows?select=id&following_id=eq.${encodeURIComponent(userId)}`, { method: "GET" });
+    return Array.isArray(data) ? data.length : 0;
+}
+
+async function getFollowingCount(userId) {
+    if (!userId) return 0;
+    const data = await supabaseFetch(`follows?select=id&follower_id=eq.${encodeURIComponent(userId)}`, { method: "GET" });
+    return Array.isArray(data) ? data.length : 0;
+}
+
+// ── Export ────────────────────────────────────────────────────────────────────
 window.SupabaseClient = window.SupabaseClient || {};
 Object.assign(window.SupabaseClient, {
     supabaseFetch,
@@ -195,5 +233,10 @@ Object.assign(window.SupabaseClient, {
     removeLike,
     getComments,
     addComment,
-    deleteComment
+    deleteComment,
+    followUser,
+    unfollowUser,
+    isFollowing,
+    getFollowersCount,
+    getFollowingCount
 });
