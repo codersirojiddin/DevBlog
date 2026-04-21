@@ -1,6 +1,19 @@
 (() => {
     const VALID_TYPES = new Set(["article", "news", "code"]);
 
+    // SEO uchun sarlavhadan slug yasash (Masalan: "AI is Great!" -> "ai-is-great")
+    function generateSlug(text) {
+        return text
+            .toString()
+            .toLowerCase()
+            .trim()
+            .replace(/\s+/g, '-')           // Bo'shliqlarni chiziqqa almashtirish
+            .replace(/[^\w\-]+/g, '')       // Maxsus belgilarni o'chirish
+            .replace(/\-\-+/g, '-')         // Ketma-ket chiziqlarni bitta qilish
+            .replace(/^-+/, '')             // Boshidagi chiziqlarni o'chirish
+            .replace(/-+$/, '');            // Oxiridagi chiziqlarni o'chirish
+    }
+
     function normalizeText(value) {
         return String(value || "").trim();
     }
@@ -110,7 +123,7 @@
         return "Code";
     }
 
-    function getPreview(text, lines = 1) {
+    function getPreview(text) {
         if (!text) return "";
         return text.split("\n")[0];
     }
@@ -179,18 +192,18 @@
         }
 
         posts.forEach((post) => {
-            const preview = getPreview(post.content, 1);
+            const preview = getPreview(post.content);
             const hasMore = post.content.split("\n").length > 1 || post.content.length > preview.length;
+            const slug = generateSlug(post.title); // SEO Slug yaratish
 
             const card = document.createElement("article");
             card.className = "post-card";
             card.dataset.id = post.id;
 
-            // HTML strukturani tahrirlaymiz: faqat bitta asosiy link bo'ladi
             card.innerHTML = `
                 <div class="post-card__heading">
                     <h3 class="post-card__title">
-                        <a href="../article-detail/index.html?id=${post.id}" class="post-card__main-link">
+                        <a href="../article-detail/index.html?post=${slug}&id=${post.id}" class="post-card__main-link">
                             ${escapeHtml(post.title)}
                         </a>
                     </h3>
@@ -228,6 +241,7 @@
         renderPosts,
         openPostModal,
         toLabel,
-        formatDate
+        formatDate,
+        generateSlug // Kerak bo'lsa tashqarida ham ishlatsa bo'ladi
     };
 })();
