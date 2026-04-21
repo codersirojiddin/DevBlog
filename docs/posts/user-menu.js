@@ -1,5 +1,12 @@
 // Initialize user menu on all pages
 function initializeUserMenu() {
+    // Guard: wait for SupabaseClient to be available
+    if (!window.SupabaseClient || typeof window.SupabaseClient.getCurrentUser !== "function") {
+        console.warn("SupabaseClient not ready, retrying...");
+        setTimeout(initializeUserMenu, 100);
+        return;
+    }
+
     const user = window.SupabaseClient.getCurrentUser();
     const navRight = document.getElementById("nav-right");
     
@@ -81,3 +88,5 @@ function initializeUserMenu() {
     }
 }
 
+// Wait for DOM + scripts to load
+document.addEventListener("DOMContentLoaded", initializeUserMenu);
