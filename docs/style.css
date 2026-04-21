@@ -17,7 +17,24 @@
     --shadow: 0 2px 12px rgba(31,41,55,0.08);
     --radius: 12px;
 }
+/* 1. Hamma chiziqlarni majburan o'chiramiz */
+.post-card, 
+.post-card * {
+    text-decoration: none !important;
+}
 
+/* 2. Sarlavha linkini karta bo'ylab yoyish (Card clickable bo'lishi uchun) */
+.post-card__main-link::after {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 1 !important;
+}
+
+/* 3. Link rangini matn rangiga tenglaymiz (ko'k bo'lib qolmasligi uchun) */
+.post-card__title a {
+    color: var(--ink) !important;
+}
 * {
     margin: 0;
     padding: 0;
