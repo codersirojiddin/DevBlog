@@ -187,21 +187,24 @@
             card.dataset.id = post.id;
             card.style.cursor = "pointer";
 
+            // posts.js ichidagi renderPosts qismini shunday o'zgartiring:
             card.innerHTML = `
-                <a href="../article-detail/index.html?id=${post.id}" class="post-card__link">
-                    <div class="post-card__heading">
-                        <h3 class="post-card__title">${escapeHtml(post.title)}</h3>
-                        <div class="post-badges">
-                            ${showType ? `<span class="post-badge">${toLabel(post.type)}</span>` : ""}
-                            ${post.highlighted ? `<span class="post-badge post-badge--highlight">Featured</span>` : ""}
-                        </div>
-                    </div>
-                    <p class="post-preview">${escapeHtml(preview)}${hasMore ? "..." : ""}</p>
-                    <div class="post-footer">
-                        <span class="post-meta">${formatDate(post.updated_at || post.created_at)}</span>
-                    </div>
-                </a>
-            `;
+    <div class="post-card__heading">
+        <h3 class="post-card__title">
+            <a href="../article-detail/index.html?id=${post.id}" class="post-card__main-link">
+                ${escapeHtml(post.title)}
+            </a>
+        </h3>
+        <div class="post-badges">
+            ${showType ? `<span class="post-badge">${toLabel(post.type)}</span>` : ""}
+            ${post.highlighted ? `<span class="post-badge post-badge--highlight">Featured</span>` : ""}
+        </div>
+    </div>
+    <p class="post-preview">${escapeHtml(preview)}${hasMore ? "..." : ""}</p>
+    <div class="post-footer">
+        <span class="post-meta">${formatDate(post.updated_at || post.created_at)}</span>
+    </div>
+`;
 
             container.appendChild(card);
         });
