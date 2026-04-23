@@ -103,6 +103,14 @@
 
         .project-link-btn.github:hover { background: #e2e8f0; }
 
+        .project-link-btn.bookmark {
+            background: #f1f5f9;
+            color: #333;
+            border: 1px solid #e2e8f0;
+        }
+
+        .project-link-btn.bookmark:hover { background: #e2e8f0; }
+
         .project-info-row {
             display: flex;
             align-items: center;
@@ -237,6 +245,275 @@
         }
 
         .btn-danger:hover { background: #fecaca; }
+
+        .project-team-section {
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .project-team-section h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #111;
+        }
+
+        .roles-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .role-item {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            background: #f9fafb;
+        }
+
+        .role-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .role-header h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #111;
+        }
+
+        .role-status {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .role-description {
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .role-details {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .role-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .skill-badge {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+
+        .apply-btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .applied-status {
+            color: #059669;
+            font-weight: 500;
+        }
+
+        .applications-list {
+            margin-top: 12px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 12px;
+        }
+
+        .application-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .application-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .accept-btn {
+            background: #059669;
+            color: white;
+        }
+
+        .reject-btn {
+            background: #dc2626;
+            color: white;
+        }
+
+        .status-accepted {
+            color: #059669;
+            font-weight: 500;
+        }
+
+        .status-rejected {
+            color: #dc2626;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            color: #d97706;
+            font-weight: 500;
+        }
+
+        .team-members {
+            margin-top: 24px;
+        }
+
+        .team-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .team-member {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: #f9fafb;
+            border-radius: 6px;
+        }
+
+        .member-role {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .comments-section {
+            margin-top: 40px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 24px;
+        }
+
+        .comments-section h3 {
+            font-size: 1.1rem;
+            margin: 0 0 20px;
+            color: #333;
+        }
+
+        .comment-form {
+            margin-bottom: 24px;
+        }
+
+        .comment-form textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            resize: vertical;
+            font-family: inherit;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .comment {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            background: #fafafa;
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .comment-author {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #2563eb;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .comment-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .comment-date {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .comment-delete {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.8rem;
+            opacity: 0.6;
+            transition: opacity 0.15s;
+        }
+
+        .comment-delete:hover {
+            opacity: 1;
+        }
+
+        .comment-body {
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .no-comments {
+            color: #666;
+            font-style: italic;
+            text-align: center;
+            padding: 40px;
+        }
     </style>
 </head>
 <body>
@@ -281,8 +558,74 @@
             return String(str || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
         }
 
-        function formatDate(str) {
-            return new Date(str).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+        function renderTeamSection(roles, teamMembers, isOwner, currentUser) {
+            if (!roles || roles.length === 0) return '';
+
+            const rolesHtml = roles.map(role => {
+                const applications = role.project_applications || [];
+                const acceptedCount = applications.filter(app => app.status === 'accepted').length;
+                const pendingCount = applications.filter(app => app.status === 'pending').length;
+                const hasApplied = applications.some(app => app.user_id === currentUser?.id);
+
+                let applyButton = '';
+                if (currentUser && !isOwner && !hasApplied && acceptedCount < role.max_positions) {
+                    applyButton = `<button class="btn btn--primary apply-btn" data-role-id="${role.id}">Apply for this role</button>`;
+                } else if (hasApplied) {
+                    applyButton = `<span class="applied-status">Applied</span>`;
+                }
+
+                const applicationsHtml = isOwner ? applications.map(app => `
+                    <div class="application-item">
+                        <span>${app.profiles?.username || 'Unknown'}</span>
+                        <div class="application-actions">
+                            ${app.status === 'pending' ? `
+                                <button class="btn-small accept-btn" data-app-id="${app.id}">Accept</button>
+                                <button class="btn-small reject-btn" data-app-id="${app.id}">Reject</button>
+                            ` : `<span class="status-${app.status}">${app.status}</span>`}
+                        </div>
+                    </div>
+                `).join('') : '';
+
+                return `
+                    <div class="role-item">
+                        <div class="role-header">
+                            <h4>${escapeHtml(role.title)}</h4>
+                            <span class="role-status">${acceptedCount}/${role.max_positions} filled</span>
+                        </div>
+                        <p class="role-description">${escapeHtml(role.description || '')}</p>
+                        <div class="role-details">
+                            <span>Level: ${role.level}</span>
+                            <span>Commitment: ${role.commitment}</span>
+                            <span>Compensation: ${role.compensation}</span>
+                        </div>
+                        <div class="role-skills">
+                            ${role.skills_required.map(skill => `<span class="skill-badge">${skill}</span>`).join('')}
+                        </div>
+                        ${applyButton}
+                        ${applicationsHtml ? `<div class="applications-list">${applicationsHtml}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            const teamHtml = teamMembers && teamMembers.length > 0 ? `
+                <div class="team-members">
+                    <h3>Team Members</h3>
+                    <div class="team-list">
+                        ${teamMembers.map(member => `
+                            <div class="team-member">
+                                <a href="../profile/index.html?id=${member.user_id}">${escapeHtml(member.profiles?.username || 'Unknown')}</a>
+                                <span class="member-role">${escapeHtml(member.project_roles?.title || '')}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : '';
+
+            return `
+                <h3>Team Roles</h3>
+                <div class="roles-list">${rolesHtml}</div>
+                ${teamHtml}
+            `;
         }
 
         function formatStatus(status) {
@@ -324,6 +667,15 @@
                     if (currentUser && row.user_id === currentUser.id) userSignals.add(row.signal);
                 });
 
+                // Fetch roles and applications
+                const roles = await window.SupabaseClient.supabaseFetch(
+                    `project_roles?project_id=eq.${projectId}&select=*,project_applications(user_id,profiles(username),status)`
+                ).catch(() => []);
+
+                const teamMembers = await window.SupabaseClient.supabaseFetch(
+                    `project_team_members?project_id=eq.${projectId}&select=*,profiles(username),project_roles(title)`
+                ).catch(() => []);
+
                 const profile = project.profiles;
                 const isOwner = currentUser?.id === project.user_id;
 
@@ -335,6 +687,10 @@
                     .map(t => `<span class="tech-badge">${escapeHtml(t)}</span>`).join("");
 
                 document.title = `DevBlog — ${project.title}`;
+
+                // Render team section
+                const teamSection = renderTeamSection(roles, teamMembers, isOwner, currentUser);
+                const teamSectionHtml = teamSection ? `<div class="project-team-section">${teamSection}</div>` : '';
 
                 container.innerHTML = `
                     <a href="../showcase/index.html" class="back-btn">← Back to Showcase</a>
@@ -349,6 +705,7 @@
                         <div class="project-links">
                             ${project.live_url ? `<a href="${escapeHtml(project.live_url)}" target="_blank" class="project-link-btn live">🌐 Live Demo</a>` : ""}
                             ${project.github_url ? `<a href="${escapeHtml(project.github_url)}" target="_blank" class="project-link-btn github">💻 GitHub</a>` : ""}
+                            ${currentUser ? `<button class="project-link-btn bookmark" id="bookmark-btn" data-bookmarked="false">🔖 Bookmark</button>` : ""}
                         </div>
                     </div>
 
@@ -361,6 +718,8 @@
                     ${techBadges ? `<div class="tech-stack">${techBadges}</div>` : ""}
 
                     ${project.description ? `<p class="project-description">${escapeHtml(project.description)}</p>` : ""}
+
+                    ${teamSectionHtml}
 
                     ${isOwner ? `
                         <div class="owner-actions">
@@ -389,18 +748,37 @@
                             </button>
                         </div>
                     </div>
+
+                    <div class="comments-section">
+                        <h3>Comments</h3>
+                        ${currentUser ? `
+                            <div class="comment-form">
+                                <textarea id="comment-input" placeholder="Share your thoughts..." rows="3"></textarea>
+                                <button class="btn" id="submit-comment">Post Comment</button>
+                            </div>
+                        ` : `
+                            <p><a href="../login/index.html">Log in</a> to join the discussion.</p>
+                        `}
+                        <div id="comments-list" class="comments-list">
+                            <div class="loading-state"><div class="spinner"></div> Loading comments...</div>
+                        </div>
+                    </div>
                 `;
 
-                // Signal buttons
-                container.querySelectorAll(".signal-btn-large").forEach(btn => {
-                    btn.addEventListener("click", async () => {
-                        if (!currentUser) { alert("Please log in to rate projects."); return; }
-                        const signal = btn.dataset.signal;
-                        await window.DevBlogProjects.toggleSignal(projectId, signal);
-                        const countEl = document.getElementById(`count-${signal}`);
-                        const isActive = btn.classList.toggle("active");
-                        countEl.textContent = parseInt(countEl.textContent) + (isActive ? 1 : -1);
-                    });
+                // Apply button
+                container.addEventListener('click', async (e) => {
+                    if (e.target.classList.contains('apply-btn')) {
+                        const roleId = e.target.dataset.roleId;
+                        await applyForRole(roleId);
+                    }
+                    if (e.target.classList.contains('accept-btn')) {
+                        const appId = e.target.dataset.appId;
+                        await updateApplication(appId, 'accepted');
+                    }
+                    if (e.target.classList.contains('reject-btn')) {
+                        const appId = e.target.dataset.appId;
+                        await updateApplication(appId, 'rejected');
+                    }
                 });
 
                 // Delete button
@@ -419,12 +797,152 @@
                     });
                 }
 
+                // Bookmark button
+                if (currentUser) {
+                    const bookmarkBtn = document.getElementById("bookmark-btn");
+                    if (bookmarkBtn) {
+                        // Check if already bookmarked
+                        const isBookmarked = await window.SupabaseClient.isBookmarked(currentUser.id, projectId);
+                        bookmarkBtn.dataset.bookmarked = isBookmarked ? "true" : "false";
+                        bookmarkBtn.textContent = isBookmarked ? "✓ Bookmarked" : "🔖 Bookmark";
+
+                        bookmarkBtn.addEventListener("click", async () => {
+                            bookmarkBtn.disabled = true;
+                            try {
+                                const currentlyBookmarked = bookmarkBtn.dataset.bookmarked === "true";
+                                if (currentlyBookmarked) {
+                                    await window.SupabaseClient.unbookmarkProject(currentUser.id, projectId);
+                                    bookmarkBtn.dataset.bookmarked = "false";
+                                    bookmarkBtn.textContent = "🔖 Bookmark";
+                                } else {
+                                    await window.SupabaseClient.bookmarkProject(currentUser.id, projectId);
+                                    bookmarkBtn.dataset.bookmarked = "true";
+                                    bookmarkBtn.textContent = "✓ Bookmarked";
+                                }
+                            } catch (err) {
+                                alert("Failed to update bookmark: " + err.message);
+                            }
+                            bookmarkBtn.disabled = false;
+                        });
+                    }
+                }
+
+                // Load and display comments
+                async function loadComments() {
+                    const commentsList = document.getElementById("comments-list");
+                    try {
+                        const comments = await window.SupabaseClient.getProjectComments(projectId);
+                        if (comments.length === 0) {
+                            commentsList.innerHTML = '<p class="no-comments">No comments yet. Be the first to share your thoughts!</p>';
+                            return;
+                        }
+
+                        commentsList.innerHTML = comments.map(comment => `
+                            <div class="comment">
+                                <div class="comment-header">
+                                    <a href="../profile/index.html?id=${comment.user_id}" class="comment-author">
+                                        <div class="comment-avatar">${comment.profiles?.avatar_url ? `<img src="${escapeHtml(comment.profiles.avatar_url)}" alt="${escapeHtml(comment.profiles.username)}">` : escapeHtml((comment.profiles?.username || 'Unknown')[0].toUpperCase())}</div>
+                                        <span>${escapeHtml(comment.profiles?.username || 'Unknown')}</span>
+                                    </a>
+                                    <span class="comment-date">${window.DevBlogPosts.formatDate(comment.created_at)}</span>
+                                    ${currentUser?.id === comment.user_id ? `<button class="comment-delete" data-comment-id="${comment.id}">🗑️</button>` : ''}
+                                </div>
+                                <div class="comment-body">${escapeHtml(comment.body).replace(/\n/g, '<br>')}</div>
+                            </div>
+                        `).join('');
+                    } catch (err) {
+                        commentsList.innerHTML = '<p class="error">Failed to load comments.</p>';
+                    }
+                }
+
+                // Submit comment
+                if (currentUser) {
+                    document.getElementById("submit-comment")?.addEventListener("click", async () => {
+                        const input = document.getElementById("comment-input");
+                        const body = input.value.trim();
+                        if (!body) return;
+
+                        try {
+                            await window.SupabaseClient.addProjectComment(projectId, currentUser.id, body);
+                            input.value = '';
+                            loadComments();
+                        } catch (err) {
+                            alert("Failed to post comment: " + err.message);
+                        }
+                    });
+
+                    // Delete comment
+                    document.addEventListener("click", async (e) => {
+                        if (e.target.classList.contains("comment-delete")) {
+                            const commentId = e.target.dataset.commentId;
+                            if (confirm("Delete this comment?")) {
+                                try {
+                                    await window.SupabaseClient.deleteProjectComment(commentId, currentUser.id);
+                                    loadComments();
+                                } catch (err) {
+                                    alert("Failed to delete comment: " + err.message);
+                                }
+                            }
+                        }
+                    });
+                }
+
+                loadComments();
+
             } catch (err) {
-                container.innerHTML = `<p>Failed to load project: ${err.message}</p>`;
+        async function applyForRole(roleId) {
+            if (!currentUser) { alert("Please log in to apply."); return; }
+            try {
+                await window.SupabaseClient.supabaseFetch("project_applications", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        project_id: projectId,
+                        role_id: roleId,
+                        user_id: currentUser.id,
+                        status: 'pending'
+                    }),
+                    prefer: "return=minimal"
+                });
+                alert("Application submitted!");
+                location.reload();
+            } catch (err) {
+                alert("Failed to apply: " + err.message);
             }
         }
 
-        loadProject();
+        async function updateApplication(appId, status) {
+            try {
+                await window.SupabaseClient.supabaseFetch(`project_applications?id=eq.${appId}`, {
+                    method: "PATCH",
+                    body: JSON.stringify({ status }),
+                    prefer: "return=minimal"
+                });
+                if (status === 'accepted') {
+                    // Add to team
+                    const app = await window.SupabaseClient.supabaseFetch(`project_applications?id=eq.${appId}&select=*`);
+                    if (app && app[0]) {
+                        await window.SupabaseClient.supabaseFetch("project_team_members", {
+                            method: "POST",
+                            body: JSON.stringify({
+                                project_id: app[0].project_id,
+                                user_id: app[0].user_id,
+                                role_id: app[0].role_id
+                            }),
+                            prefer: "return=minimal"
+                        });
+                        // Update filled positions
+                        await window.SupabaseClient.supabaseFetch(`project_roles?id=eq.${app[0].role_id}`, {
+                            method: "PATCH",
+                            body: JSON.stringify({ filled_positions: app[0].filled_positions + 1 }),
+                            prefer: "return=minimal"
+                        });
+                    }
+                }
+                location.reload();
+            } catch (err) {
+                alert("Failed to update: " + err.message);
+            }
+        }
     </script>
 </body>
 </html>

@@ -214,6 +214,53 @@ async function getFollowingCount(userId) {
     return Array.isArray(data) ? data.length : 0;
 }
 
+// ── Bookmarks ─────────────────────────────────────────────────────────────────
+async function bookmarkProject(userId, projectId) {
+    if (!userId || !projectId) throw new Error("Both user id and project id are required.");
+    await supabaseFetch("user_bookmarks", {
+        method: "POST",
+        body: JSON.stringify({ user_id: userId, project_id: projectId }),
+        prefer: "return=minimal"
+    });
+}
+
+async function unbookmarkProject(userId, projectId) {
+    if (!userId || !projectId) throw new Error("Both user id and project id are required.");
+    await supabaseFetch(`user_bookmarks?user_id=eq.${encodeURIComponent(userId)}&project_id=eq.${encodeURIComponent(projectId)}`, {
+        method: "DELETE"
+    });
+}
+
+async function isBookmarked(userId, projectId) {
+    if (!userId || !projectId) return false;
+    const data = await supabaseFetch(`user_bookmarks?user_id=eq.${encodeURIComponent(userId)}&project_id=eq.${encodeURIComponent(projectId)}`, { method: "GET" });
+    return Array.isArray(data) && data.length > 0;
+}
+
+// ── Comments ──────────────────────────────────────────────────────────────────
+async function getProjectComments(projectId) {
+    if (!projectId) throw new Error("Project id is required.");
+    const data = await supabaseFetch(`project_comments?project_id=eq.${encodeURIComponent(projectId)}&select=*,profiles(username,avatar_url)&order=created_at.asc`, { method: "GET" });
+    return Array.isArray(data) ? data : [];
+}
+
+async function addProjectComment(projectId, userId, body) {
+    if (!projectId || !userId || !body?.trim()) throw new Error("Project id, user id, and comment body are required.");
+    const data = await supabaseFetch("project_comments", {
+        method: "POST",
+        body: JSON.stringify({ project_id: projectId, user_id: userId, body: body.trim() }),
+        prefer: "return=representation"
+    });
+    return data?.[0];
+}
+
+async function deleteProjectComment(commentId, userId) {
+    if (!commentId || !userId) throw new Error("Comment id and user id are required.");
+    await supabaseFetch(`project_comments?id=eq.${encodeURIComponent(commentId)}&user_id=eq.${encodeURIComponent(userId)}`, {
+        method: "DELETE"
+    });
+}
+
 // ── Export ────────────────────────────────────────────────────────────────────
 window.SupabaseClient = window.SupabaseClient || {};
 Object.assign(window.SupabaseClient, {
@@ -238,5 +285,11 @@ Object.assign(window.SupabaseClient, {
     unfollowUser,
     isFollowing,
     getFollowersCount,
-    getFollowingCount
+    getFollowingCount,
+    bookmarkProject,
+    unbookmarkProject,
+    isBookmarked,
+    getProjectComments,
+    addProjectComment,
+    deleteProjectComment
 });

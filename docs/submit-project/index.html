@@ -220,12 +220,114 @@
             color: #555;
         }
 
-        .login-prompt a { color: #2563eb; font-weight: 600; }
-
-        @media (max-width: 600px) {
-            .form-row-2 { grid-template-columns: 1fr; }
-            .form-card { padding: 20px; }
+        .role-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            background: #f9fafb;
         }
+
+        .role-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .role-header input {
+            flex: 1;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            padding: 6px 8px;
+            font-size: 0.9rem;
+        }
+
+        .remove-role-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .role-card textarea {
+            width: 100%;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            padding: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            resize: vertical;
+        }
+
+        .role-skills {
+            margin-bottom: 8px;
+        }
+
+        .role-skills input {
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            width: 100%;
+            margin-bottom: 4px;
+        }
+
+        .role-skills-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .skill-tag {
+            background: #dbeafe;
+            color: #1e40af;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .skill-tag button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #93c5fd;
+            font-size: 0.8rem;
+        }
+
+        .role-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 80px;
+            gap: 8px;
+        }
+
+        .role-details select,
+        .role-details input {
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            padding: 4px 6px;
+            font-size: 0.8rem;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+
+        .btn-secondary:hover { background: #4b5563; }
     </style>
 </head>
 <body>
@@ -279,6 +381,9 @@
         // Tech stack tags
         let techStack = [];
 
+        // Roles
+        let roles = [];
+
         function renderForm() {
             mainContent.innerHTML = `
                 <div class="form-card">
@@ -305,6 +410,13 @@
                             <input class="tags-input" id="tech-input" placeholder="Type a tech and press Enter (e.g. React)">
                         </div>
                         <p class="form-hint">Press Enter or comma to add each technology</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Team Roles Needed</label>
+                        <div id="roles-container"></div>
+                        <button type="button" id="add-role-btn" class="btn-secondary">+ Add Role</button>
+                        <p class="form-hint">Define roles you need for your project team</p>
                     </div>
 
                     <div class="form-row-2">
@@ -375,6 +487,89 @@
 
             // Submit
             document.getElementById("submit-btn").addEventListener("click", submitProject);
+
+            // Add role button
+            document.getElementById("add-role-btn").addEventListener("click", addRole);
+        }
+
+        function addRole() {
+            const role = {
+                id: Date.now(),
+                title: "",
+                description: "",
+                skills: [],
+                level: "junior",
+                commitment: "part-time",
+                compensation: "none",
+                max_positions: 1
+            };
+            roles.push(role);
+            renderRoles();
+        }
+
+        function removeRole(roleId) {
+            roles = roles.filter(r => r.id !== roleId);
+            renderRoles();
+        }
+
+        function updateRole(roleId, field, value) {
+            const role = roles.find(r => r.id === roleId);
+            if (role) {
+                role[field] = value;
+            }
+        }
+
+        function addRoleSkill(roleId, skill) {
+            const role = roles.find(r => r.id === roleId);
+            if (role && !role.skills.includes(skill)) {
+                role.skills.push(skill);
+                renderRoles();
+            }
+        }
+
+        function removeRoleSkill(roleId, skill) {
+            const role = roles.find(r => r.id === roleId);
+            if (role) {
+                role.skills = role.skills.filter(s => s !== skill);
+                renderRoles();
+            }
+        }
+
+        function renderRoles() {
+            const container = document.getElementById("roles-container");
+            container.innerHTML = roles.map(role => `
+                <div class="role-card" data-role-id="${role.id}">
+                    <div class="role-header">
+                        <input type="text" placeholder="Role Title (e.g. Frontend Developer)" value="${role.title}" onchange="updateRole(${role.id}, 'title', this.value)">
+                        <button type="button" onclick="removeRole(${role.id})" class="remove-role-btn">×</button>
+                    </div>
+                    <textarea placeholder="Role description..." onchange="updateRole(${role.id}, 'description', this.value)">${role.description}</textarea>
+                    <div class="role-skills">
+                        <input type="text" placeholder="Add skill..." onkeydown="if(event.key==='Enter'){addRoleSkill(${role.id}, this.value.trim()); this.value=''}">
+                        <div class="role-skills-tags">
+                            ${role.skills.map(skill => `<span class="skill-tag">${skill} <button onclick="removeRoleSkill(${role.id}, '${skill}')">×</button></span>`).join('')}
+                        </div>
+                    </div>
+                    <div class="role-details">
+                        <select onchange="updateRole(${role.id}, 'level', this.value)">
+                            <option value="junior" ${role.level === 'junior' ? 'selected' : ''}>Junior</option>
+                            <option value="mid" ${role.level === 'mid' ? 'selected' : ''}>Mid</option>
+                            <option value="senior" ${role.level === 'senior' ? 'selected' : ''}>Senior</option>
+                        </select>
+                        <select onchange="updateRole(${role.id}, 'commitment', this.value)">
+                            <option value="part-time" ${role.commitment === 'part-time' ? 'selected' : ''}>Part-time</option>
+                            <option value="full-time" ${role.commitment === 'full-time' ? 'selected' : ''}>Full-time</option>
+                        </select>
+                        <select onchange="updateRole(${role.id}, 'compensation', this.value)">
+                            <option value="none" ${role.compensation === 'none' ? 'selected' : ''}>None</option>
+                            <option value="equity" ${role.compensation === 'equity' ? 'selected' : ''}>Equity</option>
+                            <option value="paid" ${role.compensation === 'paid' ? 'selected' : ''}>Paid</option>
+                        </select>
+                        <input type="number" min="1" value="${role.max_positions}" onchange="updateRole(${role.id}, 'max_positions', parseInt(this.value))" placeholder="Max positions">
+                    </div>
+                </div>
+            `).join('');
+        }
         }
 
         function addTag(value) {
@@ -440,6 +635,30 @@
                     }),
                     prefer: "return=minimal"
                 });
+
+                // Submit roles if any
+                if (roles.length > 0) {
+                    const projectResponse = await window.SupabaseClient.supabaseFetch("projects?user_id=eq." + currentUser.id + "&order=created_at.desc&limit=1");
+                    const projectId = projectResponse[0].id;
+
+                    for (const role of roles) {
+                        await window.SupabaseClient.supabaseFetch("project_roles", {
+                            method: "POST",
+                            body: JSON.stringify({
+                                project_id: projectId,
+                                title: role.title,
+                                description: role.description,
+                                skills_required: role.skills,
+                                level: role.level,
+                                commitment: role.commitment,
+                                compensation: role.compensation,
+                                max_positions: role.max_positions,
+                                filled_positions: 0
+                            }),
+                            prefer: "return=minimal"
+                        });
+                    }
+                }
 
                 showStatus("🎉 Project submitted successfully! Redirecting...", "success");
                 setTimeout(() => {

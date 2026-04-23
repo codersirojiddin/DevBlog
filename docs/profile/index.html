@@ -46,9 +46,86 @@
             color: #374151;
         }
 
-        .btn--follow.following:hover {
-            background-color: #fee2e2;
+        .profile-skills, .profile-tech {
+            margin: 16px 0;
+        }
+
+        .profile-skills h4, .profile-tech h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .skills-list, .tech-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .skill-badge {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .tech-badge {
+            background: #f1f5f9;
+            color: #334155;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .profile-availability {
+            margin: 16px 0;
+        }
+
+        .availability-badge {
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .availability-badge.available {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .availability-badge.unavailable {
+            background: #fee2e2;
             color: #dc2626;
+        }
+
+        .form-row {
+            margin-bottom: 16px;
+        }
+
+        .form-row label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #333;
+        }
+
+        .form-row input,
+        .form-row textarea,
+        .form-row select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .form-row textarea {
+            resize: vertical;
+            min-height: 80px;
         }
     </style>
 </head>
@@ -70,6 +147,21 @@
             <div class="form-row">
                 <label>Bio</label>
                 <textarea id="edit-bio" placeholder="Tell us about yourself..." rows="3"></textarea>
+            </div>
+            <div class="form-row">
+                <label>Skills (comma separated)</label>
+                <input type="text" id="edit-skills" placeholder="React, Node.js, Python">
+            </div>
+            <div class="form-row">
+                <label>Tech Stack (comma separated)</label>
+                <input type="text" id="edit-tech-stack" placeholder="JavaScript, TypeScript, PostgreSQL">
+            </div>
+            <div class="form-row">
+                <label>Availability</label>
+                <select id="edit-availability">
+                    <option value="true">Open to join projects</option>
+                    <option value="false">Not available</option>
+                </select>
             </div>
             <div class="form-row">
                 <label>Avatar URL</label>
@@ -145,6 +237,31 @@
                                 <strong>${followingCount}</strong>
                                 <span>Following</span>
                             </div>
+                            <div class="profile-stat">
+                                <strong>${profile.trust_score || 0}</strong>
+                                <span>Trust Score</span>
+                            </div>
+                        </div>
+                        ${profile.skills && Array.isArray(profile.skills) && profile.skills.length > 0 ? `
+                            <div class="profile-skills">
+                                <h4>Skills</h4>
+                                <div class="skills-list">
+                                    ${profile.skills.map(skill => `<span class="skill-badge">${escapeHtml(skill)}</span>`).join('')}
+                                </div>
+                            </div>
+                        ` : ""}
+                        ${profile.tech_stack && Array.isArray(profile.tech_stack) && profile.tech_stack.length > 0 ? `
+                            <div class="profile-tech">
+                                <h4>Tech Stack</h4>
+                                <div class="tech-list">
+                                    ${profile.tech_stack.map(tech => `<span class="tech-badge">${escapeHtml(tech)}</span>`).join('')}
+                                </div>
+                            </div>
+                        ` : ""}
+                        <div class="profile-availability">
+                            <span class="availability-badge ${profile.availability !== false ? 'available' : 'unavailable'}">
+                                ${profile.availability !== false ? 'Open to join projects' : 'Not available'}
+                            </span>
                         </div>
                         ${isOwner
                             ? `<button class="btn btn--secondary" id="edit-btn">Edit Profile</button>`
@@ -162,6 +279,9 @@
                     document.getElementById("edit-btn").addEventListener("click", () => {
                         document.getElementById("edit-username").value = profile.username;
                         document.getElementById("edit-bio").value = profile.bio || "";
+                        document.getElementById("edit-skills").value = (profile.skills && Array.isArray(profile.skills) ? profile.skills.join(', ') : "");
+                        document.getElementById("edit-tech-stack").value = (profile.tech_stack && Array.isArray(profile.tech_stack) ? profile.tech_stack.join(', ') : "");
+                        document.getElementById("edit-availability").value = profile.availability !== false ? "true" : "false";
                         document.getElementById("edit-avatar").value = profile.avatar_url || "";
                         document.getElementById("edit-form").classList.add("visible");
                     });
@@ -281,6 +401,9 @@
         document.getElementById("save-profile-btn").addEventListener("click", async () => {
             const username = document.getElementById("edit-username").value.trim();
             const bio = document.getElementById("edit-bio").value.trim();
+            const skills = document.getElementById("edit-skills").value.split(',').map(s => s.trim()).filter(s => s);
+            const techStack = document.getElementById("edit-tech-stack").value.split(',').map(s => s.trim()).filter(s => s);
+            const availability = document.getElementById("edit-availability").value === "true";
             const avatar_url = document.getElementById("edit-avatar").value.trim();
             const status = document.getElementById("edit-status");
 
@@ -289,7 +412,7 @@
             try {
                 await window.SupabaseClient.supabaseFetch(`profiles?id=eq.${profileId}`, {
                     method: "PATCH",
-                    body: JSON.stringify({ username, bio, avatar_url }),
+                    body: JSON.stringify({ username, bio, skills, tech_stack: techStack, availability, avatar_url }),
                     prefer: "return=minimal"
                 });
                 status.textContent = "✓ Saved!"; status.className = "status status--ok";
