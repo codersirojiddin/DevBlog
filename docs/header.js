@@ -18,15 +18,15 @@
     { label: 'Home',      href: '/',            dropdown: null },
     {
       label: 'Articles', href: '/articles/',   dropdown: [
-        { label: 'Articles', sub: 'Chuqur maqolalar',         href: '/articles/',  icon: 'articles' },
-        { label: 'News',     sub: 'Texnologiya yangiliklari',  href: '/news/',      icon: 'news'     },
-        { label: 'Code',     sub: 'Snippetlar & open source',  href: '/code/',      icon: 'code'     },
+        { label: 'Articles', sub: 'In-depth guides & tutorials',         href: '/articles/',  icon: 'articles' },
+        { label: 'News',     sub: 'Tech & dev news',  href: '/news/',      icon: 'news'     },
+        { label: 'Code',     sub: 'Snippets & open source',  href: '/code/',      icon: 'code'     },
       ]
     },
     {
       label: 'Community', href: '/community/', dropdown: [
-        { label: 'Community', sub: 'Muhokama va aloqa',    href: '/community/', icon: 'community' },
-        { label: 'Showcase',  sub: 'Jamoa loyihalari',     href: '/showcase/',  icon: 'showcase'  },
+        { label: 'Community', sub: 'Discussions & networking',    href: '/community/', icon: 'community' },
+        { label: 'Showcase',  sub: 'Community projects',     href: '/showcase/',  icon: 'showcase'  },
       ]
     },
     { label: 'About',    href: '/about/',       dropdown: null },
