@@ -187,6 +187,7 @@
         const params = new URLSearchParams(window.location.search);
         const profileId = params.get("id");
         const currentUser = window.SupabaseClient.getCurrentUser();
+        let loadedProfile = null;
 
         if (!profileId) window.location.href = "../community/index.html";
 
@@ -210,6 +211,7 @@
                 ]);
 
                 const profile = data?.[0];
+                loadedProfile = profile;
                 if (!profile) { headerEl.innerHTML = `<p>User not found.</p>`; return; }
 
                 // Check if current user is following this profile
@@ -411,9 +413,9 @@
             status.textContent = "Saving..."; status.className = "status";
             try {
                 const patchData = { username, bio, avatar_url };
-                if (Array.isArray(profile.skills)) patchData.skills = skills;
-                if (Array.isArray(profile.tech_stack)) patchData.tech_stack = techStack;
-                if (profile.hasOwnProperty('availability')) patchData.availability = availability;
+                if (loadedProfile && Array.isArray(loadedProfile.skills)) patchData.skills = skills;
+                if (loadedProfile && Array.isArray(loadedProfile.tech_stack)) patchData.tech_stack = techStack;
+                if (loadedProfile && loadedProfile.hasOwnProperty('availability')) patchData.availability = availability;
 
                 await window.SupabaseClient.supabaseFetch(`profiles?id=eq.${profileId}`, {
                     method: "PATCH",
