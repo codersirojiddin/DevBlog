@@ -205,7 +205,7 @@
             const headerEl = document.getElementById("profile-header");
             try {
                 const [data, followersCount, followingCount] = await Promise.all([
-                    window.SupabaseClient.supabaseFetch(`profiles?id=eq.${profileId}`),
+                    window.SupabaseClient.supabaseFetch(`profiles?id=eq.${encodeURIComponent(profileId)}`),
                     window.SupabaseClient.getFollowersCount(profileId),
                     window.SupabaseClient.getFollowingCount(profileId)
                 ]);
@@ -417,7 +417,7 @@
                 if (loadedProfile && Array.isArray(loadedProfile.tech_stack)) patchData.tech_stack = techStack;
                 if (loadedProfile && loadedProfile.hasOwnProperty('availability')) patchData.availability = availability;
 
-                await window.SupabaseClient.supabaseFetch(`profiles?id=eq.${profileId}`, {
+                await window.SupabaseClient.supabaseFetch(`profiles?id=eq.${encodeURIComponent(profileId)}`, {
                     method: "PATCH",
                     body: JSON.stringify(patchData),
                     prefer: "return=minimal"

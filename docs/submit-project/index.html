@@ -498,9 +498,9 @@
                 title: "",
                 description: "",
                 skills: [],
-                level: "junior",
-                commitment: "part-time",
-                compensation: "none",
+                level: "beginner",
+                commitment: "part_time",
+                compensation: "volunteer",
                 max_positions: 1
             };
             roles.push(role);
@@ -552,16 +552,17 @@
                     </div>
                     <div class="role-details">
                         <select onchange="updateRole(${role.id}, 'level', this.value)">
-                            <option value="junior" ${role.level === 'junior' ? 'selected' : ''}>Junior</option>
-                            <option value="mid" ${role.level === 'mid' ? 'selected' : ''}>Mid</option>
-                            <option value="senior" ${role.level === 'senior' ? 'selected' : ''}>Senior</option>
+                            <option value="beginner" ${role.level === 'beginner' ? 'selected' : ''}>Beginner</option>
+                            <option value="intermediate" ${role.level === 'intermediate' ? 'selected' : ''}>Intermediate</option>
+                            <option value="expert" ${role.level === 'expert' ? 'selected' : ''}>Expert</option>
                         </select>
                         <select onchange="updateRole(${role.id}, 'commitment', this.value)">
-                            <option value="part-time" ${role.commitment === 'part-time' ? 'selected' : ''}>Part-time</option>
-                            <option value="full-time" ${role.commitment === 'full-time' ? 'selected' : ''}>Full-time</option>
+                            <option value="part_time" ${role.commitment === 'part_time' ? 'selected' : ''}>Part-time</option>
+                            <option value="full_time" ${role.commitment === 'full_time' ? 'selected' : ''}>Full-time</option>
+                            <option value="contract" ${role.commitment === 'contract' ? 'selected' : ''}>Contract</option>
                         </select>
                         <select onchange="updateRole(${role.id}, 'compensation', this.value)">
-                            <option value="none" ${role.compensation === 'none' ? 'selected' : ''}>None</option>
+                            <option value="volunteer" ${role.compensation === 'volunteer' ? 'selected' : ''}>Volunteer</option>
                             <option value="equity" ${role.compensation === 'equity' ? 'selected' : ''}>Equity</option>
                             <option value="paid" ${role.compensation === 'paid' ? 'selected' : ''}>Paid</option>
                         </select>
@@ -619,7 +620,7 @@
             btn.textContent = "Submitting...";
 
             try {
-                await window.SupabaseClient.supabaseFetch("projects", {
+                const projectData = await window.SupabaseClient.supabaseFetch("projects", {
                     method: "POST",
                     body: JSON.stringify({
                         user_id: currentUser.id,
@@ -632,30 +633,39 @@
                         thumbnail_url: thumbnail_url || null,
                         status
                     }),
-                    prefer: "return=minimal"
+                    prefer: "return=representation"
                 });
+
+                const projectId = projectData?.[0]?.id || null;
+                if (!projectId) {
+                    throw new Error("Project created but project ID could not be retrieved.");
+                }
 
                 // Submit roles if any
                 if (roles.length > 0) {
-                    const projectResponse = await window.SupabaseClient.supabaseFetch("projects?user_id=eq." + currentUser.id + "&order=created_at.desc&limit=1");
-                    const projectId = projectResponse[0].id;
-
-                    for (const role of roles) {
-                        await window.SupabaseClient.supabaseFetch("project_roles", {
-                            method: "POST",
-                            body: JSON.stringify({
-                                project_id: projectId,
-                                title: role.title,
-                                description: role.description,
-                                skills_required: role.skills,
-                                level: role.level,
-                                commitment: role.commitment,
-                                compensation: role.compensation,
-                                max_positions: role.max_positions,
-                                filled_positions: 0
-                            }),
-                            prefer: "return=minimal"
-                        });
+                    try {
+                        for (const role of roles) {
+                            await window.SupabaseClient.supabaseFetch("project_roles", {
+                                method: "POST",
+                                body: JSON.stringify({
+                                    project_id: projectId,
+                                    title: role.title,
+                                    description: role.description,
+                                    skills: role.skills,
+                                    level: role.level,
+                                    commitment: role.commitment,
+                                    compensation: role.compensation,
+                                    max_positions: role.max_positions,
+                                    filled_positions: 0
+                                }),
+                                prefer: "return=minimal"
+                            });
+                        }
+                    } catch (rolesError) {
+                        showStatus(`Project created but team roles were not saved: ${rolesError.message}`, "error");
+                        btn.disabled = false;
+                        btn.textContent = "🚀 Submit Project";
+                        return;
                     }
                 }
 

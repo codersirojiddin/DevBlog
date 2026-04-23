@@ -74,6 +74,13 @@ alter table profiles add column if not exists availability boolean default true;
 alter table profiles add column if not exists trust_score numeric default 0;
 ```
 
+### Migration — Add project role counts
+
+```sql
+alter table project_roles add column if not exists max_positions int default 1;
+alter table project_roles add column if not exists filled_positions int default 0;
+```
+
 ## SQL — projects table
 
 ```sql
@@ -100,6 +107,8 @@ create table project_roles (
   level text check (level in ('beginner', 'intermediate', 'expert')),
   commitment text check (commitment in ('part_time', 'full_time', 'contract')),
   compensation text check (compensation in ('volunteer', 'paid', 'equity')),
+  max_positions int default 1,
+  filled_positions int default 0,
   created_at timestamptz default now()
 );
 ```

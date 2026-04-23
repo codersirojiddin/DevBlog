@@ -553,7 +553,8 @@
                 const hasApplied = applications.some(app => app.user_id === currentUser?.id);
 
                 let applyButton = '';
-                if (currentUser && !isOwner && !hasApplied && acceptedCount < role.max_positions) {
+                const maxPositions = Number.isFinite(role.max_positions) ? role.max_positions : 1;
+                if (currentUser && !isOwner && !hasApplied && acceptedCount < maxPositions) {
                     applyButton = `<button class="btn btn--primary apply-btn" data-role-id="${role.id}">Apply for this role</button>`;
                 } else if (hasApplied) {
                     applyButton = `<span class="applied-status">Applied</span>`;
@@ -575,16 +576,16 @@
                     <div class="role-item">
                         <div class="role-header">
                             <h4>${escapeHtml(role.title)}</h4>
-                            <span class="role-status">${acceptedCount}/${role.max_positions} filled</span>
+                            <span class="role-status">${acceptedCount}/${maxPositions} filled</span>
                         </div>
                         <p class="role-description">${escapeHtml(role.description || '')}</p>
                         <div class="role-details">
-                            <span>Level: ${role.level}</span>
-                            <span>Commitment: ${role.commitment}</span>
-                            <span>Compensation: ${role.compensation}</span>
+                            <span>Level: ${escapeHtml(role.level)}</span>
+                            <span>Commitment: ${escapeHtml(role.commitment)}</span>
+                            <span>Compensation: ${escapeHtml(role.compensation)}</span>
                         </div>
                         <div class="role-skills">
-                            ${role.skills_required.map(skill => `<span class="skill-badge">${skill}</span>`).join('')}
+                            ${(role.skills || []).map(skill => `<span class="skill-badge">${escapeHtml(skill)}</span>`).join('')}
                         </div>
                         ${applyButton}
                         ${applicationsHtml ? `<div class="applications-list">${applicationsHtml}</div>` : ''}
