@@ -529,6 +529,11 @@
     <script src="../posts/user-menu.js"></script>
     <script src="../posts/project.js"></script>
     <script>
+        function formatDate(dateString) {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+}
         const params = new URLSearchParams(window.location.search);
         const projectId = params.get("id");
         const currentUser = window.SupabaseClient.getCurrentUser();
@@ -881,6 +886,14 @@
         }
 
         async function applyForRole(roleId) {
+            const existing = await window.SupabaseClient.supabaseFetch(
+    `project_applications?role_id=eq.${roleId}&user_id=eq.${currentUser.id}`
+);
+
+if (existing && existing.length > 0) {
+    alert("You already applied for this role.");
+    return;
+}
             if (!currentUser) { alert("Please log in to apply."); return; }
             try {
                 await window.SupabaseClient.supabaseFetch("project_applications", {

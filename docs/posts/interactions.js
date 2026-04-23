@@ -20,7 +20,7 @@ function formatDate(dateString) {
  * Load like count + whether current user has liked this post.
  * Updates the like button UI automatically.
  */
-export async function loadLikes(postId) {
+async function loadLikes(postId) {
   const likeBtn = document.getElementById('like-btn');
   const likeCount = document.getElementById('like-count');
   if (!likeBtn || !likeCount) return;
@@ -45,7 +45,7 @@ export async function loadLikes(postId) {
 /**
  * Toggle like/unlike for the current user on a post.
  */
-export async function toggleLike(postId) {
+async function toggleLike(postId) {
   const user = window.SupabaseClient.getCurrentUser();
 
   if (!user) {
@@ -76,7 +76,7 @@ export async function toggleLike(postId) {
 /**
  * Load and render all comments for a post.
  */
-export async function loadComments(postId) {
+async function loadComments(postId) {
   const container = document.getElementById('comments-list');
   if (!container) return;
 
@@ -111,7 +111,7 @@ export async function loadComments(postId) {
 /**
  * Submit a new comment.
  */
-export async function submitComment(postId) {
+async function submitComment(postId) {
   const input = document.getElementById('comment-input');
   const body = input?.value?.trim();
 
@@ -163,7 +163,7 @@ async function deleteComment(commentId, postId) {
  *   import { initInteractions } from './interactions.js';
  *   initInteractions('my-post-slug');
  */
-export function initInteractions(postId) {
+function initInteractions(postId) {
   // Expose deleteComment globally so inline onclick works
   window.deleteComment = (id) => deleteComment(id, postId);
 
