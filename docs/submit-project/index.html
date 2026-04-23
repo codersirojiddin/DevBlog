@@ -662,6 +662,15 @@
                             });
                         }
                     } catch (rolesError) {
+                        const missingRolesTable = /project_roles/i.test(rolesError.message);
+                        if (missingRolesTable) {
+                            showStatus("Project created, but team roles could not be saved because the project_roles table is missing. The project is now live in showcase.", "error");
+                            setTimeout(() => {
+                                window.location.href = "../showcase/index.html";
+                            }, 2000);
+                            return;
+                        }
+
                         showStatus(`Project created but team roles were not saved: ${rolesError.message}`, "error");
                         btn.disabled = false;
                         btn.textContent = "🚀 Submit Project";
