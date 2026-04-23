@@ -119,9 +119,11 @@
             text-transform: capitalize;
         }
 
-        .project-status-badge.completed { background: #d1fae5; color: #065f46; }
+        .project-status-badge.completed,
+        .project-status-badge.launched { background: #d1fae5; color: #065f46; }
         .project-status-badge.in-progress { background: #fef3c7; color: #92400e; }
         .project-status-badge.idea { background: #ede9fe; color: #4c1d95; }
+        .project-status-badge.mvp { background: #ede9f6; color: #5b21b6; }
 
         .project-author-link {
             color: #2563eb;
@@ -283,6 +285,17 @@
             return new Date(str).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
         }
 
+        function formatStatus(status) {
+            const map = {
+                idea: 'Idea',
+                'in-progress': 'In Progress',
+                mvp: 'MVP',
+                launched: 'Launched',
+                completed: 'Launched'
+            };
+            return map[status] || status;
+        }
+
         async function loadProject() {
             const container = document.getElementById("project-detail");
             try {
@@ -340,7 +353,7 @@
                     </div>
 
                     <div class="project-info-row">
-                        <span class="project-status-badge ${project.status || 'completed'}">${project.status || 'completed'}</span>
+                        <span class="project-status-badge ${project.status || 'completed'}">${formatStatus(project.status || 'completed')}</span>
                         <a href="../profile/index.html?id=${project.user_id}" class="project-author-link">by ${escapeHtml(profile?.username || "Unknown")}</a>
                         <span class="project-date">${formatDate(project.created_at)}</span>
                     </div>

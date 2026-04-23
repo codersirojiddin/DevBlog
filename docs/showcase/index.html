@@ -103,9 +103,11 @@
             text-transform: capitalize;
         }
 
-        .project-card__status.completed { background: #d1fae5; color: #065f46; }
+        .project-card__status.completed,
+        .project-card__status.launched { background: #d1fae5; color: #065f46; }
         .project-card__status.in-progress { background: #fef3c7; color: #92400e; }
         .project-card__status.idea { background: #ede9fe; color: #4c1d95; }
+        .project-card__status.mvp { background: #ede9f6; color: #5b21b6; }
 
         .project-card__body { padding: 16px; }
 
@@ -214,9 +216,10 @@
 
     <div class="showcase-filters">
         <button class="filter-btn active" data-filter="all">🔥 All</button>
-        <button class="filter-btn" data-filter="completed">✅ Completed</button>
+        <button class="filter-btn" data-filter="idea">💡 Idea</button>
         <button class="filter-btn" data-filter="in-progress">🔨 In Progress</button>
-        <button class="filter-btn" data-filter="idea">💡 Ideas</button>
+        <button class="filter-btn" data-filter="mvp">🚧 MVP</button>
+        <button class="filter-btn" data-filter="launched">🚀 Launched</button>
     </div>
 
     <div class="projects-grid" id="projects-grid">
@@ -255,6 +258,17 @@
             return String(str || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
         }
 
+        function formatStatus(status) {
+            const map = {
+                idea: 'Idea',
+                'in-progress': 'In Progress',
+                mvp: 'MVP',
+                launched: 'Launched',
+                completed: 'Launched'
+            };
+            return map[status] || status;
+        }
+
         function renderProjects(projects) {
             const grid = document.getElementById("projects-grid");
             grid.innerHTML = "";
@@ -285,7 +299,7 @@
                 card.innerHTML = `
                     <div class="project-card__thumbnail">
                         ${thumbnail}
-                        <span class="project-card__status ${project.status || 'completed'}">${project.status || 'completed'}</span>
+                        <span class="project-card__status ${project.status || 'completed'}">${formatStatus(project.status || 'completed')}</span>
                     </div>
                     <div class="project-card__body">
                         <div class="project-card__top">
