@@ -94,9 +94,11 @@
             <circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4"/>
           </svg>
         </button>
-        <button class="db-login-btn" onclick="window.location.href='/login/'">Sign in</button>
+        <div id="nav-right">
+          <button class="db-login-btn" onclick="window.location.href='/login/'">Sign in</button>
+        </div>
       </div>
-    </header>`;
+    </header>`
 
   const css = `
     .db-header {
