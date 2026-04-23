@@ -661,11 +661,17 @@
                 // Fetch roles and applications
                 const roles = await window.SupabaseClient.supabaseFetch(
                     `project_roles?project_id=eq.${projectId}&select=*,project_applications(user_id,profiles(username),status)`
-                ).catch(() => []);
+                ).catch(err => {
+                    console.warn("Could not load project roles:", err);
+                    return [];
+                });
 
                 const teamMembers = await window.SupabaseClient.supabaseFetch(
                     `project_team_members?project_id=eq.${projectId}&select=*,profiles(username),project_roles(title)`
-                ).catch(() => []);
+                ).catch(err => {
+                    console.warn("Could not load team members:", err);
+                    return [];
+                });
 
                 const profile = project.profiles;
                 const isOwner = currentUser?.id === project.user_id;
@@ -792,29 +798,34 @@
                 if (currentUser) {
                     const bookmarkBtn = document.getElementById("bookmark-btn");
                     if (bookmarkBtn) {
-                        // Check if already bookmarked
-                        const isBookmarked = await window.SupabaseClient.isBookmarked(currentUser.id, projectId);
-                        bookmarkBtn.dataset.bookmarked = isBookmarked ? "true" : "false";
-                        bookmarkBtn.textContent = isBookmarked ? "✓ Bookmarked" : "🔖 Bookmark";
+                        try {
+                            // Check if already bookmarked
+                            const isBookmarked = await window.SupabaseClient.isBookmarked(currentUser.id, projectId);
+                            bookmarkBtn.dataset.bookmarked = isBookmarked ? "true" : "false";
+                            bookmarkBtn.textContent = isBookmarked ? "✓ Bookmarked" : "🔖 Bookmark";
 
-                        bookmarkBtn.addEventListener("click", async () => {
-                            bookmarkBtn.disabled = true;
-                            try {
-                                const currentlyBookmarked = bookmarkBtn.dataset.bookmarked === "true";
-                                if (currentlyBookmarked) {
-                                    await window.SupabaseClient.unbookmarkProject(currentUser.id, projectId);
-                                    bookmarkBtn.dataset.bookmarked = "false";
-                                    bookmarkBtn.textContent = "🔖 Bookmark";
-                                } else {
-                                    await window.SupabaseClient.bookmarkProject(currentUser.id, projectId);
-                                    bookmarkBtn.dataset.bookmarked = "true";
-                                    bookmarkBtn.textContent = "✓ Bookmarked";
+                            bookmarkBtn.addEventListener("click", async () => {
+                                bookmarkBtn.disabled = true;
+                                try {
+                                    const currentlyBookmarked = bookmarkBtn.dataset.bookmarked === "true";
+                                    if (currentlyBookmarked) {
+                                        await window.SupabaseClient.unbookmarkProject(currentUser.id, projectId);
+                                        bookmarkBtn.dataset.bookmarked = "false";
+                                        bookmarkBtn.textContent = "🔖 Bookmark";
+                                    } else {
+                                        await window.SupabaseClient.bookmarkProject(currentUser.id, projectId);
+                                        bookmarkBtn.dataset.bookmarked = "true";
+                                        bookmarkBtn.textContent = "✓ Bookmarked";
+                                    }
+                                } catch (err) {
+                                    console.warn("Bookmark operation failed:", err);
                                 }
-                            } catch (err) {
-                                alert("Failed to update bookmark: " + err.message);
-                            }
-                            bookmarkBtn.disabled = false;
-                        });
+                                bookmarkBtn.disabled = false;
+                            });
+                        } catch (err) {
+                            console.warn("Could not load bookmark status:", err);
+                            bookmarkBtn.style.display = "none";
+                        }
                     }
                 }
 
