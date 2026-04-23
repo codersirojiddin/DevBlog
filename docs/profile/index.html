@@ -410,9 +410,14 @@
             if (!username) { status.textContent = "Username is required."; status.className = "status status--error"; return; }
             status.textContent = "Saving..."; status.className = "status";
             try {
+                const patchData = { username, bio, avatar_url };
+                if (Array.isArray(profile.skills)) patchData.skills = skills;
+                if (Array.isArray(profile.tech_stack)) patchData.tech_stack = techStack;
+                if (profile.hasOwnProperty('availability')) patchData.availability = availability;
+
                 await window.SupabaseClient.supabaseFetch(`profiles?id=eq.${profileId}`, {
                     method: "PATCH",
-                    body: JSON.stringify({ username, bio, skills, tech_stack: techStack, availability, avatar_url }),
+                    body: JSON.stringify(patchData),
                     prefer: "return=minimal"
                 });
                 status.textContent = "✓ Saved!"; status.className = "status status--ok";
