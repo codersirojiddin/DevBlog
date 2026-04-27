@@ -1,11 +1,12 @@
 (() => {
-  // Aktiv sahifani aniqlash
-  const path = window.location.pathname;
+  try {
+    // Aktiv sahifani aniqlash
+    const path = window.location.pathname;
 
-  const isActive = (href) => {
-    if (href === '/') return path === '/' || path === '/index.html';
-    return path.includes(href);
-  };
+    const isActive = (href) => {
+      if (href === '/') return path === '/' || path === '/index.html';
+      return path.includes(href);
+    };
 
   // Har bir sahifadan root ga nisbatan prefix
   // docs/articles/index.html => ../../
@@ -105,6 +106,7 @@
       </div>
       <div class="db-mobile-menu" id="db-mobile-menu">
         <div class="db-mobile-menu-content">
+          <button class="db-mobile-menu-close" id="db-mobile-menu-close" aria-label="Close menu">×</button>
           <div class="db-mobile-nav">${navItemsHtml}</div>
           <div class="db-mobile-actions">
             <button class="db-login-btn-mobile" onclick="window.location.href='/login/'">Sign in</button>
@@ -340,6 +342,18 @@
       padding-top: 20px;
     }
 
+    .db-mobile-menu-close {
+      background: none;
+      border: none;
+      color: #111;
+      font-size: 28px;
+      line-height: 1;
+      padding: 8px 0;
+      margin-bottom: 18px;
+      cursor: pointer;
+      display: block;
+    }
+
     .db-login-btn-mobile {
       background: #111;
       color: #fff;
@@ -380,9 +394,14 @@
   // Mobile menu functionality
   const mobileMenuBtn = document.getElementById('db-mobile-menu-btn');
   const mobileMenu = document.getElementById('db-mobile-menu');
+  const mobileMenuClose = document.getElementById('db-mobile-menu-close');
 
   mobileMenuBtn.addEventListener('click', () => {
     mobileMenu.classList.toggle('open');
+  });
+
+  mobileMenuClose.addEventListener('click', () => {
+    mobileMenu.classList.remove('open');
   });
 
   // Close mobile menu when clicking outside
@@ -401,4 +420,7 @@
       item.classList.toggle('open');
     });
   });
+  } catch (error) {
+    console.error('Header initialization failed:', error);
+  }
 })();

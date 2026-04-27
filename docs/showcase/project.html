@@ -499,9 +499,7 @@
             transition: opacity 0.15s;
         }
 
-        .comment-delete:hover {
-            opacity: 1;
-        }
+        .comment-delete:hover { opacity: 1; }
 
         .comment-body {
             color: #333;
@@ -530,10 +528,10 @@
     <script src="../posts/project.js"></script>
     <script>
         function formatDate(dateString) {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    return date.toLocaleDateString();
-}
+            if (!dateString) return "";
+            return new Date(dateString).toLocaleDateString();
+        }
+
         const params = new URLSearchParams(window.location.search);
         const projectId = params.get("id");
         const currentUser = window.SupabaseClient.getCurrentUser();
@@ -554,20 +552,19 @@
             const rolesHtml = roles.map(role => {
                 const applications = role.project_applications || [];
                 const acceptedCount = applications.filter(app => app.status === 'accepted').length;
-                const pendingCount = applications.filter(app => app.status === 'pending').length;
                 const hasApplied = applications.some(app => app.user_id === currentUser?.id);
+                const maxPositions = Number.isFinite(role.max_positions) ? role.max_positions : 1;
 
                 let applyButton = '';
-                const maxPositions = Number.isFinite(role.max_positions) ? role.max_positions : 1;
                 if (currentUser && !isOwner && !hasApplied && acceptedCount < maxPositions) {
-                    applyButton = `<button class="btn btn--primary apply-btn" data-role-id="${role.id}">Apply for this role</button>`;
-                } else if (hasApplied) {
-                    applyButton = `<span class="applied-status">Applied</span>`;
+                    applyButton = `<button class="apply-btn" data-role-id="${role.id}">Apply for this role</button>`;
+                } else if (!isOwner && hasApplied) {
+                    applyButton = `<span class="applied-status">✓ Applied</span>`;
                 }
 
                 const applicationsHtml = isOwner ? applications.map(app => `
                     <div class="application-item">
-                        <span>${app.profiles?.username || 'Unknown'}</span>
+                        <span>${escapeHtml(app.profiles?.username || 'Unknown')}</span>
                         <div class="application-actions">
                             ${app.status === 'pending' ? `
                                 <button class="btn-small accept-btn" data-app-id="${app.id}">Accept</button>
@@ -633,7 +630,6 @@
         async function loadProject() {
             const container = document.getElementById("project-detail");
             try {
-                // Fetch project + profile
                 const data = await window.SupabaseClient.supabaseFetch(
                     `projects?id=eq.${projectId}&select=*,profiles(username,avatar_url)`
                 );
@@ -643,10 +639,8 @@
                     return;
                 }
 
-                // Log view
                 window.DevBlogProjects.logView(projectId);
 
-                // Fetch signals
                 const signals = await window.SupabaseClient.supabaseFetch(
                     `project_signals?select=signal,user_id&project_id=eq.${projectId}`
                 ).catch(() => []);
@@ -658,9 +652,8 @@
                     if (currentUser && row.user_id === currentUser.id) userSignals.add(row.signal);
                 });
 
-                // Fetch roles and applications
                 const roles = await window.SupabaseClient.supabaseFetch(
-                    `project_roles?project_id=eq.${projectId}&select=*,project_applications(user_id,profiles(username),status)`
+                    `project_roles?project_id=eq.${projectId}&select=*,project_applications(id,user_id,profiles(username),status)`
                 ).catch(err => {
                     console.warn("Could not load project roles:", err);
                     return [];
@@ -685,7 +678,6 @@
 
                 document.title = `DevBlog — ${project.title}`;
 
-                // Render team section
                 const teamSection = renderTeamSection(roles, teamMembers, isOwner, currentUser);
                 const teamSectionHtml = teamSection ? `<div class="project-team-section">${teamSection}</div>` : '';
 
@@ -713,7 +705,6 @@
                     </div>
 
                     ${techBadges ? `<div class="tech-stack">${techBadges}</div>` : ""}
-
                     ${project.description ? `<p class="project-description">${escapeHtml(project.description)}</p>` : ""}
 
                     ${teamSectionHtml}
@@ -762,20 +753,29 @@
                     </div>
                 `;
 
-                // Apply button
+                // Event delegation for apply/accept/reject
                 container.addEventListener('click', async (e) => {
                     if (e.target.classList.contains('apply-btn')) {
-                        const roleId = e.target.dataset.roleId;
-                        await applyForRole(roleId);
+                        await applyForRole(e.target.dataset.roleId);
                     }
                     if (e.target.classList.contains('accept-btn')) {
-                        const appId = e.target.dataset.appId;
-                        await updateApplication(appId, 'accepted');
+                        await updateApplication(e.target.dataset.appId, 'accepted');
                     }
                     if (e.target.classList.contains('reject-btn')) {
-                        const appId = e.target.dataset.appId;
-                        await updateApplication(appId, 'rejected');
+                        await updateApplication(e.target.dataset.appId, 'rejected');
                     }
+                });
+
+                // Signal buttons
+                container.querySelectorAll(".signal-btn-large").forEach(btn => {
+                    btn.addEventListener("click", async () => {
+                        if (!currentUser) { alert("Please log in to rate projects."); return; }
+                        const signal = btn.dataset.signal;
+                        await window.DevBlogProjects.toggleSignal(projectId, signal);
+                        const countEl = btn.querySelector(".count");
+                        const isActive = btn.classList.toggle("active");
+                        countEl.textContent = parseInt(countEl.textContent) + (isActive ? 1 : -1);
+                    });
                 });
 
                 // Delete button
@@ -799,7 +799,6 @@
                     const bookmarkBtn = document.getElementById("bookmark-btn");
                     if (bookmarkBtn) {
                         try {
-                            // Check if already bookmarked
                             const isBookmarked = await window.SupabaseClient.isBookmarked(currentUser.id, projectId);
                             bookmarkBtn.dataset.bookmarked = isBookmarked ? "true" : "false";
                             bookmarkBtn.textContent = isBookmarked ? "✓ Bookmarked" : "🔖 Bookmark";
@@ -829,25 +828,31 @@
                     }
                 }
 
-                // Load and display comments
+                // Comments
                 async function loadComments() {
                     const commentsList = document.getElementById("comments-list");
                     try {
                         const comments = await window.SupabaseClient.getProjectComments(projectId);
-                        if (comments.length === 0) {
+                        if (!comments || comments.length === 0) {
                             commentsList.innerHTML = '<p class="no-comments">No comments yet. Be the first to share your thoughts!</p>';
                             return;
                         }
-
                         commentsList.innerHTML = comments.map(comment => `
                             <div class="comment">
                                 <div class="comment-header">
                                     <a href="../profile/index.html?id=${comment.user_id}" class="comment-author">
-                                        <div class="comment-avatar">${comment.profiles?.avatar_url ? `<img src="${escapeHtml(comment.profiles.avatar_url)}" alt="${escapeHtml(comment.profiles.username)}">` : escapeHtml((comment.profiles?.username || 'Unknown')[0].toUpperCase())}</div>
+                                        <div class="comment-avatar">
+                                            ${comment.profiles?.avatar_url
+                                                ? `<img src="${escapeHtml(comment.profiles.avatar_url)}" alt="${escapeHtml(comment.profiles.username)}">`
+                                                : escapeHtml((comment.profiles?.username || 'U')[0].toUpperCase())
+                                            }
+                                        </div>
                                         <span>${escapeHtml(comment.profiles?.username || 'Unknown')}</span>
                                     </a>
-                                    <span class="comment-date">${window.DevBlogPosts.formatDate(comment.created_at)}</span>
-                                    ${currentUser?.id === comment.user_id ? `<button class="comment-delete" data-comment-id="${comment.id}">🗑️</button>` : ''}
+                                    <div style="display:flex;align-items:center;gap:8px;">
+                                        <span class="comment-date">${formatDate(comment.created_at)}</span>
+                                        ${currentUser?.id === comment.user_id ? `<button class="comment-delete" data-comment-id="${comment.id}">🗑️</button>` : ''}
+                                    </div>
                                 </div>
                                 <div class="comment-body">${escapeHtml(comment.body).replace(/\n/g, '<br>')}</div>
                             </div>
@@ -857,13 +862,11 @@
                     }
                 }
 
-                // Submit comment
                 if (currentUser) {
                     document.getElementById("submit-comment")?.addEventListener("click", async () => {
                         const input = document.getElementById("comment-input");
                         const body = input.value.trim();
                         if (!body) return;
-
                         try {
                             await window.SupabaseClient.addProjectComment(projectId, currentUser.id, body);
                             input.value = '';
@@ -873,7 +876,6 @@
                         }
                     });
 
-                    // Delete comment
                     document.addEventListener("click", async (e) => {
                         if (e.target.classList.contains("comment-delete")) {
                             const commentId = e.target.dataset.commentId;
@@ -897,16 +899,15 @@
         }
 
         async function applyForRole(roleId) {
-            const existing = await window.SupabaseClient.supabaseFetch(
-    `project_applications?role_id=eq.${roleId}&user_id=eq.${currentUser.id}`
-);
-
-if (existing && existing.length > 0) {
-    alert("You already applied for this role.");
-    return;
-}
             if (!currentUser) { alert("Please log in to apply."); return; }
             try {
+                const existing = await window.SupabaseClient.supabaseFetch(
+                    `project_applications?role_id=eq.${roleId}&user_id=eq.${currentUser.id}`
+                );
+                if (existing && existing.length > 0) {
+                    alert("You already applied for this role.");
+                    return;
+                }
                 await window.SupabaseClient.supabaseFetch("project_applications", {
                     method: "POST",
                     body: JSON.stringify({
@@ -926,38 +927,53 @@ if (existing && existing.length > 0) {
 
         async function updateApplication(appId, status) {
             try {
+                // 1. Update application status
                 await window.SupabaseClient.supabaseFetch(`project_applications?id=eq.${appId}`, {
                     method: "PATCH",
                     body: JSON.stringify({ status }),
                     prefer: "return=minimal"
                 });
+
                 if (status === 'accepted') {
-                    // Add to team
-                    const app = await window.SupabaseClient.supabaseFetch(`project_applications?id=eq.${appId}&select=*`);
-                    if (app && app[0]) {
-                        await window.SupabaseClient.supabaseFetch("project_team_members", {
-                            method: "POST",
-                            body: JSON.stringify({
-                                project_id: app[0].project_id,
-                                user_id: app[0].user_id,
-                                role_id: app[0].role_id
-                            }),
-                            prefer: "return=minimal"
-                        });
-                        // Update filled positions
-                        await window.SupabaseClient.supabaseFetch(`project_roles?id=eq.${app[0].role_id}`, {
-                            method: "PATCH",
-                            body: JSON.stringify({ filled_positions: app[0].filled_positions + 1 }),
-                            prefer: "return=minimal"
-                        });
-                    }
+                    // 2. Fetch the application to get project_id, user_id, role_id
+                    const appData = await window.SupabaseClient.supabaseFetch(
+                        `project_applications?id=eq.${appId}&select=project_id,user_id,role_id`
+                    );
+                    const app = appData?.[0];
+                    if (!app) throw new Error("Could not find application data.");
+
+                    // 3. Add to team members
+                    await window.SupabaseClient.supabaseFetch("project_team_members", {
+                        method: "POST",
+                        body: JSON.stringify({
+                            project_id: app.project_id,
+                            user_id: app.user_id,
+                            role_id: app.role_id
+                        }),
+                        prefer: "return=minimal"
+                    });
+
+                    // 4. Get current filled_positions from project_roles
+                    const roleData = await window.SupabaseClient.supabaseFetch(
+                        `project_roles?id=eq.${app.role_id}&select=filled_positions`
+                    );
+                    const currentFilled = roleData?.[0]?.filled_positions || 0;
+
+                    // 5. Increment filled_positions
+                    await window.SupabaseClient.supabaseFetch(`project_roles?id=eq.${app.role_id}`, {
+                        method: "PATCH",
+                        body: JSON.stringify({ filled_positions: currentFilled + 1 }),
+                        prefer: "return=minimal"
+                    });
                 }
+
                 location.reload();
             } catch (err) {
                 alert("Failed to update: " + err.message);
             }
         }
-        loadProject();  
+
+        loadProject();
     </script>
 </body>
 </html>
