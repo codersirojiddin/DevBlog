@@ -479,7 +479,6 @@
                     addTag(techInput.value.trim().replace(",", ""));
                     techInput.value = "";
                 }
-                // Remove last tag on backspace if input is empty
                 if (e.key === "Backspace" && techInput.value === "" && techStack.length > 0) {
                     removeTag(techStack[techStack.length - 1]);
                 }
@@ -521,7 +520,7 @@
 
         function addRoleSkill(roleId, skill) {
             const role = roles.find(r => r.id === roleId);
-            if (role && !role.skills.includes(skill)) {
+            if (role && skill && !role.skills.includes(skill)) {
                 role.skills.push(skill);
                 renderRoles();
             }
@@ -545,7 +544,7 @@
                     </div>
                     <textarea placeholder="Role description..." onchange="updateRole(${role.id}, 'description', this.value)">${role.description}</textarea>
                     <div class="role-skills">
-                        <input type="text" placeholder="Add skill..." onkeydown="if(event.key==='Enter'){addRoleSkill(${role.id}, this.value.trim()); this.value=''}">
+                        <input type="text" placeholder="Add skill and press Enter..." onkeydown="if(event.key==='Enter'){event.preventDefault();addRoleSkill(${role.id}, this.value.trim()); this.value=''}">
                         <div class="role-skills-tags">
                             ${role.skills.map(skill => `<span class="skill-tag">${skill} <button onclick="removeRoleSkill(${role.id}, '${skill}')">×</button></span>`).join('')}
                         </div>
@@ -566,7 +565,7 @@
                             <option value="equity" ${role.compensation === 'equity' ? 'selected' : ''}>Equity</option>
                             <option value="paid" ${role.compensation === 'paid' ? 'selected' : ''}>Paid</option>
                         </select>
-                        <input type="number" min="1" value="${role.max_positions}" onchange="updateRole(${role.id}, 'max_positions', parseInt(this.value))" placeholder="Max positions">
+                        <input type="number" min="1" value="${role.max_positions}" onchange="updateRole(${role.id}, 'max_positions', parseInt(this.value))" placeholder="#">
                     </div>
                 </div>
             `).join('');
@@ -586,9 +585,7 @@
         function renderTags() {
             const wrapper = document.getElementById("tags-wrapper");
             const input = document.getElementById("tech-input");
-            // Remove old chips
             wrapper.querySelectorAll(".tag-chip").forEach(c => c.remove());
-            // Add chips before input
             techStack.forEach(tag => {
                 const chip = document.createElement("span");
                 chip.className = "tag-chip";
@@ -597,12 +594,10 @@
             });
         }
 
-        // Make removeTag global for inline onclick
         window.removeTag = removeTag;
 
         async function submitProject() {
             const btn = document.getElementById("submit-btn");
-            const statusMsg = document.getElementById("status-msg");
 
             const title = document.getElementById("title").value.trim();
             const tagline = document.getElementById("tagline").value.trim();
@@ -612,7 +607,6 @@
             const thumbnail_url = document.getElementById("thumbnail-url").value.trim();
             const status = document.querySelector('input[name="status"]:checked').value;
 
-            // Validate
             if (!title) { showStatus("Project title is required.", "error"); return; }
             if (!tagline) { showStatus("Tagline is required.", "error"); return; }
 
@@ -662,16 +656,9 @@
                             });
                         }
                     } catch (rolesError) {
-                        const missingRolesTable = /project_roles/i.test(rolesError.message);
-                        if (missingRolesTable) {
-                            showStatus("Project created, but team roles could not be saved because the project_roles table is missing. The project is now live in showcase.", "error");
-                            setTimeout(() => {
-                                window.location.href = "../showcase/index.html";
-                            }, 2000);
-                            return;
-                        }
-
-                        showStatus(`Project created but team roles were not saved: ${rolesError.message}`, "error");
+                        // Show the REAL error message so we can debug
+                        console.error("Roles save error:", rolesError);
+                        showStatus(`Project created but roles failed: ${rolesError.message}`, "error");
                         btn.disabled = false;
                         btn.textContent = "🚀 Submit Project";
                         return;
@@ -684,6 +671,7 @@
                 }, 1500);
 
             } catch (err) {
+                console.error("Submit error:", err);
                 showStatus("Failed to submit: " + err.message, "error");
                 btn.disabled = false;
                 btn.textContent = "🚀 Submit Project";

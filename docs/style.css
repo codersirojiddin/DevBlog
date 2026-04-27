@@ -905,8 +905,10 @@ nav ul li a.active {
         padding: 16px;
     }
 
-    .post-modal__content {
-        padding: 18px;
+    .auth-box,
+    .login-box {
+        padding: 24px;
+        margin: 32px auto;
     }
 
     .post-preview {
@@ -915,6 +917,11 @@ nav ul li a.active {
 
     .profile-header {
         gap: 18px;
+    }
+
+    .posts-grid {
+        gap: 16px;
+        grid-template-columns: 1fr;
     }
 }
 

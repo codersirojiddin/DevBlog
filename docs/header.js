@@ -94,10 +94,24 @@
             <circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4"/>
           </svg>
         </button>
+        <button class="db-mobile-menu-btn" id="db-mobile-menu-btn" aria-label="Menu">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
         <div id="nav-right">
           <button class="db-login-btn" onclick="window.location.href='/login/'">Sign in</button>
         </div>
       </div>
+      <div class="db-mobile-menu" id="db-mobile-menu">
+        <div class="db-mobile-menu-content">
+          <div class="db-mobile-nav">${navItemsHtml}</div>
+          <div class="db-mobile-actions">
+            <button class="db-login-btn-mobile" onclick="window.location.href='/login/'">Sign in</button>
+          </div>
+        </div>
+      </div>
+    </header>`
     </header>`
 
   const css = `
@@ -254,6 +268,100 @@
     }
     .db-login-btn:hover { background: #333; }
 
+    .db-mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #777;
+      padding: 6px;
+      border-radius: 6px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .db-mobile-menu-btn:hover { color: #111; background: #f5f5f5; }
+
+    .db-mobile-menu {
+      display: none;
+      position: fixed;
+      top: 56px;
+      left: 0;
+      width: 100%;
+      height: calc(100vh - 56px);
+      background: #fff;
+      z-index: 999;
+      overflow-y: auto;
+    }
+    .db-mobile-menu.open { display: block; }
+
+    .db-mobile-menu-content {
+      padding: 20px;
+    }
+
+    .db-mobile-nav {
+      margin-bottom: 20px;
+    }
+
+    .db-mobile-nav .db-nav-item {
+      height: auto;
+      margin-bottom: 10px;
+    }
+
+    .db-mobile-nav .db-nav-link {
+      padding: 12px 0;
+      height: auto;
+      border-bottom: none;
+      font-size: 16px;
+    }
+
+    .db-mobile-nav .db-has-dropdown .db-nav-link {
+      justify-content: space-between;
+    }
+
+    .db-mobile-nav .db-dropdown {
+      position: static;
+      opacity: 1;
+      pointer-events: all;
+      transform: none;
+      border: none;
+      box-shadow: none;
+      padding: 0;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .db-mobile-nav .db-has-dropdown.open .db-nav-arrow-svg { transform: rotate(180deg); }
+
+    .db-mobile-nav .db-drop-link {
+      padding: 12px 0;
+      margin-bottom: 5px;
+    }
+
+    .db-mobile-actions {
+      border-top: 1px solid #e8e4de;
+      padding-top: 20px;
+    }
+
+    .db-login-btn-mobile {
+      background: #111;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-family: inherit;
+      letter-spacing: 0.3px;
+      transition: background 0.15s;
+      width: 100%;
+    }
+    .db-login-btn-mobile:hover { background: #333; }
+
+    @media (max-width: 768px) {
+      .db-nav { display: none; }
+      .db-mobile-menu-btn { display: flex; align-items: center; justify-content: center; }
+      #nav-right { display: none; }
+    }
+
     @media (max-width: 640px) {
       .db-nav-link { padding: 0 10px; font-size: 12px; }
       .db-header { padding: 0 1rem; }
@@ -269,4 +377,29 @@
   const wrapper = document.createElement('div');
   wrapper.innerHTML = headerHtml;
   document.body.insertBefore(wrapper.firstElementChild, document.body.firstChild);
+
+  // Mobile menu functionality
+  const mobileMenuBtn = document.getElementById('db-mobile-menu-btn');
+  const mobileMenu = document.getElementById('db-mobile-menu');
+
+  mobileMenuBtn.addEventListener('click', () => {
+    mobileMenu.classList.toggle('open');
+  });
+
+  // Close mobile menu when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!mobileMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+      mobileMenu.classList.remove('open');
+    }
+  });
+
+  // Handle dropdowns in mobile menu
+  const dropdownItems = mobileMenu.querySelectorAll('.db-has-dropdown');
+  dropdownItems.forEach(item => {
+    const link = item.querySelector('.db-nav-link');
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      item.classList.toggle('open');
+    });
+  });
 })();
