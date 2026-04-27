@@ -345,6 +345,11 @@
         const currentUser = window.SupabaseClient.getCurrentUser();
         const mainContent = document.getElementById("main-content");
 
+        // Check if editing existing project
+        const urlParams = new URLSearchParams(window.location.search);
+        const editProjectId = urlParams.get('id');
+        let isEditing = !!editProjectId;
+
         document.addEventListener("DOMContentLoaded", () => {
             initializeUserMenu();
         });
@@ -367,11 +372,6 @@
 
         // Roles
         let roles = [];
-
-        // Check if editing existing project
-        const urlParams = new URLSearchParams(window.location.search);
-        const editProjectId = urlParams.get('id');
-        let isEditing = !!editProjectId;
 
         async function loadProjectForEditing() {
             if (!editProjectId) return;
