@@ -111,8 +111,7 @@
           </div>
         </div>
       </div>
-    </header>`
-    </header>`
+    </header>`;
 
   const css = `
     .db-header {
