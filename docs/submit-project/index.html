@@ -331,27 +331,11 @@
     </style>
 </head>
 <body>
-    <header>
-        <nav>
-            <a href="../index.html" class="nav-brand">Dev<span>Blog</span></a>
-            <ul>
-                <li><a href="../index.html">Home</a></li>
-                <li><a href="../articles/index.html">Articles</a></li>
-                <li><a href="../news/index.html">News</a></li>
-                <li><a href="../code/index.html">Code</a></li>
-                <li><a href="../community/index.html">Community</a></li>
-                <li><a href="../showcase/index.html">Showcase</a></li>
-                <li><a href="../showcase/index.html">Showcase</a></li>
-                <li><a href="../about/index.html">About</a></li>
-                <li><a href="../contact/index.html">Contact</a></li>
-            </ul>
-            <div class="nav-right" id="nav-right"></div>
-        </nav>
-    </header>
+    <script src="../header.js"></script>
 
     <div class="submit-wrapper">
-        <h1>🚀 Submit Your Project</h1>
-        <p class="subtitle">Show the world what you've built!</p>
+        <h1 id="page-title">🚀 Submit Your Project</h1>
+        <p class="subtitle" id="page-subtitle">Show the world what you've built!</p>
         <div id="main-content"></div>
     </div>
 
@@ -383,6 +367,73 @@
 
         // Roles
         let roles = [];
+
+        // Check if editing existing project
+        const urlParams = new URLSearchParams(window.location.search);
+        const editProjectId = urlParams.get('id');
+        let isEditing = !!editProjectId;
+
+        async function loadProjectForEditing() {
+            if (!editProjectId) return;
+
+            try {
+                // Fetch project data
+                const project = await window.SupabaseClient.supabaseFetch(`projects?id=eq.${editProjectId}&user_id=eq.${currentUser.id}`, {
+                    method: "GET"
+                });
+
+                if (!project || project.length === 0) {
+                    showStatus("Project not found or you don't have permission to edit it.", "error");
+                    return;
+                }
+
+                const projectData = project[0];
+
+                // Fetch roles
+                const projectRoles = await window.SupabaseClient.supabaseFetch(`project_roles?project_id=eq.${editProjectId}`, {
+                    method: "GET"
+                });
+
+                // Populate form
+                document.getElementById("title").value = projectData.title || "";
+                document.getElementById("tagline").value = projectData.tagline || "";
+                document.getElementById("description").value = projectData.description || "";
+                document.getElementById("live-url").value = projectData.live_url || "";
+                document.getElementById("github-url").value = projectData.github_url || "";
+                document.getElementById("thumbnail-url").value = projectData.thumbnail_url || "";
+
+                // Set status
+                const statusRadio = document.querySelector(`input[name="status"][value="${projectData.status}"]`);
+                if (statusRadio) {
+                    statusRadio.checked = true;
+                }
+
+                // Populate tech stack
+                techStack = projectData.tech_stack || [];
+                renderTags();
+
+                // Populate roles
+                roles = (projectRoles || []).map(role => ({
+                    id: role.id,
+                    title: role.title || "",
+                    description: role.description || "",
+                    skills: role.skills || [],
+                    level: role.level || "beginner",
+                    commitment: role.commitment || "part_time",
+                    compensation: role.compensation || "volunteer",
+                    max_positions: role.max_positions || 1
+                }));
+                renderRoles();
+
+                // Update page title and subtitle
+                document.getElementById("page-title").textContent = "✏️ Edit Project";
+                document.getElementById("page-subtitle").textContent = "Make changes to your project details";
+
+            } catch (error) {
+                console.error("Error loading project for editing:", error);
+                showStatus("Failed to load project data.", "error");
+            }
+        }
 
         function renderForm() {
             mainContent.innerHTML = `
@@ -459,7 +510,7 @@
                     </div>
 
                     <div class="submit-actions">
-                        <button class="btn-submit" id="submit-btn">🚀 Submit Project</button>
+                        <button class="btn-submit" id="submit-btn">${isEditing ? '✏️ Update Project' : '🚀 Submit Project'}</button>
                         <button class="btn-cancel" onclick="window.location.href='../showcase/index.html'">Cancel</button>
                     </div>
 
@@ -489,6 +540,9 @@
 
             // Add role button
             document.getElementById("add-role-btn").addEventListener("click", addRole);
+
+            // Load existing data if editing
+            loadProjectForEditing();
         }
 
         function addRole() {
@@ -611,33 +665,102 @@
             if (!tagline) { showStatus("Tagline is required.", "error"); return; }
 
             btn.disabled = true;
-            btn.textContent = "Submitting...";
+            btn.textContent = isEditing ? "Updating..." : "Submitting...";
 
             try {
-                const projectData = await window.SupabaseClient.supabaseFetch("projects", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        user_id: currentUser.id,
-                        title,
-                        tagline,
-                        description,
-                        tech_stack: techStack,
-                        live_url: live_url || null,
-                        github_url: github_url || null,
-                        thumbnail_url: thumbnail_url || null,
-                        status
-                    }),
-                    prefer: "return=representation"
-                });
+                let projectId;
 
-                const projectId = projectData?.[0]?.id || null;
-                if (!projectId) {
-                    throw new Error("Project created but project ID could not be retrieved.");
-                }
+                if (isEditing) {
+                    // Update existing project
+                    await window.SupabaseClient.supabaseFetch(`projects?id=eq.${editProjectId}`, {
+                        method: "PATCH",
+                        body: JSON.stringify({
+                            title,
+                            tagline,
+                            description,
+                            tech_stack: techStack,
+                            live_url: live_url || null,
+                            github_url: github_url || null,
+                            thumbnail_url: thumbnail_url || null,
+                            status
+                        })
+                    });
+                    projectId = editProjectId;
 
-                // Submit roles if any
-                if (roles.length > 0) {
-                    try {
+                    // Handle roles update - first get existing roles
+                    const existingRoles = await window.SupabaseClient.supabaseFetch(`project_roles?project_id=eq.${projectId}`, {
+                        method: "GET"
+                    });
+
+                    // Delete roles that are no longer in the form
+                    const existingRoleIds = existingRoles.map(r => r.id);
+                    const currentRoleIds = roles.map(r => r.id).filter(id => id > 1000000000000); // Only real DB IDs
+                    const rolesToDelete = existingRoleIds.filter(id => !currentRoleIds.includes(id));
+
+                    for (const roleId of rolesToDelete) {
+                        await window.SupabaseClient.supabaseFetch(`project_roles?id=eq.${roleId}`, {
+                            method: "DELETE"
+                        });
+                    }
+
+                    // Update existing roles and add new ones
+                    for (const role of roles) {
+                        if (role.id > 1000000000000) { // Existing role
+                            await window.SupabaseClient.supabaseFetch(`project_roles?id=eq.${role.id}`, {
+                                method: "PATCH",
+                                body: JSON.stringify({
+                                    title: role.title,
+                                    description: role.description,
+                                    skills: role.skills,
+                                    level: role.level,
+                                    commitment: role.commitment,
+                                    compensation: role.compensation,
+                                    max_positions: role.max_positions
+                                })
+                            });
+                        } else { // New role
+                            await window.SupabaseClient.supabaseFetch("project_roles", {
+                                method: "POST",
+                                body: JSON.stringify({
+                                    project_id: projectId,
+                                    title: role.title,
+                                    description: role.description,
+                                    skills: role.skills,
+                                    level: role.level,
+                                    commitment: role.commitment,
+                                    compensation: role.compensation,
+                                    max_positions: role.max_positions,
+                                    filled_positions: 0
+                                })
+                            });
+                        }
+                    }
+
+                } else {
+                    // Create new project
+                    const projectData = await window.SupabaseClient.supabaseFetch("projects", {
+                        method: "POST",
+                        body: JSON.stringify({
+                            user_id: currentUser.id,
+                            title,
+                            tagline,
+                            description,
+                            tech_stack: techStack,
+                            live_url: live_url || null,
+                            github_url: github_url || null,
+                            thumbnail_url: thumbnail_url || null,
+                            status
+                        }),
+                        prefer: "return=representation"
+                    });
+
+                    projectId = projectData?.[0]?.id || null;
+                    if (!projectId) {
+                        throw new Error("Project created but project ID could not be retrieved.");
+                    }
+
+                    // Submit roles if any
+                    if (roles.length > 0) {
                         for (const role of roles) {
                             await window.SupabaseClient.supabaseFetch("project_roles", {
                                 method: "POST",
@@ -655,26 +778,19 @@
                                 prefer: "return=minimal"
                             });
                         }
-                    } catch (rolesError) {
-                        // Show the REAL error message so we can debug
-                        console.error("Roles save error:", rolesError);
-                        showStatus(`Project created but roles failed: ${rolesError.message}`, "error");
-                        btn.disabled = false;
-                        btn.textContent = "🚀 Submit Project";
-                        return;
                     }
                 }
 
-                showStatus("🎉 Project submitted successfully! Redirecting...", "success");
+                showStatus(isEditing ? "✏️ Project updated successfully! Redirecting..." : "🎉 Project submitted successfully! Redirecting...", "success");
                 setTimeout(() => {
                     window.location.href = "../showcase/index.html";
                 }, 1500);
 
             } catch (err) {
                 console.error("Submit error:", err);
-                showStatus("Failed to submit: " + err.message, "error");
+                showStatus("Failed to " + (isEditing ? "update" : "submit") + ": " + err.message, "error");
                 btn.disabled = false;
-                btn.textContent = "🚀 Submit Project";
+                btn.textContent = isEditing ? "✏️ Update Project" : "🚀 Submit Project";
             }
         }
 
