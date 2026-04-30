@@ -8,7 +8,11 @@
       return path.includes(href);
     };
 
+  // Har bir sahifadan root ga nisbatan prefix
+  // docs/articles/index.html => ../../
+  // docs/index.html => ../  (agar root da bo'lsa => ./)
   const depth = path.split('/').filter(Boolean).length;
+  // GitHub Pages / custom domain uchun root path
   const root = depth <= 1 ? './' : '../'.repeat(depth - 1);
 
   const links = [
@@ -112,34 +116,6 @@
     </header>`;
 
   const css = `
-    .db-announcement {
-      background: #2563eb;
-      color: #fff;
-      text-align: center;
-      padding: 9px 40px;
-      font-size: 13.5px;
-      font-family: 'Helvetica Neue', Arial, sans-serif;
-      letter-spacing: 0.2px;
-      position: relative;
-      line-height: 1.4;
-    }
-    .db-announcement-close {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      color: rgba(255,255,255,0.8);
-      font-size: 18px;
-      cursor: pointer;
-      line-height: 1;
-      padding: 4px 6px;
-      border-radius: 4px;
-      transition: color 0.15s, background 0.15s;
-    }
-    .db-announcement-close:hover { color: #fff; background: rgba(255,255,255,0.15); }
-
     .db-header {
       background: #fff;
       border-bottom: 1px solid #e8e4de;
@@ -162,6 +138,7 @@
       flex-shrink: 0;
     }
     .db-logo span { color: #2563eb; }
+
     .db-nav {
       display: flex;
       align-items: center;
@@ -201,6 +178,7 @@
     .db-nav-arrow { display: flex; align-items: center; }
     .db-nav-arrow-svg { transition: transform 0.2s; }
     .db-has-dropdown:hover .db-nav-arrow-svg { transform: rotate(180deg); }
+
     .db-dropdown {
       position: absolute;
       top: calc(100% + 1px);
@@ -232,68 +210,171 @@
     }
     .db-drop-link:hover { background: #f8f7f4; }
     .db-drop-icon {
-      width: 30px; height: 30px;
+      width: 30px;
+      height: 30px;
       border-radius: 7px;
-      display: flex; align-items: center; justify-content: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       flex-shrink: 0;
     }
-    .db-drop-title { display: block; font-size: 13px; font-weight: 500; color: #111; line-height: 1.3; }
-    .db-drop-sub { display: block; font-size: 11px; color: #999; line-height: 1.3; margin-top: 1px; }
-    .db-drop-divider { height: 1px; background: #f0ece6; margin: 4px 0; }
-    .db-header-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .db-drop-title {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #111;
+      line-height: 1.3;
+    }
+    .db-drop-sub {
+      display: block;
+      font-size: 11px;
+      color: #999;
+      line-height: 1.3;
+      margin-top: 1px;
+    }
+    .db-drop-divider {
+      height: 1px;
+      background: #f0ece6;
+      margin: 4px 0;
+    }
+    .db-header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
     .db-search-btn {
-      background: none; border: none; cursor: pointer; color: #777;
-      display: flex; align-items: center; padding: 6px;
-      border-radius: 6px; transition: color 0.15s, background 0.15s;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #777;
+      display: flex;
+      align-items: center;
+      padding: 6px;
+      border-radius: 6px;
+      transition: color 0.15s, background 0.15s;
     }
     .db-search-btn:hover { color: #111; background: #f5f5f5; }
     .db-login-btn {
-      background: #111; color: #fff; border: none; cursor: pointer;
-      font-size: 13px; padding: 7px 16px; border-radius: 6px;
-      font-family: inherit; letter-spacing: 0.3px; transition: background 0.15s;
+      background: #111;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      padding: 7px 16px;
+      border-radius: 6px;
+      font-family: inherit;
+      letter-spacing: 0.3px;
+      transition: background 0.15s;
     }
     .db-login-btn:hover { background: #333; }
+
     .db-mobile-menu-btn {
-      display: none; background: none; border: none; cursor: pointer; color: #777;
-      padding: 6px; border-radius: 6px; transition: color 0.15s, background 0.15s;
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #777;
+      padding: 6px;
+      border-radius: 6px;
+      transition: color 0.15s, background 0.15s;
     }
     .db-mobile-menu-btn:hover { color: #111; background: #f5f5f5; }
+
     .db-mobile-menu {
-      display: none; position: fixed; top: 56px; left: 0;
-      width: 100%; height: calc(100vh - 56px);
-      background: #fff; z-index: 999; overflow-y: auto;
+      display: none;
+      position: fixed;
+      top: 56px;
+      left: 0;
+      width: 100%;
+      height: calc(100vh - 56px);
+      background: #fff;
+      z-index: 999;
+      overflow-y: auto;
     }
     .db-mobile-menu.open { display: block; }
-    .db-mobile-menu-content { padding: 20px; }
-    .db-mobile-nav { margin-bottom: 20px; }
-    .db-mobile-nav .db-nav-item { height: auto; margin-bottom: 10px; }
-    .db-mobile-nav .db-nav-link { padding: 12px 0; height: auto; border-bottom: none; font-size: 16px; }
-    .db-mobile-nav .db-has-dropdown .db-nav-link { justify-content: space-between; }
+
+    .db-mobile-menu-content {
+      padding: 20px;
+    }
+
+    .db-mobile-nav {
+      margin-bottom: 20px;
+    }
+
+    .db-mobile-nav .db-nav-item {
+      height: auto;
+      margin-bottom: 10px;
+    }
+
+    .db-mobile-nav .db-nav-link {
+      padding: 12px 0;
+      height: auto;
+      border-bottom: none;
+      font-size: 16px;
+    }
+
+    .db-mobile-nav .db-has-dropdown .db-nav-link {
+      justify-content: space-between;
+    }
+
     .db-mobile-nav .db-dropdown {
-      position: static; opacity: 1; pointer-events: all;
-      transform: none; border: none; box-shadow: none;
-      padding: 0; margin-top: 10px; display: none;
+      position: static;
+      opacity: 1;
+      pointer-events: all;
+      transform: none;
+      border: none;
+      box-shadow: none;
+      padding: 0;
+      margin-top: 10px;
+      display: none;
     }
+
     .db-mobile-nav .db-has-dropdown.open .db-nav-arrow-svg { transform: rotate(180deg); }
-    .db-mobile-nav .db-drop-link { padding: 12px 0; margin-bottom: 5px; }
-    .db-mobile-actions { border-top: 1px solid #e8e4de; padding-top: 20px; }
-    .db-mobile-menu-close {
-      background: none; border: none; color: #111;
-      font-size: 28px; line-height: 1; padding: 8px 0;
-      margin-bottom: 18px; cursor: pointer; display: block;
+
+    .db-mobile-nav .db-drop-link {
+      padding: 12px 0;
+      margin-bottom: 5px;
     }
+
+    .db-mobile-actions {
+      border-top: 1px solid #e8e4de;
+      padding-top: 20px;
+    }
+
+    .db-mobile-menu-close {
+      background: none;
+      border: none;
+      color: #111;
+      font-size: 28px;
+      line-height: 1;
+      padding: 8px 0;
+      margin-bottom: 18px;
+      cursor: pointer;
+      display: block;
+    }
+
     .db-login-btn-mobile {
-      background: #111; color: #fff; border: none; cursor: pointer;
-      font-size: 16px; padding: 12px 24px; border-radius: 6px;
-      font-family: inherit; letter-spacing: 0.3px;
-      transition: background 0.15s; width: 100%;
+      background: #111;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-family: inherit;
+      letter-spacing: 0.3px;
+      transition: background 0.15s;
+      width: 100%;
     }
     .db-login-btn-mobile:hover { background: #333; }
+
     @media (max-width: 768px) {
       .db-nav { display: none; }
       .db-mobile-menu-btn { display: flex; align-items: center; justify-content: center; }
       #nav-right { display: none; }
     }
+
     @media (max-width: 640px) {
       .db-nav-link { padding: 0 10px; font-size: 12px; }
       .db-header { padding: 0 1rem; }
@@ -305,59 +386,32 @@
   style.textContent = css;
   document.head.appendChild(style);
 
-  // Inject header HTML
+  // Inject HTML at top of body
   const wrapper = document.createElement('div');
   wrapper.innerHTML = headerHtml;
   document.body.insertBefore(wrapper.firstElementChild, document.body.firstChild);
-
-  // ── Announcement banner ──────────────────────────────────────────
-  const SB_URL = "https://uyjmyjetcleghfcwslau.supabase.co";
-  const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5am15amV0Y2xlZ2hmY3dzbGF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MTU2NzQsImV4cCI6MjA4OTQ5MTY3NH0.-v4Bjy-Ty8pQxaBJFlb4cXDioNFGXXgRsGljH3P19og";
-  const DISMISSED_KEY = "devblog.announcement.dismissed";
-
-  fetch(`${SB_URL}/rest/v1/site_settings?key=eq.announcement`, {
-    headers: { "apikey": SB_KEY, "Authorization": `Bearer ${SB_KEY}` }
-  })
-  .then(r => r.json())
-  .then(data => {
-    const text = data?.[0]?.value?.trim();
-    if (!text) return;
-
-    // Don't show if user already dismissed it
-    const dismissed = sessionStorage.getItem(DISMISSED_KEY);
-    if (dismissed === text) return;
-
-    const banner = document.createElement('div');
-    banner.className = 'db-announcement';
-    banner.innerHTML = `
-      <span>${text}</span>
-      <button class="db-announcement-close" aria-label="Close">×</button>
-    `;
-    document.body.insertBefore(banner, document.body.firstChild);
-
-    banner.querySelector('.db-announcement-close').addEventListener('click', () => {
-      sessionStorage.setItem(DISMISSED_KEY, text);
-      banner.style.transition = 'opacity 0.3s';
-      banner.style.opacity = '0';
-      setTimeout(() => banner.remove(), 300);
-    });
-  })
-  .catch(() => {}); // silently fail
 
   // Mobile menu functionality
   const mobileMenuBtn = document.getElementById('db-mobile-menu-btn');
   const mobileMenu = document.getElementById('db-mobile-menu');
   const mobileMenuClose = document.getElementById('db-mobile-menu-close');
 
-  mobileMenuBtn.addEventListener('click', () => { mobileMenu.classList.toggle('open'); });
-  mobileMenuClose.addEventListener('click', () => { mobileMenu.classList.remove('open'); });
+  mobileMenuBtn.addEventListener('click', () => {
+    mobileMenu.classList.toggle('open');
+  });
 
+  mobileMenuClose.addEventListener('click', () => {
+    mobileMenu.classList.remove('open');
+  });
+
+  // Close mobile menu when clicking outside
   document.addEventListener('click', (e) => {
     if (!mobileMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
       mobileMenu.classList.remove('open');
     }
   });
 
+  // Handle dropdowns in mobile menu
   const dropdownItems = mobileMenu.querySelectorAll('.db-has-dropdown');
   dropdownItems.forEach(item => {
     const link = item.querySelector('.db-nav-link');
@@ -366,7 +420,6 @@
       item.classList.toggle('open');
     });
   });
-
   } catch (error) {
     console.error('Header initialization failed:', error);
   }

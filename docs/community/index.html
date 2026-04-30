@@ -17,7 +17,9 @@
                 <h1>Community</h1>
                 <p class="page-subtitle">Posts from our members</p>
             </div>
-            <div class="user-bar" id="user-bar"></div>
+            <div class="user-bar" id="user-bar">
+                <!-- filled by JS -->
+            </div>
         </div>
 
         <div id="posts-container" class="posts-grid">
@@ -42,22 +44,31 @@
         }
     </style>
 
-    <script src="../posts/supabase.js" defer></script>
-    <script src="../posts/interactions.js" defer></script>
-    <script src="../posts/posts.js" defer></script>
-    <script src="../posts/user-menu.js" defer></script>
+    <script src="../posts/supabase.js"></script>
+    <script src="../posts/posts.js"></script>
+    <script src="../posts/user-menu.js"></script>
     <script>
         const user = window.SupabaseClient.getCurrentUser();
         const userBar = document.getElementById("user-bar");
 
-        document.addEventListener("DOMContentLoaded", () => { initializeUserMenu(); });
+        document.addEventListener("DOMContentLoaded", () => {
+            initializeUserMenu();
+        });
 
-        userBar.innerHTML = user
-            ? `<a href="../publish/index.html" class="btn">+ New Post</a>`
-            : `<a href="../login/index.html" class="btn">Sign In to Post</a>`;
+        if (user) {
+            userBar.innerHTML = `
+                <a href="../publish/index.html" class="btn">+ New Post</a>
+            `;
+        } else {
+            userBar.innerHTML = `<a href="../login/index.html" class="btn">Sign In to Post</a>`;
+        }
 
         function escapeHtml(str) {
-            return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;");
         }
 
         async function loadPosts() {
@@ -74,10 +85,12 @@
 
                 container.innerHTML = "";
 
+                // Fetch all posts with like/comment counts in parallel
                 const postCards = await Promise.all(posts.map(async post => {
                     const profile = post.profiles;
                     const preview = post.content.split("\n")[0];
 
+                    // Fetch counts in parallel
                     const [likesCount, comments] = await Promise.all([
                         window.SupabaseClient.getLikesCount(post.id).catch(() => 0),
                         window.SupabaseClient.getComments(post.id).catch(() => [])
@@ -118,6 +131,7 @@
 
         loadPosts();
     </script>
+
 </body>
 
 </html>
