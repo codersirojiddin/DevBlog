@@ -241,11 +241,24 @@
     color: #2e7d32;
 }
 
-/* ── Admin post list ── */
+/* ── Admin post list — grid 3 columns ── */
 .admin-post-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    align-items: start;
+}
+
+@media (max-width: 1400px) {
+    .admin-post-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 1000px) {
+    .admin-post-list {
+        grid-template-columns: 1fr;
+    }
 }
 
 .admin-post-card {
