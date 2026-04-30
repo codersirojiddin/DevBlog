@@ -85,6 +85,17 @@
         return text.split("\n")[0];
     }
 
+    // 🔥 FIX: wait system qo‘shildi
+    function waitForInteractions(postId, retries = 20) {
+        if (typeof window.initInteractions === "function") {
+            window.initInteractions(postId);
+        } else if (retries > 0) {
+            setTimeout(() => waitForInteractions(postId, retries - 1), 50);
+        } else {
+            console.error("initInteractions yuklanmadi");
+        }
+    }
+
     function openPostModal(post) {
         if (!post) return;
         const existing = document.querySelector(".post-modal");
@@ -100,12 +111,8 @@
                 <p class="post-content">${escapeHtml(post.content)}</p>
 
                 <div class="post-interactions">
-                    <button id="like-btn" class="like-btn" title="Like this post">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                        </svg>
-                        <span id="like-count">0</span> Likes
+                    <button id="like-btn" class="like-btn">
+                        ❤️ <span id="like-count">0</span> Likes
                     </button>
                 </div>
 
@@ -124,12 +131,8 @@
         modal.querySelector(".post-modal__close").addEventListener("click", () => modal.remove());
         document.body.appendChild(modal);
 
-        // Dynamic import o'rniga window.initInteractions ishlatamiz
-        if (typeof window.initInteractions === "function") {
-            window.initInteractions(post.id);
-        } else {
-            console.error("interactions.js yuklanmagan! interactions.js ni posts.js dan oldin qo'shing.");
-        }
+        // 🔥 FIX: oldingi initInteractions o‘rniga
+        waitForInteractions(post.id);
     }
 
     function renderPosts(container, posts, options = {}) {
@@ -158,15 +161,8 @@
                             ${escapeHtml(post.title)}
                         </a>
                     </h3>
-                    <div class="post-badges">
-                        ${showType ? `<span class="post-badge">${toLabel(post.type)}</span>` : ""}
-                        ${post.highlighted ? `<span class="post-badge post-badge--highlight">Featured</span>` : ""}
-                    </div>
                 </div>
                 <p class="post-preview">${escapeHtml(preview)}${hasMore ? "..." : ""}</p>
-                <div class="post-footer">
-                    <span class="post-meta">${formatDate(post.updated_at || post.created_at)}</span>
-                </div>
             `;
             container.appendChild(card);
         });

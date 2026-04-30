@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ither — Community</title>
     <link rel="stylesheet" href="../style.css">
 </head>
+
 <body>
     <script src="../header.js"></script>
 
@@ -19,7 +21,9 @@
         </div>
 
         <div id="posts-container" class="posts-grid">
-            <div class="loading-state"><div class="spinner"></div> Loading...</div>
+            <div class="loading-state">
+                <div class="spinner"></div> Loading...
+            </div>
         </div>
     </div>
 
@@ -31,13 +35,17 @@
             padding-top: 10px;
             border-top: 1px solid #eee;
         }
-        .post-stat { font-size: 0.85rem; color: #666; }
+
+        .post-stat {
+            font-size: 0.85rem;
+            color: #666;
+        }
     </style>
 
-    <script src="../posts/supabase.js"></script>
-    <script src="../posts/interactions.js"></script>
-    <script src="../posts/posts.js"></script>
-    <script src="../posts/user-menu.js"></script>
+    <script src="../posts/supabase.js" defer></script>
+    <script src="../posts/interactions.js" defer></script>
+    <script src="../posts/posts.js" defer></script>
+    <script src="../posts/user-menu.js" defer></script>
     <script>
         const user = window.SupabaseClient.getCurrentUser();
         const userBar = document.getElementById("user-bar");
@@ -49,7 +57,7 @@
             : `<a href="../login/index.html" class="btn">Sign In to Post</a>`;
 
         function escapeHtml(str) {
-            return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+            return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
         }
 
         async function loadPosts() {
@@ -111,4 +119,5 @@
         loadPosts();
     </script>
 </body>
+
 </html>

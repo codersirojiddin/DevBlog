@@ -109,11 +109,21 @@ function initInteractions(postId) {
   loadLikes(postId);
   loadComments(postId);
 
-  const likeBtn = document.getElementById('like-btn');
-  if (likeBtn) likeBtn.addEventListener('click', () => toggleLike(postId));
+  // 🔥 FIX: LIKE button double-event muammosini hal qilish
+  let likeBtn = document.getElementById('like-btn');
+  if (likeBtn) {
+    const newLikeBtn = likeBtn.cloneNode(true);
+    likeBtn.replaceWith(newLikeBtn);
+    newLikeBtn.addEventListener('click', () => toggleLike(postId));
+  }
 
-  const submitBtn = document.getElementById('comment-submit');
-  if (submitBtn) submitBtn.addEventListener('click', () => submitComment(postId));
+  // 🔥 FIX: COMMENT button double-event muammosini hal qilish
+  let submitBtn = document.getElementById('comment-submit');
+  if (submitBtn) {
+    const newSubmitBtn = submitBtn.cloneNode(true);
+    submitBtn.replaceWith(newSubmitBtn);
+    newSubmitBtn.addEventListener('click', () => submitComment(postId));
+  }
 
   const input = document.getElementById('comment-input');
   if (input) {
