@@ -117,12 +117,15 @@
         position: sticky;
         top: 0;
         z-index: 1000;
+        width: 100%;
+        left: 0;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
       }
       .db-header-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 1.5rem;
+        width: 100%;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0 2rem;
         height: 64px;
         display: flex;
         align-items: center;
@@ -152,7 +155,6 @@
       .db-nav-link:hover { color: #111; }
       .db-nav-link.db-active { color: #111; font-weight: 600; }
       
-      /* Desktop Dropdown */
       .db-dropdown {
         position: absolute;
         top: 100%;
@@ -190,7 +192,6 @@
       .db-search-btn:hover { background: #f5f5f5; color: #111; }
       .db-login-btn { background: #111; color: #fff; border: none; padding: 8px 18px; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 500; }
 
-      /* Mobile Menu Styles */
       .db-mobile-menu-btn { display: none; background: none; border: none; color: #111; cursor: pointer; }
       .db-mobile-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; z-index: 1001; }
       .db-mobile-menu { position: fixed; top: 0; right: -100%; width: 85%; max-width: 300px; height: 100%; background: #fff; z-index: 1002; transition: right 0.3s ease; box-shadow: -5px 0 15px rgba(0,0,0,0.1); }
@@ -203,7 +204,7 @@
       @media (max-width: 900px) {
         .db-nav-desktop, .db-auth-desktop { display: none; }
         .db-mobile-menu-btn { display: block; }
-        
+        .db-header-container { padding: 0 1rem; }
         .db-mobile-nav-content .db-nav-item { flex-direction: column; align-items: flex-start; height: auto; width: 100%; }
         .db-mobile-nav-content .db-nav-link { width: 100%; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f5f5f5; }
         .db-mobile-nav-content .db-dropdown { position: static; display: none; opacity: 1; pointer-events: all; transform: none; box-shadow: none; border: none; width: 100%; padding-left: 15px; }
@@ -222,7 +223,6 @@
     div.innerHTML = headerHtml;
     document.body.prepend(div.firstElementChild);
 
-    // Event Listeners
     const btnOpen = document.getElementById('db-mobile-menu-btn');
     const btnClose = document.getElementById('db-mobile-menu-close');
     const menu = document.getElementById('db-mobile-menu');
@@ -238,7 +238,6 @@
     btnClose.addEventListener('click', toggleMenu);
     overlay.addEventListener('click', toggleMenu);
 
-    // Mobile Dropdowns
     document.querySelectorAll('.db-mobile-nav-content .db-has-dropdown > .db-nav-link').forEach(link => {
       link.addEventListener('click', (e) => {
         if (window.innerWidth <= 900) {
