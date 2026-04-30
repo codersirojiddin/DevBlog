@@ -37,19 +37,10 @@
             transition: background 0.2s;
         }
 
-        .btn--follow:hover {
-            background-color: #1d4ed8;
-        }
+        .btn--follow:hover { background-color: #1d4ed8; }
+        .btn--follow.following { background-color: #e5e7eb; color: #374151; }
 
-        .btn--follow.following {
-            background-color: #e5e7eb;
-            color: #374151;
-        }
-
-        .profile-skills, .profile-tech {
-            margin: 16px 0;
-        }
-
+        .profile-skills, .profile-tech { margin: 16px 0; }
         .profile-skills h4, .profile-tech h4 {
             font-size: 0.9rem;
             font-weight: 600;
@@ -57,11 +48,7 @@
             margin-bottom: 8px;
         }
 
-        .skills-list, .tech-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
+        .skills-list, .tech-list { display: flex; flex-wrap: wrap; gap: 6px; }
 
         .skill-badge {
             background: #dbeafe;
@@ -81,9 +68,7 @@
             font-weight: 500;
         }
 
-        .profile-availability {
-            margin: 16px 0;
-        }
+        .profile-availability { margin: 16px 0; }
 
         .availability-badge {
             padding: 4px 12px;
@@ -92,19 +77,10 @@
             font-weight: 600;
         }
 
-        .availability-badge.available {
-            background: #d1fae5;
-            color: #065f46;
-        }
+        .availability-badge.available { background: #d1fae5; color: #065f46; }
+        .availability-badge.unavailable { background: #fee2e2; color: #dc2626; }
 
-        .availability-badge.unavailable {
-            background: #fee2e2;
-            color: #dc2626;
-        }
-
-        .form-row {
-            margin-bottom: 16px;
-        }
+        .form-row { margin-bottom: 16px; }
 
         .form-row label {
             display: block;
@@ -121,11 +97,109 @@
             border: 1px solid #d1d5db;
             border-radius: 6px;
             font-size: 0.9rem;
+            box-sizing: border-box;
         }
 
-        .form-row textarea {
-            resize: vertical;
-            min-height: 80px;
+        .form-row textarea { resize: vertical; min-height: 80px; }
+
+        /* ── Avatar upload styles ── */
+        .avatar-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .avatar-tab {
+            flex: 1;
+            padding: 7px 10px;
+            border: none;
+            background: #f8fafc;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #64748b;
+            transition: all 0.15s;
+        }
+
+        .avatar-tab.active { background: #2563eb; color: white; }
+        .avatar-tab:first-child { border-right: 1px solid #d1d5db; }
+
+        .avatar-panel { display: none; }
+        .avatar-panel.active { display: block; }
+
+        .avatar-drop-zone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 6px;
+            padding: 20px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #f8fafc;
+            position: relative;
+        }
+
+        .avatar-drop-zone:hover,
+        .avatar-drop-zone.dragover { border-color: #2563eb; background: #eff6ff; }
+
+        .avatar-drop-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        .avatar-drop-text { font-size: 0.85rem; color: #64748b; font-weight: 500; }
+        .avatar-drop-hint { font-size: 0.72rem; color: #94a3b8; margin-top: 3px; }
+
+        .avatar-preview-wrap {
+            display: none;
+            margin-top: 8px;
+            position: relative;
+            width: fit-content;
+        }
+
+        .avatar-preview-wrap img {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #e2e8f0;
+        }
+
+        .avatar-preview-remove {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .avatar-upload-progress {
+            display: none;
+            margin-top: 6px;
+            font-size: 0.8rem;
+            color: #2563eb;
+            font-weight: 500;
+        }
+
+        .avatar-url-hint {
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 4px;
         }
     </style>
 </head>
@@ -163,10 +237,40 @@
                     <option value="false">Not available</option>
                 </select>
             </div>
+
+            <!-- ── Avatar upload (new) ── -->
             <div class="form-row">
-                <label>Avatar URL</label>
-                <input type="text" id="edit-avatar" placeholder="https://...">
+                <label>Profile Photo</label>
+                <div class="avatar-tabs">
+                    <button type="button" class="avatar-tab active" onclick="switchAvatarTab('file')" id="atab-file">📁 Fayldan tanlash</button>
+                    <button type="button" class="avatar-tab" onclick="switchAvatarTab('url')" id="atab-url">🔗 URL kiriting</button>
+                </div>
+
+                <!-- File panel -->
+                <div class="avatar-panel active" id="apanel-file">
+                    <div class="avatar-drop-zone" id="avatar-drop-zone">
+                        <input type="file" id="avatar-file-input" accept="image/jpeg,image/png,image/webp" onchange="handleAvatarFile(this.files[0])">
+                        <div class="avatar-drop-text">🖼️ Rasm tanlash yoki tashlang</div>
+                        <div class="avatar-drop-hint">JPG, PNG, WEBP — max 2 MB</div>
+                    </div>
+                    <div class="avatar-upload-progress" id="avatar-progress">⏳ Yuklanmoqda...</div>
+                    <div class="avatar-preview-wrap" id="avatar-file-preview">
+                        <img id="avatar-file-preview-img" src="" alt="Preview">
+                        <button type="button" class="avatar-preview-remove" onclick="clearAvatarFile()">×</button>
+                    </div>
+                </div>
+
+                <!-- URL panel -->
+                <div class="avatar-panel" id="apanel-url">
+                    <input type="url" id="edit-avatar" placeholder="https://i.imgur.com/photo.jpg" oninput="handleAvatarUrl(this.value)">
+                    <div class="avatar-preview-wrap" id="avatar-url-preview">
+                        <img id="avatar-url-preview-img" src="" alt="Preview" onerror="clearAvatarUrlPreview()">
+                        <button type="button" class="avatar-preview-remove" onclick="clearAvatarUrl()">×</button>
+                    </div>
+                    <p class="avatar-url-hint">Imgur.com orqali bepul rasm yuklang</p>
+                </div>
             </div>
+
             <div class="profile-actions">
                 <button class="btn" id="save-profile-btn">Save</button>
                 <button class="btn btn--secondary" id="cancel-edit-btn">Cancel</button>
@@ -191,14 +295,144 @@
 
         if (!profileId) window.location.href = "../community/index.html";
 
-        document.addEventListener("DOMContentLoaded", () => {
-            initializeUserMenu();
-        });
+        document.addEventListener("DOMContentLoaded", () => { initializeUserMenu(); });
 
         const isOwner = currentUser?.id === profileId;
 
+        // ── Avatar state ──
+        let avatarSelectedFile = null;
+        let avatarFinalUrl = null; // set after upload or URL confirm
+
         function escapeHtml(str) {
             return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+        }
+
+        // ── Avatar tab switching ──
+        function switchAvatarTab(tab) {
+            document.getElementById("atab-file").classList.toggle("active", tab === "file");
+            document.getElementById("atab-url").classList.toggle("active", tab === "url");
+            document.getElementById("apanel-file").classList.toggle("active", tab === "file");
+            document.getElementById("apanel-url").classList.toggle("active", tab === "url");
+        }
+
+        // ── File handling ──
+        function handleAvatarFile(file) {
+            if (!file) return;
+            if (file.size > 2 * 1024 * 1024) {
+                alert("Rasm hajmi 2 MB dan oshmasligi kerak!");
+                return;
+            }
+            if (!["image/jpeg","image/png","image/webp"].includes(file.type)) {
+                alert("Faqat JPG, PNG, WEBP formatlar!");
+                return;
+            }
+            avatarSelectedFile = file;
+            avatarFinalUrl = null;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById("avatar-file-preview-img").src = e.target.result;
+                document.getElementById("avatar-file-preview").style.display = "block";
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearAvatarFile() {
+            avatarSelectedFile = null;
+            avatarFinalUrl = null;
+            document.getElementById("avatar-file-input").value = "";
+            document.getElementById("avatar-file-preview").style.display = "none";
+        }
+
+        // ── URL handling ──
+        let avatarUrlTimer = null;
+        function handleAvatarUrl(value) {
+            avatarFinalUrl = null;
+            avatarSelectedFile = null;
+            clearTimeout(avatarUrlTimer);
+            if (!value.trim()) {
+                document.getElementById("avatar-url-preview").style.display = "none";
+                return;
+            }
+            avatarUrlTimer = setTimeout(() => {
+                const img = document.getElementById("avatar-url-preview-img");
+                img.src = value.trim();
+                img.onload = () => {
+                    avatarFinalUrl = value.trim();
+                    document.getElementById("avatar-url-preview").style.display = "block";
+                };
+            }, 600);
+        }
+
+        function clearAvatarUrlPreview() {
+            document.getElementById("avatar-url-preview").style.display = "none";
+            avatarFinalUrl = null;
+        }
+
+        function clearAvatarUrl() {
+            document.getElementById("edit-avatar").value = "";
+            document.getElementById("avatar-url-preview").style.display = "none";
+            avatarFinalUrl = null;
+        }
+
+        // ── Drag & drop ──
+        document.addEventListener("DOMContentLoaded", () => {
+            const dz = document.getElementById("avatar-drop-zone");
+            if (dz) {
+                dz.addEventListener("dragover", (e) => { e.preventDefault(); dz.classList.add("dragover"); });
+                dz.addEventListener("dragleave", () => dz.classList.remove("dragover"));
+                dz.addEventListener("drop", (e) => {
+                    e.preventDefault();
+                    dz.classList.remove("dragover");
+                    const file = e.dataTransfer.files[0];
+                    if (file) handleAvatarFile(file);
+                });
+            }
+        });
+
+        // ── Upload to Supabase Storage ──
+        async function uploadAvatarToStorage(file, userId) {
+            const ext = file.name.split('.').pop();
+            const fileName = `${userId}/avatar_${Date.now()}.${ext}`;
+            const SUPABASE_URL = "https://uyjmyjetcleghfcwslau.supabase.co";
+            const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5am15amV0Y2xlZ2hmY3dzbGF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MTU2NzQsImV4cCI6MjA4OTQ5MTY3NH0.-v4Bjy-Ty8pQxaBJFlb4cXDioNFGXXgRsGljH3P19og";
+            const token = window.SupabaseClient.getSession()?.access_token || SUPABASE_ANON_KEY;
+
+            const res = await fetch(`${SUPABASE_URL}/storage/v1/object/project_images/${fileName}`, {
+                method: "POST",
+                headers: {
+                    "apikey": SUPABASE_ANON_KEY,
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": file.type,
+                    "x-upsert": "true"
+                },
+                body: file
+            });
+
+            if (!res.ok) {
+                const err = await res.text();
+                throw new Error("Avatar yuklanmadi: " + err);
+            }
+
+            return `${SUPABASE_URL}/storage/v1/object/public/project_images/${fileName}`;
+        }
+
+        // ── Get final avatar URL (upload if file, else use url) ──
+        async function getFinalAvatarUrl(existingUrl) {
+            if (avatarSelectedFile) {
+                document.getElementById("avatar-progress").style.display = "block";
+                try {
+                    const url = await uploadAvatarToStorage(avatarSelectedFile, currentUser.id);
+                    document.getElementById("avatar-progress").style.display = "none";
+                    return url;
+                } catch (err) {
+                    document.getElementById("avatar-progress").style.display = "none";
+                    throw err;
+                }
+            }
+            if (avatarFinalUrl) return avatarFinalUrl;
+            // No change - keep existing
+            return existingUrl;
         }
 
         async function loadProfile() {
@@ -214,7 +448,6 @@
                 loadedProfile = profile;
                 if (!profile) { headerEl.innerHTML = `<p>User not found.</p>`; return; }
 
-                // Check if current user is following this profile
                 let alreadyFollowing = false;
                 if (currentUser && !isOwner) {
                     alreadyFollowing = await window.SupabaseClient.isFollowing(currentUser.id, profileId);
@@ -276,7 +509,6 @@
                     </div>
                 `;
 
-                // Edit button logic
                 if (isOwner) {
                     document.getElementById("edit-btn").addEventListener("click", () => {
                         document.getElementById("edit-username").value = profile.username;
@@ -284,12 +516,23 @@
                         document.getElementById("edit-skills").value = (profile.skills && Array.isArray(profile.skills) ? profile.skills.join(', ') : "");
                         document.getElementById("edit-tech-stack").value = (profile.tech_stack && Array.isArray(profile.tech_stack) ? profile.tech_stack.join(', ') : "");
                         document.getElementById("edit-availability").value = profile.availability !== false ? "true" : "false";
-                        document.getElementById("edit-avatar").value = profile.avatar_url || "";
+
+                        // Show existing avatar in URL tab
+                        if (profile.avatar_url) {
+                            switchAvatarTab('url');
+                            document.getElementById("edit-avatar").value = profile.avatar_url;
+                            const img = document.getElementById("avatar-url-preview-img");
+                            img.src = profile.avatar_url;
+                            img.onload = () => {
+                                avatarFinalUrl = profile.avatar_url;
+                                document.getElementById("avatar-url-preview").style.display = "block";
+                            };
+                        }
+
                         document.getElementById("edit-form").classList.add("visible");
                     });
                 }
 
-                // Follow button logic
                 if (!isOwner && currentUser) {
                     const followBtn = document.getElementById("follow-btn");
                     let following = alreadyFollowing;
@@ -399,19 +642,23 @@
             }
         }
 
-        // Save profile edits
+        // ── Save profile ──
         document.getElementById("save-profile-btn").addEventListener("click", async () => {
             const username = document.getElementById("edit-username").value.trim();
             const bio = document.getElementById("edit-bio").value.trim();
             const skills = document.getElementById("edit-skills").value.split(',').map(s => s.trim()).filter(s => s);
             const techStack = document.getElementById("edit-tech-stack").value.split(',').map(s => s.trim()).filter(s => s);
             const availability = document.getElementById("edit-availability").value === "true";
-            const avatar_url = document.getElementById("edit-avatar").value.trim();
             const status = document.getElementById("edit-status");
 
             if (!username) { status.textContent = "Username is required."; status.className = "status status--error"; return; }
+
             status.textContent = "Saving..."; status.className = "status";
+
             try {
+                // Get avatar URL (upload if file selected)
+                const avatar_url = await getFinalAvatarUrl(loadedProfile?.avatar_url || "");
+
                 const patchData = { username, bio, avatar_url };
                 if (loadedProfile && Array.isArray(loadedProfile.skills)) patchData.skills = skills;
                 if (loadedProfile && Array.isArray(loadedProfile.tech_stack)) patchData.tech_stack = techStack;
@@ -422,8 +669,14 @@
                     body: JSON.stringify(patchData),
                     prefer: "return=minimal"
                 });
+
                 status.textContent = "✓ Saved!"; status.className = "status status--ok";
                 document.getElementById("edit-form").classList.remove("visible");
+
+                // Reset avatar state
+                avatarSelectedFile = null;
+                avatarFinalUrl = null;
+
                 loadProfile();
             } catch (err) {
                 status.textContent = err.message; status.className = "status status--error";
@@ -432,6 +685,8 @@
 
         document.getElementById("cancel-edit-btn").addEventListener("click", () => {
             document.getElementById("edit-form").classList.remove("visible");
+            avatarSelectedFile = null;
+            avatarFinalUrl = null;
         });
 
         loadProfile();

@@ -328,6 +328,117 @@
         }
 
         .btn-secondary:hover { background: #4b5563; }
+
+        /* ── Thumbnail upload styles ── */
+        .thumbnail-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .thumbnail-tab {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            background: #f8fafc;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748b;
+            transition: all 0.15s;
+        }
+
+        .thumbnail-tab.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        .thumbnail-tab:first-child { border-right: 1px solid #e2e8f0; }
+
+        .thumbnail-panel { display: none; }
+        .thumbnail-panel.active { display: block; }
+
+        .file-drop-zone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 28px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #f8fafc;
+            position: relative;
+        }
+
+        .file-drop-zone:hover,
+        .file-drop-zone.dragover {
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+
+        .file-drop-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        .file-drop-icon { font-size: 2rem; margin-bottom: 8px; }
+
+        .file-drop-text {
+            font-size: 0.9rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .file-drop-hint {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        .thumbnail-preview {
+            margin-top: 10px;
+            display: none;
+            position: relative;
+        }
+
+        .thumbnail-preview img {
+            width: 100%;
+            max-height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .thumbnail-preview-remove {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-progress {
+            display: none;
+            margin-top: 8px;
+            font-size: 0.82rem;
+            color: #2563eb;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -345,16 +456,18 @@
         const currentUser = window.SupabaseClient.getCurrentUser();
         const mainContent = document.getElementById("main-content");
 
-        // Check if editing existing project
         const urlParams = new URLSearchParams(window.location.search);
         const editProjectId = urlParams.get('id');
         let isEditing = !!editProjectId;
+
+        // Thumbnail state
+        let selectedFile = null;
+        let uploadedImageUrl = null; // URL from storage after upload
 
         document.addEventListener("DOMContentLoaded", () => {
             initializeUserMenu();
         });
 
-        // If not logged in, show prompt
         if (!currentUser) {
             mainContent.innerHTML = `
                 <div class="login-prompt">
@@ -367,20 +480,14 @@
             renderForm();
         }
 
-        // Tech stack tags
         let techStack = [];
-
-        // Roles
         let roles = [];
 
         async function loadProjectForEditing() {
             if (!editProjectId) return;
 
             try {
-                // Fetch project data
-                const project = await window.SupabaseClient.supabaseFetch(`projects?id=eq.${editProjectId}&user_id=eq.${currentUser.id}`, {
-                    method: "GET"
-                });
+                const project = await window.SupabaseClient.supabaseFetch(`projects?id=eq.${editProjectId}&user_id=eq.${currentUser.id}`, { method: "GET" });
 
                 if (!project || project.length === 0) {
                     showStatus("Project not found or you don't have permission to edit it.", "error");
@@ -388,31 +495,30 @@
                 }
 
                 const projectData = project[0];
+                const projectRoles = await window.SupabaseClient.supabaseFetch(`project_roles?project_id=eq.${editProjectId}`, { method: "GET" });
 
-                // Fetch roles
-                const projectRoles = await window.SupabaseClient.supabaseFetch(`project_roles?project_id=eq.${editProjectId}`, {
-                    method: "GET"
-                });
-
-                // Populate form
                 document.getElementById("title").value = projectData.title || "";
                 document.getElementById("tagline").value = projectData.tagline || "";
                 document.getElementById("description").value = projectData.description || "";
                 document.getElementById("live-url").value = projectData.live_url || "";
                 document.getElementById("github-url").value = projectData.github_url || "";
-                document.getElementById("thumbnail-url").value = projectData.thumbnail_url || "";
 
-                // Set status
-                const statusRadio = document.querySelector(`input[name="status"][value="${projectData.status}"]`);
-                if (statusRadio) {
-                    statusRadio.checked = true;
+                // Load existing thumbnail
+                if (projectData.thumbnail_url) {
+                    uploadedImageUrl = projectData.thumbnail_url;
+                    // Switch to URL tab and populate
+                    switchTab('url');
+                    document.getElementById("thumbnail-url-input").value = projectData.thumbnail_url;
+                    // Also show preview
+                    showUrlPreview(projectData.thumbnail_url);
                 }
 
-                // Populate tech stack
+                const statusRadio = document.querySelector(`input[name="status"][value="${projectData.status}"]`);
+                if (statusRadio) statusRadio.checked = true;
+
                 techStack = projectData.tech_stack || [];
                 renderTags();
 
-                // Populate roles
                 roles = (projectRoles || []).map(role => ({
                     id: role.id,
                     title: role.title || "",
@@ -425,7 +531,6 @@
                 }));
                 renderRoles();
 
-                // Update page title and subtitle
                 document.getElementById("page-title").textContent = "✏️ Edit Project";
                 document.getElementById("page-subtitle").textContent = "Make changes to your project details";
 
@@ -481,10 +586,38 @@
                         </div>
                     </div>
 
+                    <!-- ── Thumbnail (new) ── -->
                     <div class="form-group">
-                        <label>Thumbnail URL</label>
-                        <input type="url" id="thumbnail-url" placeholder="https://i.imgur.com/yourimage.png">
-                        <p class="form-hint">Paste a direct image link. Use imgur.com to upload images for free.</p>
+                        <label>Thumbnail Image</label>
+                        <div class="thumbnail-tabs">
+                            <button type="button" class="thumbnail-tab active" onclick="switchTab('file')" id="tab-file">📁 Fayldan tanlash</button>
+                            <button type="button" class="thumbnail-tab" onclick="switchTab('url')" id="tab-url">🔗 URL kiriting</button>
+                        </div>
+
+                        <!-- File upload panel -->
+                        <div class="thumbnail-panel active" id="panel-file">
+                            <div class="file-drop-zone" id="drop-zone">
+                                <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" onchange="handleFileSelect(this.files[0])">
+                                <div class="file-drop-icon">🖼️</div>
+                                <div class="file-drop-text">Rasm tanlash yoki bu yerga tashlang</div>
+                                <div class="file-drop-hint">JPG, PNG, WEBP — max 2 MB</div>
+                            </div>
+                            <div class="upload-progress" id="upload-progress">⏳ Yuklanmoqda...</div>
+                            <div class="thumbnail-preview" id="file-preview">
+                                <img id="file-preview-img" src="" alt="Preview">
+                                <button type="button" class="thumbnail-preview-remove" onclick="clearFile()">×</button>
+                            </div>
+                        </div>
+
+                        <!-- URL panel -->
+                        <div class="thumbnail-panel" id="panel-url">
+                            <input type="url" id="thumbnail-url-input" placeholder="https://i.imgur.com/yourimage.png" oninput="handleUrlInput(this.value)">
+                            <div class="thumbnail-preview" id="url-preview">
+                                <img id="url-preview-img" src="" alt="Preview" onerror="handleUrlError()">
+                                <button type="button" class="thumbnail-preview-remove" onclick="clearUrl()">×</button>
+                            </div>
+                            <p class="form-hint">Imgur.com orqali bepul rasm yuklang yoki to'g'ridan-to'g'ri rasm URL'ini kiriting</p>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -518,12 +651,10 @@
                 </div>
             `;
 
-            // Tech stack tag input logic
+            // Tech stack
             const techInput = document.getElementById("tech-input");
             const tagsWrapper = document.getElementById("tags-wrapper");
-
             tagsWrapper.addEventListener("click", () => techInput.focus());
-
             techInput.addEventListener("keydown", (e) => {
                 if (e.key === "Enter" || e.key === ",") {
                     e.preventDefault();
@@ -535,26 +666,154 @@
                 }
             });
 
-            // Submit
-            document.getElementById("submit-btn").addEventListener("click", submitProject);
+            // Drag & drop
+            const dropZone = document.getElementById("drop-zone");
+            dropZone.addEventListener("dragover", (e) => { e.preventDefault(); dropZone.classList.add("dragover"); });
+            dropZone.addEventListener("dragleave", () => dropZone.classList.remove("dragover"));
+            dropZone.addEventListener("drop", (e) => {
+                e.preventDefault();
+                dropZone.classList.remove("dragover");
+                const file = e.dataTransfer.files[0];
+                if (file) handleFileSelect(file);
+            });
 
-            // Add role button
+            document.getElementById("submit-btn").addEventListener("click", submitProject);
             document.getElementById("add-role-btn").addEventListener("click", addRole);
 
-            // Load existing data if editing
             loadProjectForEditing();
         }
 
+        // ── Thumbnail tab switching ──
+        function switchTab(tab) {
+            document.getElementById("tab-file").classList.toggle("active", tab === "file");
+            document.getElementById("tab-url").classList.toggle("active", tab === "url");
+            document.getElementById("panel-file").classList.toggle("active", tab === "file");
+            document.getElementById("panel-url").classList.toggle("active", tab === "url");
+        }
+
+        // ── File upload handling ──
+        function handleFileSelect(file) {
+            if (!file) return;
+
+            if (file.size > 2 * 1024 * 1024) {
+                showStatus("Rasm hajmi 2 MB dan oshmasligi kerak!", "error");
+                return;
+            }
+
+            if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+                showStatus("Faqat JPG, PNG, WEBP formatlar qabul qilinadi!", "error");
+                return;
+            }
+
+            selectedFile = file;
+            uploadedImageUrl = null; // reset - will upload on submit
+
+            // Show local preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById("file-preview-img").src = e.target.result;
+                document.getElementById("file-preview").style.display = "block";
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearFile() {
+            selectedFile = null;
+            uploadedImageUrl = null;
+            document.getElementById("file-input").value = "";
+            document.getElementById("file-preview").style.display = "none";
+            document.getElementById("file-preview-img").src = "";
+        }
+
+        // ── URL handling ──
+        let urlPreviewTimer = null;
+        function handleUrlInput(value) {
+            uploadedImageUrl = null;
+            selectedFile = null;
+            clearTimeout(urlPreviewTimer);
+            if (!value.trim()) {
+                document.getElementById("url-preview").style.display = "none";
+                return;
+            }
+            urlPreviewTimer = setTimeout(() => showUrlPreview(value.trim()), 600);
+        }
+
+        function showUrlPreview(url) {
+            const img = document.getElementById("url-preview-img");
+            img.src = url;
+            document.getElementById("url-preview").style.display = "block";
+            img.onload = () => { uploadedImageUrl = url; };
+            img.onerror = () => handleUrlError();
+        }
+
+        function handleUrlError() {
+            document.getElementById("url-preview").style.display = "none";
+            uploadedImageUrl = null;
+            showStatus("URL dan rasm yuklanmadi. Imgur.com orqali yuklang yoki boshqa to'g'ridan-to'g'ri rasm URL'ini kiriting.", "error");
+        }
+
+        function clearUrl() {
+            document.getElementById("thumbnail-url-input").value = "";
+            document.getElementById("url-preview").style.display = "none";
+            uploadedImageUrl = null;
+        }
+
+        // ── Upload file to Supabase Storage ──
+        async function uploadFileToStorage(file, userId) {
+            const ext = file.name.split('.').pop();
+            const fileName = `${userId}/${Date.now()}.${ext}`;
+            const SUPABASE_URL = "https://uyjmyjetcleghfcwslau.supabase.co";
+            const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5am15amV0Y2xlZ2hmY3dzbGF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MTU2NzQsImV4cCI6MjA4OTQ5MTY3NH0.-v4Bjy-Ty8pQxaBJFlb4cXDioNFGXXgRsGljH3P19og";
+            const token = window.SupabaseClient.getSession()?.access_token || SUPABASE_ANON_KEY;
+
+            const res = await fetch(`${SUPABASE_URL}/storage/v1/object/project_images/${fileName}`, {
+                method: "POST",
+                headers: {
+                    "apikey": SUPABASE_ANON_KEY,
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": file.type,
+                    "x-upsert": "true"
+                },
+                body: file
+            });
+
+            if (!res.ok) {
+                const err = await res.text();
+                throw new Error("Rasm yuklanmadi: " + err);
+            }
+
+            return `${SUPABASE_URL}/storage/v1/object/public/project_images/${fileName}`;
+        }
+
+        // ── Get final thumbnail URL ──
+        async function getFinalThumbnailUrl() {
+            // If file selected - upload it first
+            if (selectedFile) {
+                document.getElementById("upload-progress").style.display = "block";
+                try {
+                    const url = await uploadFileToStorage(selectedFile, currentUser.id);
+                    document.getElementById("upload-progress").style.display = "none";
+                    return url;
+                } catch (err) {
+                    document.getElementById("upload-progress").style.display = "none";
+                    throw err;
+                }
+            }
+
+            // If URL entered
+            if (uploadedImageUrl) return uploadedImageUrl;
+
+            // No image
+            return null;
+        }
+
+        // ── Roles ──
         function addRole() {
             const role = {
                 id: Date.now(),
-                title: "",
-                description: "",
-                skills: [],
-                level: "beginner",
-                commitment: "part_time",
-                compensation: "volunteer",
-                max_positions: 1
+                title: "", description: "", skills: [],
+                level: "beginner", commitment: "part_time",
+                compensation: "volunteer", max_positions: 1
             };
             roles.push(role);
             renderRoles();
@@ -567,9 +826,7 @@
 
         function updateRole(roleId, field, value) {
             const role = roles.find(r => r.id === roleId);
-            if (role) {
-                role[field] = value;
-            }
+            if (role) role[field] = value;
         }
 
         function addRoleSkill(roleId, skill) {
@@ -625,6 +882,7 @@
             `).join('');
         }
 
+        // ── Tags ──
         function addTag(value) {
             if (!value || techStack.includes(value) || techStack.length >= 10) return;
             techStack.push(value);
@@ -650,6 +908,7 @@
 
         window.removeTag = removeTag;
 
+        // ── Submit ──
         async function submitProject() {
             const btn = document.getElementById("submit-btn");
 
@@ -658,7 +917,6 @@
             const description = document.getElementById("description").value.trim();
             const live_url = document.getElementById("live-url").value.trim();
             const github_url = document.getElementById("github-url").value.trim();
-            const thumbnail_url = document.getElementById("thumbnail-url").value.trim();
             const status = document.querySelector('input[name="status"]:checked').value;
 
             if (!title) { showStatus("Project title is required.", "error"); return; }
@@ -668,123 +926,70 @@
             btn.textContent = isEditing ? "Updating..." : "Submitting...";
 
             try {
+                // Upload image if file selected
+                let thumbnail_url = null;
+                try {
+                    thumbnail_url = await getFinalThumbnailUrl();
+                } catch (imgErr) {
+                    showStatus("⚠️ " + imgErr.message, "error");
+                    btn.disabled = false;
+                    btn.textContent = isEditing ? "✏️ Update Project" : "🚀 Submit Project";
+                    return;
+                }
+
                 let projectId;
 
                 if (isEditing) {
-                    // Update existing project
                     await window.SupabaseClient.supabaseFetch(`projects?id=eq.${editProjectId}`, {
                         method: "PATCH",
-                        body: JSON.stringify({
-                            title,
-                            tagline,
-                            description,
-                            tech_stack: techStack,
-                            live_url: live_url || null,
-                            github_url: github_url || null,
-                            thumbnail_url: thumbnail_url || null,
-                            status
-                        })
+                        body: JSON.stringify({ title, tagline, description, tech_stack: techStack, live_url: live_url || null, github_url: github_url || null, thumbnail_url, status })
                     });
                     projectId = editProjectId;
 
-                    // Handle roles update - first get existing roles
-                    const existingRoles = await window.SupabaseClient.supabaseFetch(`project_roles?project_id=eq.${projectId}`, {
-                        method: "GET"
-                    });
-
-                    // Delete roles that are no longer in the form
+                    const existingRoles = await window.SupabaseClient.supabaseFetch(`project_roles?project_id=eq.${projectId}`, { method: "GET" });
                     const existingRoleIds = existingRoles.map(r => r.id);
-                    const currentRoleIds = roles.map(r => r.id).filter(id => id > 1000000000000); // Only real DB IDs
+                    const currentRoleIds = roles.map(r => r.id).filter(id => id > 1000000000000);
                     const rolesToDelete = existingRoleIds.filter(id => !currentRoleIds.includes(id));
 
                     for (const roleId of rolesToDelete) {
-                        await window.SupabaseClient.supabaseFetch(`project_roles?id=eq.${roleId}`, {
-                            method: "DELETE"
-                        });
+                        await window.SupabaseClient.supabaseFetch(`project_roles?id=eq.${roleId}`, { method: "DELETE" });
                     }
 
-                    // Update existing roles and add new ones
                     for (const role of roles) {
-                        if (role.id > 1000000000000) { // Existing role
+                        if (role.id > 1000000000000) {
                             await window.SupabaseClient.supabaseFetch(`project_roles?id=eq.${role.id}`, {
                                 method: "PATCH",
-                                body: JSON.stringify({
-                                    title: role.title,
-                                    description: role.description,
-                                    skills: role.skills,
-                                    level: role.level,
-                                    commitment: role.commitment,
-                                    compensation: role.compensation,
-                                    max_positions: role.max_positions
-                                })
+                                body: JSON.stringify({ title: role.title, description: role.description, skills: role.skills, level: role.level, commitment: role.commitment, compensation: role.compensation, max_positions: role.max_positions })
                             });
-                        } else { // New role
+                        } else {
                             await window.SupabaseClient.supabaseFetch("project_roles", {
                                 method: "POST",
-                                body: JSON.stringify({
-                                    project_id: projectId,
-                                    title: role.title,
-                                    description: role.description,
-                                    skills: role.skills,
-                                    level: role.level,
-                                    commitment: role.commitment,
-                                    compensation: role.compensation,
-                                    max_positions: role.max_positions,
-                                    filled_positions: 0
-                                })
+                                body: JSON.stringify({ project_id: projectId, title: role.title, description: role.description, skills: role.skills, level: role.level, commitment: role.commitment, compensation: role.compensation, max_positions: role.max_positions, filled_positions: 0 })
                             });
                         }
                     }
 
                 } else {
-                    // Create new project
                     const projectData = await window.SupabaseClient.supabaseFetch("projects", {
                         method: "POST",
-                        body: JSON.stringify({
-                            user_id: currentUser.id,
-                            title,
-                            tagline,
-                            description,
-                            tech_stack: techStack,
-                            live_url: live_url || null,
-                            github_url: github_url || null,
-                            thumbnail_url: thumbnail_url || null,
-                            status
-                        }),
+                        body: JSON.stringify({ user_id: currentUser.id, title, tagline, description, tech_stack: techStack, live_url: live_url || null, github_url: github_url || null, thumbnail_url, status }),
                         prefer: "return=representation"
                     });
 
                     projectId = projectData?.[0]?.id || null;
-                    if (!projectId) {
-                        throw new Error("Project created but project ID could not be retrieved.");
-                    }
+                    if (!projectId) throw new Error("Project created but project ID could not be retrieved.");
 
-                    // Submit roles if any
-                    if (roles.length > 0) {
-                        for (const role of roles) {
-                            await window.SupabaseClient.supabaseFetch("project_roles", {
-                                method: "POST",
-                                body: JSON.stringify({
-                                    project_id: projectId,
-                                    title: role.title,
-                                    description: role.description,
-                                    skills: role.skills,
-                                    level: role.level,
-                                    commitment: role.commitment,
-                                    compensation: role.compensation,
-                                    max_positions: role.max_positions,
-                                    filled_positions: 0
-                                }),
-                                prefer: "return=minimal"
-                            });
-                        }
+                    for (const role of roles) {
+                        await window.SupabaseClient.supabaseFetch("project_roles", {
+                            method: "POST",
+                            body: JSON.stringify({ project_id: projectId, title: role.title, description: role.description, skills: role.skills, level: role.level, commitment: role.commitment, compensation: role.compensation, max_positions: role.max_positions, filled_positions: 0 }),
+                            prefer: "return=minimal"
+                        });
                     }
                 }
 
                 showStatus(isEditing ? "✏️ Project updated successfully! Redirecting..." : "🎉 Project submitted successfully! Redirecting...", "success");
-                setTimeout(() => {
-                    window.location.href = "../showcase/index.html";
-                }, 1500);
+                setTimeout(() => { window.location.href = "../showcase/index.html"; }, 1500);
 
             } catch (err) {
                 console.error("Submit error:", err);
