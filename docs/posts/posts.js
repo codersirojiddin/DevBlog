@@ -1,39 +1,21 @@
 (() => {
     const VALID_TYPES = new Set(["article", "news", "code"]);
 
-    // SEO uchun sarlavhadan slug yasash (Masalan: "AI is Great!" -> "ai-is-great")
     function generateSlug(text) {
-        return text
-            .toString()
-            .toLowerCase()
-            .trim()
-            .replace(/\s+/g, '-')           // Bo'shliqlarni chiziqqa almashtirish
-            .replace(/[^\w\-]+/g, '')       // Maxsus belgilarni o'chirish
-            .replace(/\-\-+/g, '-')         // Ketma-ket chiziqlarni bitta qilish
-            .replace(/^-+/, '')             // Boshidagi chiziqlarni o'chirish
-            .replace(/-+$/, '');            // Oxiridagi chiziqlarni o'chirish
+        return text.toString().toLowerCase().trim()
+            .replace(/\s+/g, '-').replace(/[^\w\-]+/g, '')
+            .replace(/\-\-+/g, '-').replace(/^-+/, '').replace(/-+$/, '');
     }
 
-    function normalizeText(value) {
-        return String(value || "").trim();
-    }
-
-    function toIsoNow() {
-        return new Date().toISOString();
-    }
+    function normalizeText(value) { return String(value || "").trim(); }
+    function toIsoNow() { return new Date().toISOString(); }
 
     async function getPosts(filters = {}) {
         const type = normalizeText(filters.type).toLowerCase();
         const highlightedOnly = Boolean(filters.highlightedOnly);
-
         let query = "posts?order=updated_at.desc";
-        if (type && VALID_TYPES.has(type)) {
-            query += `&type=eq.${type}`;
-        }
-        if (highlightedOnly) {
-            query += `&highlighted=eq.true`;
-        }
-
+        if (type && VALID_TYPES.has(type)) query += `&type=eq.${type}`;
+        if (highlightedOnly) query += `&highlighted=eq.true`;
         return window.SupabaseClient.supabaseFetch(query, { method: "GET" });
     }
 
@@ -46,24 +28,13 @@
         const title = normalizeText(input.title);
         const content = normalizeText(input.content);
         const type = normalizeText(input.type).toLowerCase();
-
         if (!title) throw new Error("Title is required.");
         if (!content) throw new Error("Content is required.");
         if (!VALID_TYPES.has(type)) throw new Error("Invalid post type.");
-
         const now = toIsoNow();
-        const post = {
-            title,
-            content,
-            type,
-            highlighted: Boolean(input.highlighted),
-            created_at: now,
-            updated_at: now
-        };
-
         const result = await window.SupabaseClient.supabaseFetch("posts", {
             method: "POST",
-            body: JSON.stringify(post)
+            body: JSON.stringify({ title, content, type, highlighted: Boolean(input.highlighted), created_at: now, updated_at: now })
         });
         return Array.isArray(result) ? result[0] : result;
     }
@@ -71,24 +42,15 @@
     async function updatePost(id, input) {
         const postId = normalizeText(id);
         if (!postId) throw new Error("Post id is required.");
-
         const title = normalizeText(input.title);
         const content = normalizeText(input.content);
         const type = normalizeText(input.type).toLowerCase();
-
         if (!title) throw new Error("Title is required.");
         if (!content) throw new Error("Content is required.");
         if (!VALID_TYPES.has(type)) throw new Error("Invalid post type.");
-
         const result = await window.SupabaseClient.supabaseFetch(`posts?id=eq.${postId}`, {
             method: "PATCH",
-            body: JSON.stringify({
-                title,
-                content,
-                type,
-                highlighted: Boolean(input.highlighted),
-                updated_at: toIsoNow()
-            })
+            body: JSON.stringify({ title, content, type, highlighted: Boolean(input.highlighted), updated_at: toIsoNow() })
         });
         return Array.isArray(result) ? result[0] : result;
     }
@@ -96,10 +58,7 @@
     async function deletePost(id) {
         const postId = normalizeText(id);
         if (!postId) throw new Error("Post id is required.");
-        await window.SupabaseClient.supabaseFetch(`posts?id=eq.${postId}`, {
-            method: "DELETE",
-            prefer: "return=minimal"
-        });
+        await window.SupabaseClient.supabaseFetch(`posts?id=eq.${postId}`, { method: "DELETE", prefer: "return=minimal" });
         return true;
     }
 
@@ -112,9 +71,7 @@
     function formatDate(isoValue) {
         const timestamp = Date.parse(isoValue || "");
         if (Number.isNaN(timestamp)) return "Unknown date";
-        return new Date(timestamp).toLocaleDateString("en-US", {
-            year: "numeric", month: "short", day: "numeric"
-        });
+        return new Date(timestamp).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
     }
 
     function toLabel(type) {
@@ -136,8 +93,8 @@
         const modal = document.createElement("div");
         modal.className = "post-modal";
         modal.innerHTML = `
-            <div class="post-modal__content" role="dialog" aria-modal="true" aria-label="Full post">
-                <button class="post-modal__close" aria-label="Close full post">×</button>
+            <div class="post-modal__content" role="dialog" aria-modal="true">
+                <button class="post-modal__close" aria-label="Close">×</button>
                 <h2>${escapeHtml(post.title)}</h2>
                 <div class="post-meta">${toLabel(post.type)} • ${formatDate(post.updated_at || post.created_at)}</div>
                 <p class="post-content">${escapeHtml(post.content)}</p>
@@ -156,28 +113,23 @@
                     <h3 class="comments-heading">Comments</h3>
                     <div id="comments-list" class="comments-list"></div>
                     <div class="comment-form">
-                        <textarea id="comment-input" class="comment-input"
-                            placeholder="Write a comment..."
-                            rows="3"></textarea>
+                        <textarea id="comment-input" class="comment-input" placeholder="Write a comment..." rows="3"></textarea>
                         <button id="comment-submit" class="comment-submit-btn">Post Comment</button>
                     </div>
                 </section>
             </div>
         `;
 
-        modal.addEventListener("click", (e) => {
-            if (e.target === modal) modal.remove();
-        });
-
-        modal.querySelector(".post-modal__close").addEventListener("click", () => {
-            modal.remove();
-        });
-
+        modal.addEventListener("click", (e) => { if (e.target === modal) modal.remove(); });
+        modal.querySelector(".post-modal__close").addEventListener("click", () => modal.remove());
         document.body.appendChild(modal);
 
-        import('/posts/interactions.js').then(({ initInteractions }) => {
-            initInteractions(post.id);
-        });
+        // Dynamic import o'rniga window.initInteractions ishlatamiz
+        if (typeof window.initInteractions === "function") {
+            window.initInteractions(post.id);
+        } else {
+            console.error("interactions.js yuklanmagan! interactions.js ni posts.js dan oldin qo'shing.");
+        }
     }
 
     function renderPosts(container, posts, options = {}) {
@@ -194,12 +146,11 @@
         posts.forEach((post) => {
             const preview = getPreview(post.content);
             const hasMore = post.content.split("\n").length > 1 || post.content.length > preview.length;
-            const slug = generateSlug(post.title); // SEO Slug yaratish
+            const slug = generateSlug(post.title);
 
             const card = document.createElement("article");
             card.className = "post-card";
             card.dataset.id = post.id;
-
             card.innerHTML = `
                 <div class="post-card__heading">
                     <h3 class="post-card__title">
@@ -217,31 +168,19 @@
                     <span class="post-meta">${formatDate(post.updated_at || post.created_at)}</span>
                 </div>
             `;
-
             container.appendChild(card);
         });
     }
 
     function escapeHtml(str) {
         return String(str)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
+            .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     }
 
     window.DevBlogPosts = {
-        createPost,
-        updatePost,
-        deletePost,
-        toggleHighlight,
-        getPosts,
-        getPost,
-        renderPosts,
-        openPostModal,
-        toLabel,
-        formatDate,
-        generateSlug // Kerak bo'lsa tashqarida ham ishlatsa bo'ladi
+        createPost, updatePost, deletePost, toggleHighlight,
+        getPosts, getPost, renderPosts, openPostModal,
+        toLabel, formatDate, generateSlug
     };
 })();
