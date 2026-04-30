@@ -506,10 +506,8 @@
                 // Load existing thumbnail
                 if (projectData.thumbnail_url) {
                     uploadedImageUrl = projectData.thumbnail_url;
-                    // Switch to URL tab and populate
                     switchTab('url');
                     document.getElementById("thumbnail-url-input").value = projectData.thumbnail_url;
-                    // Also show preview
                     showUrlPreview(projectData.thumbnail_url);
                 }
 
@@ -586,12 +584,12 @@
                         </div>
                     </div>
 
-                    <!-- ── Thumbnail (new) ── -->
+                    <!-- Thumbnail -->
                     <div class="form-group">
                         <label>Thumbnail Image</label>
                         <div class="thumbnail-tabs">
-                            <button type="button" class="thumbnail-tab active" onclick="switchTab('file')" id="tab-file">📁 Fayldan tanlash</button>
-                            <button type="button" class="thumbnail-tab" onclick="switchTab('url')" id="tab-url">🔗 URL kiriting</button>
+                            <button type="button" class="thumbnail-tab active" onclick="switchTab('file')" id="tab-file">📁 Upload File</button>
+                            <button type="button" class="thumbnail-tab" onclick="switchTab('url')" id="tab-url">🔗 Enter URL</button>
                         </div>
 
                         <!-- File upload panel -->
@@ -599,10 +597,10 @@
                             <div class="file-drop-zone" id="drop-zone">
                                 <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" onchange="handleFileSelect(this.files[0])">
                                 <div class="file-drop-icon">🖼️</div>
-                                <div class="file-drop-text">Rasm tanlash yoki bu yerga tashlang</div>
+                                <div class="file-drop-text">Click to select or drag image here</div>
                                 <div class="file-drop-hint">JPG, PNG, WEBP — max 2 MB</div>
                             </div>
-                            <div class="upload-progress" id="upload-progress">⏳ Yuklanmoqda...</div>
+                            <div class="upload-progress" id="upload-progress">⏳ Uploading...</div>
                             <div class="thumbnail-preview" id="file-preview">
                                 <img id="file-preview-img" src="" alt="Preview">
                                 <button type="button" class="thumbnail-preview-remove" onclick="clearFile()">×</button>
@@ -616,7 +614,7 @@
                                 <img id="url-preview-img" src="" alt="Preview" onerror="handleUrlError()">
                                 <button type="button" class="thumbnail-preview-remove" onclick="clearUrl()">×</button>
                             </div>
-                            <p class="form-hint">Imgur.com orqali bepul rasm yuklang yoki to'g'ridan-to'g'ri rasm URL'ini kiriting</p>
+                            <p class="form-hint">Paste a direct image link. Use imgur.com to upload images for free.</p>
                         </div>
                     </div>
 
@@ -696,19 +694,18 @@
             if (!file) return;
 
             if (file.size > 2 * 1024 * 1024) {
-                showStatus("Rasm hajmi 2 MB dan oshmasligi kerak!", "error");
+                showStatus("Image size must not exceed 2 MB!", "error");
                 return;
             }
 
             if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
-                showStatus("Faqat JPG, PNG, WEBP formatlar qabul qilinadi!", "error");
+                showStatus("Only JPG, PNG, WEBP formats are accepted!", "error");
                 return;
             }
 
             selectedFile = file;
-            uploadedImageUrl = null; // reset - will upload on submit
+            uploadedImageUrl = null;
 
-            // Show local preview
             const reader = new FileReader();
             reader.onload = (e) => {
                 document.getElementById("file-preview-img").src = e.target.result;
@@ -749,7 +746,7 @@
         function handleUrlError() {
             document.getElementById("url-preview").style.display = "none";
             uploadedImageUrl = null;
-            showStatus("URL dan rasm yuklanmadi. Imgur.com orqali yuklang yoki boshqa to'g'ridan-to'g'ri rasm URL'ini kiriting.", "error");
+            showStatus("Image could not be loaded from URL. Please use a direct image link.", "error");
         }
 
         function clearUrl() {
@@ -779,7 +776,7 @@
 
             if (!res.ok) {
                 const err = await res.text();
-                throw new Error("Rasm yuklanmadi: " + err);
+                throw new Error("Image upload failed: " + err);
             }
 
             return `${SUPABASE_URL}/storage/v1/object/public/project_images/${fileName}`;
@@ -787,7 +784,6 @@
 
         // ── Get final thumbnail URL ──
         async function getFinalThumbnailUrl() {
-            // If file selected - upload it first
             if (selectedFile) {
                 document.getElementById("upload-progress").style.display = "block";
                 try {
@@ -800,10 +796,8 @@
                 }
             }
 
-            // If URL entered
             if (uploadedImageUrl) return uploadedImageUrl;
 
-            // No image
             return null;
         }
 
@@ -926,7 +920,6 @@
             btn.textContent = isEditing ? "Updating..." : "Submitting...";
 
             try {
-                // Upload image if file selected
                 let thumbnail_url = null;
                 try {
                     thumbnail_url = await getFinalThumbnailUrl();
