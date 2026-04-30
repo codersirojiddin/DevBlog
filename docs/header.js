@@ -87,7 +87,7 @@
 
   const headerHtml = `
     <header class="db-header" id="db-header">
-      <a href="/" class="db-logo">Dev<span>.</span>Blog</a>
+      <a href="/" class="db-logo">Ither</a>
       <nav class="db-nav">${navItemsHtml}</nav>
       <div class="db-header-right">
         <button class="db-search-btn" aria-label="Search">
