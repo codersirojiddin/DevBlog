@@ -6,9 +6,6 @@
       return path.includes(href);
     };
 
-    const depth = path.split('/').filter(Boolean).length;
-    const root = depth <= 1 ? './' : '../'.repeat(depth - 1);
-
     const links = [
       { label: 'Home', href: '/', dropdown: null },
       {
@@ -45,6 +42,28 @@
 
     const arrowSvg = `<svg class="nav-arrow-svg" width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 12 12"><path d="M2 4l4 4 4-4"/></svg>`;
 
+    // ── Foydalanuvchi session ni o'qish ──────────────────────────────────────
+    function getSession() {
+      try { return JSON.parse(localStorage.getItem("sb_session") || "null"); }
+      catch { return null; }
+    }
+
+    function getCurrentUser() {
+      return getSession()?.user || null;
+    }
+
+    function getUserDisplayName(user) {
+      return user?.user_metadata?.username
+        || user?.user_metadata?.full_name
+        || user?.email?.split('@')[0]
+        || 'Profile';
+    }
+
+    function signOut() {
+      localStorage.removeItem("sb_session");
+      window.location.href = '/';
+    }
+
     const generateNavItems = (isMobile = false) => {
       return links.map(link => {
         const active = isActive(link.href);
@@ -77,6 +96,58 @@
       }).join('');
     };
 
+    // ── Auth tugmasi: login bo'lsa username + dropdown, bo'lmasa Sign in ────
+    function buildAuthDesktop(user) {
+      if (!user) {
+        return `<button class="db-login-btn" onclick="window.location.href='/login/'">Sign in</button>`;
+      }
+
+      const name = getUserDisplayName(user);
+      const initial = name.charAt(0).toUpperCase();
+
+      return `
+        <div class="db-nav-item db-has-dropdown db-user-menu">
+          <button class="db-user-btn">
+            <span class="db-user-avatar">${initial}</span>
+            <span class="db-user-name">${name}</span>
+            ${arrowSvg}
+          </button>
+          <div class="db-dropdown db-user-dropdown">
+            <a href="/profile/" class="db-drop-link">
+              <span class="db-drop-icon" style="background:#EEF2FF;color:#3730a3">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+              </span>
+              <span>
+                <span class="db-drop-title">Profile</span>
+                <span class="db-drop-sub">View your profile</span>
+              </span>
+            </a>
+            <div class="db-drop-divider"></div>
+            <button class="db-drop-link db-signout-btn" id="db-signout-btn">
+              <span class="db-drop-icon" style="background:#FEE2E2;color:#991b1b">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              </span>
+              <span>
+                <span class="db-drop-title">Sign out</span>
+              </span>
+            </button>
+          </div>
+        </div>`;
+    }
+
+    function buildAuthMobile(user) {
+      if (!user) {
+        return `<button class="db-login-btn-mobile" onclick="window.location.href='/login/'">Sign in</button>`;
+      }
+      const name = getUserDisplayName(user);
+      return `
+        <a href="/profile/" class="db-login-btn-mobile" style="display:block;text-align:center;text-decoration:none">👤 ${name}</a>
+        <button class="db-login-btn-mobile db-signout-mobile" id="db-signout-mobile" style="margin-top:8px;background:#fee2e2;color:#991b1b">Sign out</button>
+      `;
+    }
+
+    const user = getCurrentUser();
+
     const headerHtml = `
       <header class="db-header">
         <div class="db-header-container">
@@ -87,7 +158,7 @@
               <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4"/></svg>
             </button>
             <div class="db-auth-desktop">
-              <button class="db-login-btn" onclick="window.location.href='/login/'">Sign in</button>
+              ${buildAuthDesktop(user)}
             </div>
             <button class="db-mobile-menu-btn" id="db-mobile-menu-btn" aria-label="Menu">
               <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
@@ -104,7 +175,7 @@
           <div class="db-mobile-nav-content">
             ${generateNavItems(true)}
             <div class="db-mobile-actions">
-              <button class="db-login-btn-mobile" onclick="window.location.href='/login/'">Sign in</button>
+              ${buildAuthMobile(user)}
             </div>
           </div>
         </div>
@@ -181,16 +252,54 @@
         padding: 10px;
         border-radius: 8px;
         text-decoration: none;
+        width: 100%;
+        background: none;
+        border: none;
+        cursor: pointer;
+        text-align: left;
+        box-sizing: border-box;
       }
       .db-drop-link:hover { background: #f5f5f5; }
       .db-drop-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
       .db-drop-title { display: block; font-size: 14px; font-weight: 500; color: #111; }
       .db-drop-sub { display: block; font-size: 12px; color: #777; margin-top: 2px; }
+      .db-drop-divider { height: 1px; background: #f0f0f0; margin: 6px 0; }
 
       .db-header-right { display: flex; align-items: center; gap: 12px; }
       .db-search-btn { background: none; border: none; cursor: pointer; color: #555; padding: 8px; border-radius: 50%; }
       .db-search-btn:hover { background: #f5f5f5; color: #111; }
       .db-login-btn { background: #111; color: #fff; border: none; padding: 8px 18px; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 500; }
+
+      /* User menu */
+      .db-user-menu { height: 100%; }
+      .db-user-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: none;
+        border: 1px solid #e8e4de;
+        border-radius: 20px;
+        padding: 6px 12px;
+        cursor: pointer;
+        font-size: 14px;
+        color: #111;
+      }
+      .db-user-btn:hover { background: #f5f5f5; }
+      .db-user-avatar {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: #111;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .db-user-name { font-weight: 500; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .db-user-dropdown { left: auto; right: 0; }
+      .db-signout-btn { color: #991b1b; }
 
       .db-mobile-menu-btn { display: none; background: none; border: none; color: #111; cursor: pointer; }
       .db-mobile-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; z-index: 1001; }
@@ -211,7 +320,7 @@
         .db-mobile-nav-content .db-has-dropdown.open > .db-dropdown { display: block; }
         .db-mobile-nav-content .db-has-dropdown.open > .db-nav-link .nav-arrow-svg { transform: rotate(180deg); }
         .db-mobile-actions { margin-top: 20px; }
-        .db-login-btn-mobile { width: 100%; background: #111; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: 600; }
+        .db-login-btn-mobile { width: 100%; background: #111; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; }
       }
     `;
 
@@ -223,6 +332,7 @@
     div.innerHTML = headerHtml;
     document.body.prepend(div.firstElementChild);
 
+    // ── Mobile menu toggle ───────────────────────────────────────────────────
     const btnOpen = document.getElementById('db-mobile-menu-btn');
     const btnClose = document.getElementById('db-mobile-menu-close');
     const menu = document.getElementById('db-mobile-menu');
@@ -246,6 +356,23 @@
         }
       });
     });
+
+    // ── Sign out tugmalari ───────────────────────────────────────────────────
+    const signoutBtn = document.getElementById('db-signout-btn');
+    if (signoutBtn) {
+      signoutBtn.addEventListener('click', () => {
+        localStorage.removeItem("sb_session");
+        window.location.href = '/';
+      });
+    }
+
+    const signoutMobile = document.getElementById('db-signout-mobile');
+    if (signoutMobile) {
+      signoutMobile.addEventListener('click', () => {
+        localStorage.removeItem("sb_session");
+        window.location.href = '/';
+      });
+    }
 
   } catch (e) { console.error(e); }
 })();
