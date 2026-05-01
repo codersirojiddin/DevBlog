@@ -350,6 +350,15 @@ async function deleteProjectComment(commentId, userId) {
         throw err;
     }
 }
+// Sahifa ochilganda token avtomatik yangilash
+(async () => {
+    const session = getSession();
+    if (session?.refresh_token) {
+        const token = getAccessToken();
+        // Token bor, lekin muddati o'tgan bo'lishi mumkin — yangilab qo'yamiz
+        await refreshSession();
+    }
+})();
 
 // ── Export ────────────────────────────────────────────────────────────────────
 window.SupabaseClient = window.SupabaseClient || {};
