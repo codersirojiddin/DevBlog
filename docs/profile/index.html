@@ -102,7 +102,6 @@
 
         .form-row textarea { resize: vertical; min-height: 80px; }
 
-        /* ── Avatar upload styles ── */
         .avatar-tabs {
             display: flex;
             gap: 0;
@@ -211,7 +210,6 @@
             <div class="loading-state"><div class="spinner"></div> Loading...</div>
         </div>
 
-        <!-- Edit form (only shown to profile owner) -->
         <div class="edit-profile-form" id="edit-form">
             <h3>Edit Profile</h3>
             <div class="form-row">
@@ -238,7 +236,6 @@
                 </select>
             </div>
 
-            <!-- ── Avatar upload (new) ── -->
             <div class="form-row">
                 <label>Profile Photo</label>
                 <div class="avatar-tabs">
@@ -246,7 +243,6 @@
                     <button type="button" class="avatar-tab" onclick="switchAvatarTab('url')" id="atab-url">🔗 URL kiriting</button>
                 </div>
 
-                <!-- File panel -->
                 <div class="avatar-panel active" id="apanel-file">
                     <div class="avatar-drop-zone" id="avatar-drop-zone">
                         <input type="file" id="avatar-file-input" accept="image/jpeg,image/png,image/webp" onchange="handleAvatarFile(this.files[0])">
@@ -260,7 +256,6 @@
                     </div>
                 </div>
 
-                <!-- URL panel -->
                 <div class="avatar-panel" id="apanel-url">
                     <input type="url" id="edit-avatar" placeholder="https://i.imgur.com/photo.jpg" oninput="handleAvatarUrl(this.value)">
                     <div class="avatar-preview-wrap" id="avatar-url-preview">
@@ -299,15 +294,13 @@
 
         const isOwner = currentUser?.id === profileId;
 
-        // ── Avatar state ──
         let avatarSelectedFile = null;
-        let avatarFinalUrl = null; // set after upload or URL confirm
+        let avatarFinalUrl = null;
 
         function escapeHtml(str) {
             return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
         }
 
-        // ── Avatar tab switching ──
         function switchAvatarTab(tab) {
             document.getElementById("atab-file").classList.toggle("active", tab === "file");
             document.getElementById("atab-url").classList.toggle("active", tab === "url");
@@ -315,20 +308,12 @@
             document.getElementById("apanel-url").classList.toggle("active", tab === "url");
         }
 
-        // ── File handling ──
         function handleAvatarFile(file) {
             if (!file) return;
-            if (file.size > 2 * 1024 * 1024) {
-                alert("Rasm hajmi 2 MB dan oshmasligi kerak!");
-                return;
-            }
-            if (!["image/jpeg","image/png","image/webp"].includes(file.type)) {
-                alert("Faqat JPG, PNG, WEBP formatlar!");
-                return;
-            }
+            if (file.size > 2 * 1024 * 1024) { alert("Rasm hajmi 2 MB dan oshmasligi kerak!"); return; }
+            if (!["image/jpeg","image/png","image/webp"].includes(file.type)) { alert("Faqat JPG, PNG, WEBP formatlar!"); return; }
             avatarSelectedFile = file;
             avatarFinalUrl = null;
-
             const reader = new FileReader();
             reader.onload = (e) => {
                 document.getElementById("avatar-file-preview-img").src = e.target.result;
@@ -344,16 +329,12 @@
             document.getElementById("avatar-file-preview").style.display = "none";
         }
 
-        // ── URL handling ──
         let avatarUrlTimer = null;
         function handleAvatarUrl(value) {
             avatarFinalUrl = null;
             avatarSelectedFile = null;
             clearTimeout(avatarUrlTimer);
-            if (!value.trim()) {
-                document.getElementById("avatar-url-preview").style.display = "none";
-                return;
-            }
+            if (!value.trim()) { document.getElementById("avatar-url-preview").style.display = "none"; return; }
             avatarUrlTimer = setTimeout(() => {
                 const img = document.getElementById("avatar-url-preview-img");
                 img.src = value.trim();
@@ -375,7 +356,6 @@
             avatarFinalUrl = null;
         }
 
-        // ── Drag & drop ──
         document.addEventListener("DOMContentLoaded", () => {
             const dz = document.getElementById("avatar-drop-zone");
             if (dz) {
@@ -390,14 +370,12 @@
             }
         });
 
-        // ── Upload to Supabase Storage ──
         async function uploadAvatarToStorage(file, userId) {
             const ext = file.name.split('.').pop();
             const fileName = `${userId}/avatar_${Date.now()}.${ext}`;
             const SUPABASE_URL = "https://uyjmyjetcleghfcwslau.supabase.co";
             const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5am15amV0Y2xlZ2hmY3dzbGF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MTU2NzQsImV4cCI6MjA4OTQ5MTY3NH0.-v4Bjy-Ty8pQxaBJFlb4cXDioNFGXXgRsGljH3P19og";
             const token = window.SupabaseClient.getSession()?.access_token || SUPABASE_ANON_KEY;
-
             const res = await fetch(`${SUPABASE_URL}/storage/v1/object/project_images/${fileName}`, {
                 method: "POST",
                 headers: {
@@ -408,16 +386,10 @@
                 },
                 body: file
             });
-
-            if (!res.ok) {
-                const err = await res.text();
-                throw new Error("Avatar yuklanmadi: " + err);
-            }
-
+            if (!res.ok) { const err = await res.text(); throw new Error("Avatar yuklanmadi: " + err); }
             return `${SUPABASE_URL}/storage/v1/object/public/project_images/${fileName}`;
         }
 
-        // ── Get final avatar URL (upload if file, else use url) ──
         async function getFinalAvatarUrl(existingUrl) {
             if (avatarSelectedFile) {
                 document.getElementById("avatar-progress").style.display = "block";
@@ -431,7 +403,6 @@
                 }
             }
             if (avatarFinalUrl) return avatarFinalUrl;
-            // No change - keep existing
             return existingUrl;
         }
 
@@ -513,11 +484,11 @@
                     document.getElementById("edit-btn").addEventListener("click", () => {
                         document.getElementById("edit-username").value = profile.username;
                         document.getElementById("edit-bio").value = profile.bio || "";
-                        document.getElementById("edit-skills").value = (profile.skills && Array.isArray(profile.skills) ? profile.skills.join(', ') : "");
-                        document.getElementById("edit-tech-stack").value = (profile.tech_stack && Array.isArray(profile.tech_stack) ? profile.tech_stack.join(', ') : "");
-                        document.getElementById("edit-availability").value = profile.availability !== false ? "true" : "false";
+                        document.getElementById("edit-skills").value = (Array.isArray(profile.skills) ? profile.skills.join(', ') : "");
+                        document.getElementById("edit-tech-stack").value = (Array.isArray(profile.tech_stack) ? profile.tech_stack.join(', ') : "");
+                        // ← TO'G'RI: availability qiymatini aniq o'rnatish
+                        document.getElementById("edit-availability").value = profile.availability === false ? "false" : "true";
 
-                        // Show existing avatar in URL tab
                         if (profile.avatar_url) {
                             switchAvatarTab('url');
                             document.getElementById("edit-avatar").value = profile.avatar_url;
@@ -562,7 +533,7 @@
                     });
                 }
 
-                document.title = `DevBlog — ${profile.username}`;
+                document.title = `Ither — ${profile.username}`;
             } catch (err) {
                 headerEl.innerHTML = `<p>Failed to load profile: ${err.message}</p>`;
             }
@@ -642,7 +613,7 @@
             }
         }
 
-        // ── Save profile ──
+        // ── Save profile — TUZATILGAN QISM ──
         document.getElementById("save-profile-btn").addEventListener("click", async () => {
             const username = document.getElementById("edit-username").value.trim();
             const bio = document.getElementById("edit-bio").value.trim();
@@ -651,18 +622,27 @@
             const availability = document.getElementById("edit-availability").value === "true";
             const status = document.getElementById("edit-status");
 
-            if (!username) { status.textContent = "Username is required."; status.className = "status status--error"; return; }
+            if (!username) {
+                status.textContent = "Username is required.";
+                status.className = "status status--error";
+                return;
+            }
 
-            status.textContent = "Saving..."; status.className = "status";
+            status.textContent = "Saving...";
+            status.className = "status";
 
             try {
-                // Get avatar URL (upload if file selected)
                 const avatar_url = await getFinalAvatarUrl(loadedProfile?.avatar_url || "");
 
-                const patchData = { username, bio, avatar_url };
-                if (loadedProfile && Array.isArray(loadedProfile.skills)) patchData.skills = skills;
-                if (loadedProfile && Array.isArray(loadedProfile.tech_stack)) patchData.tech_stack = techStack;
-                if (loadedProfile && loadedProfile.hasOwnProperty('availability')) patchData.availability = availability;
+                // ← TUZATILDI: availability har doim saqlanadi
+                const patchData = {
+                    username,
+                    bio,
+                    avatar_url,
+                    skills,
+                    tech_stack: techStack,
+                    availability
+                };
 
                 await window.SupabaseClient.supabaseFetch(`profiles?id=eq.${encodeURIComponent(profileId)}`, {
                     method: "PATCH",
@@ -670,16 +650,17 @@
                     prefer: "return=minimal"
                 });
 
-                status.textContent = "✓ Saved!"; status.className = "status status--ok";
+                status.textContent = "✓ Saved!";
+                status.className = "status status--ok";
                 document.getElementById("edit-form").classList.remove("visible");
 
-                // Reset avatar state
                 avatarSelectedFile = null;
                 avatarFinalUrl = null;
 
                 loadProfile();
             } catch (err) {
-                status.textContent = err.message; status.className = "status status--error";
+                status.textContent = err.message;
+                status.className = "status status--error";
             }
         });
 
