@@ -16,6 +16,32 @@ function getAccessToken() {
     return getSession()?.access_token || null;
 }
 
+// ── Token yangilash (JWT expired bo'lganda) ───────────────────────────────────
+async function refreshSession() {
+    const session = getSession();
+    if (!session?.refresh_token) return null;
+
+    try {
+        const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+            method: "POST",
+            headers: {
+                "apikey": SUPABASE_ANON_KEY,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ refresh_token: session.refresh_token })
+        });
+        const data = await res.json();
+        if (data.access_token) {
+            saveSession(data);
+            return data.access_token;
+        }
+    } catch (e) {
+        console.warn("Session yangilanmadi:", e);
+        saveSession(null);
+    }
+    return null;
+}
+
 // ── Core fetch ────────────────────────────────────────────────────────────────
 async function supabaseFetch(path, options = {}) {
     const url = `${SUPABASE_URL}/rest/v1/${path}`;
@@ -27,7 +53,23 @@ async function supabaseFetch(path, options = {}) {
         "Prefer": options.prefer || "return=representation",
         ...options.headers
     };
-    const res = await fetch(url, { ...options, headers });
+
+    let res = await fetch(url, { ...options, headers });
+
+    // JWT expired bo'lsa — tokenni yangilab qayta urinish
+    if (res.status === 401) {
+        const newToken = await refreshSession();
+        if (newToken) {
+            headers["Authorization"] = `Bearer ${newToken}`;
+            res = await fetch(url, { ...options, headers });
+        } else {
+            // Yangilab bo'lmasa — sessionni tozalab anon sifatida davom etish
+            saveSession(null);
+            headers["Authorization"] = `Bearer ${SUPABASE_ANON_KEY}`;
+            res = await fetch(url, { ...options, headers });
+        }
+    }
+
     const text = await res.text();
     if (!res.ok) {
         throw new Error(text || `Request failed: ${res.status}`);
@@ -261,7 +303,7 @@ async function isBookmarked(userId, projectId) {
     }
 }
 
-// ── Comments ──────────────────────────────────────────────────────────────────
+// ── Project Comments ──────────────────────────────────────────────────────────
 async function getProjectComments(projectId) {
     if (!projectId) throw new Error("Project id is required.");
     try {
