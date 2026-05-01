@@ -46,79 +46,80 @@
 
     <script src="../posts/supabase.js"></script>
     <script src="../posts/posts.js"></script>
+    <script src="../posts/interactions.js"></script> <!-- ← BU QO'SHILDI -->
     <script src="../posts/user-menu.js"></script>
     <script>
-    // Global o'zgaruvchilar
-    const userBar = document.getElementById("user-bar");
+        // Global o'zgaruvchilar
+        const userBar = document.getElementById("user-bar");
 
-    // Xavfsiz escape funksiyasi
-    function escapeHtml(str) {
-        return String(str || "")
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;");
-    }
-
-    // Sahifa to'liq yuklanganda ishga tushadigan qism
-    document.addEventListener("DOMContentLoaded", async () => {
-        // SupabaseClient mavjudligini tekshirish
-        if (!window.SupabaseClient) {
-            console.error("SupabaseClient topilmadi!");
-            return;
+        // Xavfsiz escape funksiyasi
+        function escapeHtml(str) {
+            return String(str || "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;");
         }
 
-        // Endi getCurrentUser ni xavfsiz chaqirish mumkin
-        const user = window.SupabaseClient.getCurrentUser();
-        
-        // User menu init
-        if (typeof initializeUserMenu === 'function') {
-            initializeUserMenu();
-        }
-
-        // User bar interfeysini yangilash
-        if (user) {
-            userBar.innerHTML = `<a href="../publish/index.html" class="btn">+ New Post</a>`;
-        } else {
-            userBar.innerHTML = `<a href="../login/index.html" class="btn">Sign In to Post</a>`;
-        }
-
-        // Postlarni yuklash
-        loadPosts();
-    });
-
-    async function loadPosts() {
-        const container = document.getElementById("posts-container");
-        try {
-            // SupabaseClient yuklanganini yana bir bor tekshirish
-            if (!window.SupabaseClient || !window.SupabaseClient.supabaseFetch) {
-                throw new Error("Supabase servisi ulanmagan");
-            }
-
-            const posts = await window.SupabaseClient.supabaseFetch(
-                "community_posts?order=created_at.desc&select=*,profiles(username,avatar_url)"
-            );
-
-            if (!posts || posts.length === 0) {
-                container.innerHTML = `<p class="empty-state">No community posts yet. <a href="../login/index.html">Sign in</a> to be the first!</p>`;
+        // Sahifa to'liq yuklanganda ishga tushadigan qism
+        document.addEventListener("DOMContentLoaded", async () => {
+            // SupabaseClient mavjudligini tekshirish
+            if (!window.SupabaseClient) {
+                console.error("SupabaseClient topilmadi!");
                 return;
             }
 
-            container.innerHTML = "";
+            // Endi getCurrentUser ni xavfsiz chaqirish mumkin
+            const user = window.SupabaseClient.getCurrentUser();
 
-            const postCards = await Promise.all(posts.map(async post => {
-                const profile = post.profiles;
-                const preview = post.content ? post.content.split("\n")[0] : "";
+            // User menu init
+            if (typeof initializeUserMenu === 'function') {
+                initializeUserMenu();
+            }
 
-                // Counts
-                const likesCount = await window.SupabaseClient.getLikesCount(post.id).catch(() => 0);
-                const comments = await window.SupabaseClient.getComments(post.id).catch(() => []);
-                const commentsCount = Array.isArray(comments) ? comments.length : 0;
+            // User bar interfeysini yangilash
+            if (user) {
+                userBar.innerHTML = `<a href="../publish/index.html" class="btn">+ New Post</a>`;
+            } else {
+                userBar.innerHTML = `<a href="../login/index.html" class="btn">Sign In to Post</a>`;
+            }
 
-                const card = document.createElement("article");
-                card.className = "post-card";
-                card.style.cursor = "pointer";
-                card.innerHTML = `
+            // Postlarni yuklash
+            loadPosts();
+        });
+
+        async function loadPosts() {
+            const container = document.getElementById("posts-container");
+            try {
+                // SupabaseClient yuklanganini yana bir bor tekshirish
+                if (!window.SupabaseClient || !window.SupabaseClient.supabaseFetch) {
+                    throw new Error("Supabase servisi ulanmagan");
+                }
+
+                const posts = await window.SupabaseClient.supabaseFetch(
+                    "community_posts?order=created_at.desc&select=*,profiles(username,avatar_url)"
+                );
+
+                if (!posts || posts.length === 0) {
+                    container.innerHTML = `<p class="empty-state">No community posts yet. <a href="../login/index.html">Sign in</a> to be the first!</p>`;
+                    return;
+                }
+
+                container.innerHTML = "";
+
+                const postCards = await Promise.all(posts.map(async post => {
+                    const profile = post.profiles;
+                    const preview = post.content ? post.content.split("\n")[0] : "";
+
+                    // Counts
+                    const likesCount = await window.SupabaseClient.getLikesCount(post.id).catch(() => 0);
+                    const comments = await window.SupabaseClient.getComments(post.id).catch(() => []);
+                    const commentsCount = Array.isArray(comments) ? comments.length : 0;
+
+                    const card = document.createElement("article");
+                    card.className = "post-card";
+                    card.style.cursor = "pointer";
+                    card.innerHTML = `
                     <div class="post-card__heading">
                         <h3 class="post-card__title">${escapeHtml(post.title)}</h3>
                         <span class="post-badge">${window.DevBlogPosts?.toLabel(post.type) || post.type}</span>
@@ -133,24 +134,24 @@
                         <span class="post-stat">💬 ${commentsCount}</span>
                     </div>
                 `;
-                
-                card.addEventListener("click", (e) => {
-                    if (e.target.tagName === "A") return;
-                    if (window.DevBlogPosts && window.DevBlogPosts.openPostModal) {
-                        window.DevBlogPosts.openPostModal(post);
-                    }
-                });
-                return card;
-            }));
 
-            postCards.forEach(card => container.appendChild(card));
+                    card.addEventListener("click", (e) => {
+                        if (e.target.tagName === "A") return;
+                        if (window.DevBlogPosts && window.DevBlogPosts.openPostModal) {
+                            window.DevBlogPosts.openPostModal(post);
+                        }
+                    });
+                    return card;
+                }));
 
-        } catch (err) {
-            console.error(err);
-            container.innerHTML = `<p class="empty-state">Failed to load posts: ${err.message}</p>`;
+                postCards.forEach(card => container.appendChild(card));
+
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = `<p class="empty-state">Failed to load posts: ${err.message}</p>`;
+            }
         }
-    }
-</script>
+    </script>
 
 </body>
 
