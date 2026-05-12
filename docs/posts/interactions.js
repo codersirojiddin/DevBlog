@@ -96,7 +96,7 @@ async function loadComments(postId) {
           <span class="comment-author">${escapeHtml(c.username)}</span>
           <span class="comment-date">${formatDate(c.created_at)}</span>
           ${user && user.id === c.user_id
-            ? `<button class="comment-delete-btn" onclick="deleteComment('${c.id}', '${postId}')">Delete</button>`
+            ? `<button class="comment-delete-btn" onclick="window._deleteComment('${c.id}')">Delete</button>`
             : ''}
         </div>
         <p class="comment-body">${escapeHtml(c.body)}</p>
@@ -165,7 +165,7 @@ async function deleteComment(commentId, postId) {
  */
 function initInteractions(postId) {
   // Expose deleteComment globally so inline onclick works
-  window.deleteComment = (id) => deleteComment(id, postId);
+  window._deleteComment = (id) => deleteComment(id, postId);
 
   // Load initial state
   loadLikes(postId);
