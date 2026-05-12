@@ -1,5 +1,5 @@
 // ── Password config ───────────────────────────────────────────────────────────
-const ADMIN_PASSWORD = "19881984";
+const ADMIN_PASSWORD = "Siroj0105"; // CHANGE THIS TO YOUR OWN PASSWORD!
 const SESSION_KEY    = "devblog.admin.auth";
 const _SB_URL  = "https://uyjmyjetcleghfcwslau.supabase.co";
 const _SB_KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5am15amV0Y2xlZ2hmY3dzbGF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MTU2NzQsImV4cCI6MjA4OTQ5MTY3NH0.-v4Bjy-Ty8pQxaBJFlb4cXDioNFGXXgRsGljH3P19og";
