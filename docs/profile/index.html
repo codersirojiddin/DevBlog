@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ither — Profile</title>
     <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="cloudflare.com">
     <style>
       .profile-stats {
         display: flex;
@@ -273,6 +274,35 @@
           Loading...
         </div>
       </div>
+      <button class="settings-toggle" id="toggle-btn" aria-label="Open settings">
+        <i class="fa-solid fa-gear"></i>
+    </button>
+
+    <div class="settings-panel" id="settings-panel">
+        <div class="panel-header">
+            <h3>Configuration</h3>
+            <button class="close-panel" id="close-btn" aria-label="Close settings">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        
+        <div class="setting-section">
+            <span class="setting-label">Interface Theme</span>
+            <div class="theme-options">
+                <button class="theme-btn" id="theme-light" data-theme="light">
+                    <i class="fa-regular fa-sun"></i> Light
+                </button>
+                <button class="theme-btn" id="theme-dark" data-theme="dark">
+                    <i class="fa-regular fa-moon"></i> Dark
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <main class="content">
+        <h1>Dashboard Interface</h1>
+        <p>Click the gear icon in the top right corner to customize your viewing experience.</p>
+    </main>
 
       <div class="edit-profile-form" id="edit-form">
         <h3>Edit Profile</h3>
@@ -321,7 +351,7 @@
               onclick="switchAvatarTab('file')"
               id="atab-file"
             >
-              📁 Fayldan tanlash
+              📁 Choose from files 
             </button>
             <button
               type="button"
@@ -329,7 +359,7 @@
               onclick="switchAvatarTab('url')"
               id="atab-url"
             >
-              🔗 URL kiriting
+              🔗 Enter URL
             </button>
           </div>
 
@@ -341,11 +371,11 @@
                 accept="image/jpeg,image/png,image/webp"
                 onchange="handleAvatarFile(this.files[0])"
               />
-              <div class="avatar-drop-text">🖼️ Rasm tanlash yoki tashlang</div>
+              <div class="avatar-drop-text">🖼️ Choose image</div>
               <div class="avatar-drop-hint">JPG, PNG, WEBP — max 2 MB</div>
             </div>
             <div class="avatar-upload-progress" id="avatar-progress">
-              ⏳ Yuklanmoqda...
+              ⏳ Loading...
             </div>
             <div class="avatar-preview-wrap" id="avatar-file-preview">
               <img id="avatar-file-preview-img" src="" alt="Preview" />
@@ -407,6 +437,50 @@
     <script src="../posts/posts.js"></script>
     <script src="../posts/user-menu.js"></script>
     <script>
+      const toggleBtn = document.getElementById('toggle-btn');
+const closeBtn = document.getElementById('close-btn');
+const panel = document.getElementById('settings-panel');
+const themeButtons = document.querySelectorAll('.theme-btn');
+
+toggleBtn.addEventListener('click', () => {
+    panel.classList.add('open');
+});
+
+closeBtn.addEventListener('click', () => {
+    panel.classList.remove('open');
+});
+
+document.addEventListener('click', (e) => {
+    if (!panel.contains(e.target) && !toggleBtn.contains(e.target)) {
+        panel.classList.remove('open');
+    }
+});
+
+const setTheme = (theme) => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('preferred-theme', theme);
+    updateButtonUI(theme);
+};
+
+const updateButtonUI = (activeTheme) => {
+    themeButtons.forEach(btn => {
+        if (btn.getAttribute('data-theme') === activeTheme) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+};
+
+themeButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        const selectedTheme = button.getAttribute('data-theme');
+        setTheme(selectedTheme);
+    });
+});
+
+const savedTheme = localStorage.getItem('preferred-theme') || 'light';
+setTheme(savedTheme);
       const params = new URLSearchParams(window.location.search);
       const profileId = params.get("id");
       const currentUser = window.SupabaseClient.getCurrentUser();
